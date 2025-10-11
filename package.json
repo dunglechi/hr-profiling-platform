@@ -1,0 +1,35 @@
+{
+  "name": "hr-profiling-platform",
+  "version": "1.0.0",
+  "description": "HR Profiling & Assessment Platform - Full-stack application for personality testing and job matching",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "build": "npm run build:backend && npm run build:frontend",
+    "build:backend": "cd backend && npm run build",
+    "build:frontend": "cd frontend && npm run build",
+    "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install",
+    "setup": "npm run install:all && cd backend && npx prisma generate && npx prisma db push"
+  },
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "keywords": [
+    "hr",
+    "profiling",
+    "assessment",
+    "disc",
+    "mbti",
+    "numerology",
+    "cv-analysis",
+    "job-matching"
+  ],
+  "author": "HR Platform Team",
+  "license": "MIT"
+}
