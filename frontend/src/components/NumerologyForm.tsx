@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Box,
   Card,
@@ -24,6 +25,7 @@ const NumerologyForm: React.FC<NumerologyFormProps> = ({
   loading = false, 
   error 
 }) => {
+  const { t } = useTranslation('numerology');
   const [fullName, setFullName] = useState('');
   const [birthDate, setBirthDate] = useState<Date | null>(null);
   const [birthDateString, setBirthDateString] = useState('');
@@ -35,7 +37,7 @@ const NumerologyForm: React.FC<NumerologyFormProps> = ({
     
     // Validate full name
     if (!fullName.trim()) {
-      setNameError('Vui lòng nhập họ và tên');
+      setNameError(t('form.validation.nameRequired'));
       isValid = false;
     } else if (fullName.trim().length < 2) {
       setNameError('Họ và tên phải có ít nhất 2 ký tự');
@@ -49,13 +51,13 @@ const NumerologyForm: React.FC<NumerologyFormProps> = ({
 
     // Validate birth date
     if (!birthDate) {
-      setDateError('Vui lòng nhập ngày sinh');
+      setDateError(t('form.validation.dateRequired'));
       isValid = false;
     } else if (birthDate > new Date()) {
       setDateError('Ngày sinh không thể trong tương lai');
       isValid = false;
     } else if (birthDate < new Date('1900-01-01')) {
-      setDateError('Ngày sinh không hợp lệ');
+      setDateError(t('form.validation.invalidDate'));
       isValid = false;
     } else {
       setDateError('');
@@ -108,11 +110,11 @@ const NumerologyForm: React.FC<NumerologyFormProps> = ({
       <Card elevation={3}>
         <CardContent>
           <Typography variant="h4" gutterBottom color="primary" sx={{ fontWeight: 'bold', textAlign: 'center', mb: 3 }}>
-            🔮 Thần Số Học Pythagoras
+            🔮 {t('title')}
           </Typography>
           
           <Typography variant="body1" color="text.secondary" sx={{ textAlign: 'center', mb: 4 }}>
-            Khám phá bản thân qua các con số thiêng liêng theo học thuyết Pythagoras cổ đại
+            {t('subtitle')}
           </Typography>
 
           <Divider sx={{ mb: 3 }} />
@@ -128,8 +130,8 @@ const NumerologyForm: React.FC<NumerologyFormProps> = ({
               <Grid item xs={12}>
                 <TextField
                   fullWidth
-                  label="Họ và Tên Đầy Đủ"
-                  placeholder="VD: Nguyễn Văn An"
+                  label={t('form.fullName')}
+                  placeholder={t('form.fullNamePlaceholder')}
                   value={fullName}
                   onChange={handleNameChange}
                   error={!!nameError}
@@ -143,12 +145,12 @@ const NumerologyForm: React.FC<NumerologyFormProps> = ({
               <Grid item xs={12}>
                 <TextField
                   fullWidth
-                  label="Ngày Sinh"
+                  label={t('form.birthDate')}
                   type="date"
                   value={birthDateString}
                   onChange={handleDateChange}
                   error={!!dateError}
-                  helperText={dateError || 'Chọn ngày sinh chính xác (DD/MM/YYYY)'}
+                  helperText={dateError || t('form.birthDatePlaceholder')}
                   variant="outlined"
                   disabled={loading}
                   InputLabelProps={{
@@ -179,7 +181,7 @@ const NumerologyForm: React.FC<NumerologyFormProps> = ({
                     }}
                     startIcon={loading ? <CircularProgress size={20} color="inherit" /> : null}
                   >
-                    {loading ? 'Đang Tính Toán...' : '🔍 Phân Tích Thần Số'}
+                    {loading ? t('form.calculating') : `🔍 ${t('form.calculate')}`}
                   </Button>
 
                   <Button

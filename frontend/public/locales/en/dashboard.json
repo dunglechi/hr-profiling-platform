@@ -1,0 +1,29 @@
+{
+  "title": "HR Dashboard",
+  "subtitle": "Discover and develop human potential through psychological assessment tools",
+  "assessments": {
+    "title": "Assessment Tools",
+    "disc": {
+      "title": "DISC",
+      "description": "Assess behavioral styles and communication patterns",
+      "action": "🚀 Start DISC Assessment"
+    },
+    "mbti": {
+      "title": "MBTI",
+      "description": "Discover personality types and career tendencies",
+      "action": "🧭 Start MBTI Assessment"
+    },
+    "numerology": {
+      "title": "Numerology",
+      "description": "Explore destiny numbers and personal characteristics",
+      "action": "🔮 Start Numerology Analysis"
+    }
+  },
+  "features": {
+    "title": "Key Features",
+    "culturalIntelligence": "🇻🇳 Vietnamese Cultural Intelligence Integration",
+    "scientificApproach": "🔬 Scientifically Validated Methods",
+    "personalizedResults": "📊 Personalized and Detailed Results",
+    "careerGuidance": "💼 Career Development Guidance"
+  }
+}

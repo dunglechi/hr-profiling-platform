@@ -1,0 +1,45 @@
+{
+  "title": "Numerology",
+  "subtitle": "Discover your destiny numbers and personality traits",
+  "form": {
+    "fullName": "Full Name",
+    "fullNamePlaceholder": "Please enter your full name",
+    "birthDate": "Birth Date",
+    "birthDatePlaceholder": "Select exact birth date (DD/MM/YYYY)",
+    "calculate": "Analyze Numbers",
+    "calculating": "Calculating...",
+    "validation": {
+      "nameRequired": "Please enter your full name",
+      "dateRequired": "Please enter birth date",
+      "invalidDate": "Invalid birth date"
+    }
+  },
+  "results": {
+    "lifePathNumber": "Life Path",
+    "destinyNumber": "Destiny",
+    "soulNumber": "Soul", 
+    "personalityNumber": "Personality",
+    "coreTraits": {
+      "title": "Core Traits",
+      "strengths": "✅ Strengths",
+      "challenges": "⚠️ Challenges",
+      "opportunities": "🚀 Opportunities"
+    },
+    "career": {
+      "title": "Career Guidance",
+      "suitableCareers": "Suitable Careers",
+      "workStyle": "Work Style",
+      "environment": "Work Environment"
+    },
+    "relationships": {
+      "title": "Relationships",
+      "compatibility": "Compatibility",
+      "communication": "Communication",
+      "tips": "Tips"
+    }
+  },
+  "errors": {
+    "calculationError": "An error occurred while calculating numerology",
+    "tryAgain": "Please try again"
+  }
+}

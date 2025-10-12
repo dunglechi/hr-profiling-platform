@@ -7,6 +7,9 @@ import Login from './components/Login';
 import Register from './components/Register';
 import Assessment from './components/Assessment';
 import NumerologyPage from './pages/NumerologyPage';
+import DISCPage from './pages/DISCPage';
+import MBTIPage from './components/MBTI/MBTIPage';
+import LanguageSwitcher from './components/common/LanguageSwitcher';
 
 function App() {
   return (
@@ -22,6 +25,7 @@ function App() {
             <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
               HR Profiling Platform
             </Typography>
+            <LanguageSwitcher />
           </Toolbar>
         </AppBar>
         
@@ -33,6 +37,8 @@ function App() {
               <Route path="/register" element={<Register />} />
               <Route path="/assessment/:id" element={<Assessment />} />
               <Route path="/numerology" element={<NumerologyPage />} />
+              <Route path="/disc" element={<DISCPage />} />
+              <Route path="/mbti" element={<MBTIPage />} />
             </Routes>
           </ErrorBoundary>
         </Container>

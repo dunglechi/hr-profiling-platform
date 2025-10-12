@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Box,
   Card,
@@ -114,6 +115,7 @@ const CompatibilityBar: React.FC<{ label: string; value: number }> = ({ label, v
 );
 
 const NumerologyDisplay: React.FC<NumerologyDisplayProps> = ({ result }) => {
+  const { t } = useTranslation('numerology');
   const [expanded, setExpanded] = useState<string | false>('core');
 
   const handleChange = (panel: string) => (event: React.SyntheticEvent, isExpanded: boolean) => {
@@ -136,28 +138,28 @@ const NumerologyDisplay: React.FC<NumerologyDisplayProps> = ({ result }) => {
             <Grid item xs={12} sm={6} md={3}>
               <NumberCard 
                 number={result.lifePathNumber} 
-                title="Đường Đời" 
+                title={t('results.lifePathNumber')}
                 description="Con số định hướng cuộc đời"
               />
             </Grid>
             <Grid item xs={12} sm={6} md={3}>
               <NumberCard 
                 number={result.destinyNumber} 
-                title="Sứ Mệnh" 
+                title={t('results.destinyNumber')}
                 description="Mục tiêu cuộc đời"
               />
             </Grid>
             <Grid item xs={12} sm={6} md={3}>
               <NumberCard 
                 number={result.personalityNumber} 
-                title="Nhân Cách" 
+                title={t('results.personalityNumber')}
                 description="Cách thể hiện bên ngoài"
               />
             </Grid>
             <Grid item xs={12} sm={6} md={3}>
               <NumberCard 
                 number={result.soulUrgeNumber} 
-                title="Linh Hồn" 
+                title={t('results.soulNumber')}
                 description="Khao khát nội tâm"
               />
             </Grid>
@@ -200,7 +202,7 @@ const NumerologyDisplay: React.FC<NumerologyDisplayProps> = ({ result }) => {
           <Grid container spacing={3}>
             <Grid item xs={12} md={4}>
               <Typography variant="h6" color="success.main" gutterBottom>
-                ✅ Điểm Mạnh
+                {t('results.coreTraits.strengths')}
               </Typography>
               <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
                 {result.coreTraits.positive.map((trait, index) => (
@@ -217,7 +219,7 @@ const NumerologyDisplay: React.FC<NumerologyDisplayProps> = ({ result }) => {
             
             <Grid item xs={12} md={4}>
               <Typography variant="h6" color="warning.main" gutterBottom>
-                ⚠️ Thách Thức
+                {t('results.coreTraits.challenges')}
               </Typography>
               <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
                 {result.coreTraits.negative.map((trait, index) => (
@@ -255,12 +257,12 @@ const NumerologyDisplay: React.FC<NumerologyDisplayProps> = ({ result }) => {
       {/* Career Guidance */}
       <Accordion expanded={expanded === 'career'} onChange={handleChange('career')}>
         <AccordionSummary expandIcon={<ExpandMore />}>
-          <Typography variant="h6">💼 Hướng Dẫn Nghề Nghiệp</Typography>
+          <Typography variant="h6">💼 {t('results.career.title')}</Typography>
         </AccordionSummary>
         <AccordionDetails>
           <Grid container spacing={3}>
             <Grid item xs={12} md={6}>
-              <Typography variant="h6" gutterBottom>Nghề Nghiệp Phù Hợp</Typography>
+              <Typography variant="h6" gutterBottom>{t('results.career.suitableCareers')}</Typography>
               {result.careerGuidance.suitableCareers.map((career, index) => (
                 <Alert key={index} severity="info" sx={{ mb: 1 }}>
                   {career}
@@ -271,7 +273,7 @@ const NumerologyDisplay: React.FC<NumerologyDisplayProps> = ({ result }) => {
             <Grid item xs={12} md={6}>
               <Card>
                 <CardContent>
-                  <Typography variant="h6" gutterBottom>Phong Cách Làm Việc</Typography>
+                  <Typography variant="h6" gutterBottom>{t('results.career.workStyle')}</Typography>
                   <Typography variant="body1" paragraph>
                     <strong>Phong cách:</strong> {result.careerGuidance.workStyle}
                   </Typography>

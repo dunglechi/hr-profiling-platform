@@ -1,0 +1,45 @@
+{
+  "title": "Thần Số Học",
+  "subtitle": "Khám phá con số định mệnh và tính cách của bạn",
+  "form": {
+    "fullName": "Họ và tên",
+    "fullNamePlaceholder": "Vui lòng nhập họ và tên",
+    "birthDate": "Ngày sinh",
+    "birthDatePlaceholder": "Chọn ngày sinh chính xác (DD/MM/YYYY)",
+    "calculate": "Phân Tích Thần Số",
+    "calculating": "Đang Tính Toán...",
+    "validation": {
+      "nameRequired": "Vui lòng nhập họ và tên",
+      "dateRequired": "Vui lòng nhập ngày sinh",
+      "invalidDate": "Ngày sinh không hợp lệ"
+    }
+  },
+  "results": {
+    "lifePathNumber": "Đường Đời",
+    "destinyNumber": "Sứ Mệnh", 
+    "soulNumber": "Linh Hồn",
+    "personalityNumber": "Nhân Cách",
+    "coreTraits": {
+      "title": "Đặc Điểm Cốt Lõi",
+      "strengths": "✅ Điểm Mạnh",
+      "challenges": "⚠️ Thách Thức",
+      "opportunities": "🚀 Cơ Hội"
+    },
+    "career": {
+      "title": "Hướng Dẫn Nghề Nghiệp",
+      "suitableCareers": "Nghề Nghiệp Phù Hợp",
+      "workStyle": "Phong Cách Làm Việc",
+      "environment": "Môi trường làm việc"
+    },
+    "relationships": {
+      "title": "Mối Quan Hệ",
+      "compatibility": "Độ tương thích",
+      "communication": "Giao tiếp",
+      "tips": "Lời khuyên"
+    }
+  },
+  "errors": {
+    "calculationError": "Có lỗi xảy ra khi tính toán thần số học",
+    "tryAgain": "Vui lòng thử lại"
+  }
+}
