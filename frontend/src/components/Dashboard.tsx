@@ -78,6 +78,43 @@ const Dashboard: React.FC = () => {
               </CardContent>
             </Card>
           </Grid>
+
+          <Grid item xs={12} sm={6} md={4}>
+            <Card sx={{ 
+              height: '100%', 
+              cursor: 'pointer', 
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              color: 'white',
+              '&:hover': { 
+                elevation: 6,
+                transform: 'translateY(-2px)',
+                transition: 'all 0.3s ease'
+              }
+            }}
+                  onClick={() => navigate('/numerology-enhanced')}>
+              <CardContent sx={{ textAlign: 'center', py: 3 }}>
+                <Psychology sx={{ fontSize: 48, color: 'white', mb: 2 }} />
+                <Typography variant="h6" gutterBottom>
+                  ✨ Thần Số Học AI Pro
+                </Typography>
+                <Typography variant="body2" sx={{ opacity: 0.9 }}>
+                  Trải nghiệm nâng cấp với UI/UX hiện đại, biểu đồ trực quan và AI
+                </Typography>
+                <Button 
+                  variant="contained" 
+                  sx={{ 
+                    mt: 2,
+                    background: 'rgba(255,255,255,0.2)',
+                    backdropFilter: 'blur(10px)',
+                    '&:hover': { background: 'rgba(255,255,255,0.3)' }
+                  }} 
+                  fullWidth
+                >
+                  🚀 Khám Phá Ngay
+                </Button>
+              </CardContent>
+            </Card>
+          </Grid>
           
           <Grid item xs={12} sm={6} md={4}>
             <Card sx={{ height: '100%', cursor: 'pointer', '&:hover': { elevation: 4 } }}

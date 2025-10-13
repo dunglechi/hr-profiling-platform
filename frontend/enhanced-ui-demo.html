@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thần Số Học AI Pro - Enhanced UI/UX</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 3rem;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .main-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .form-section {
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .input-container {
+            position: relative;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 1rem 1rem 1rem 3rem;
+            border: 2px solid #e1e8ed;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #2196F3;
+            box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #2196F3;
+            font-size: 1.2rem;
+        }
+
+        .suggestions {
+            background: white;
+            border: 1px solid #e1e8ed;
+            border-radius: 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 0.5rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .suggestion-item {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            border-bottom: 1px solid #f1f1f1;
+            transition: background 0.2s ease;
+        }
+
+        .suggestion-item:hover {
+            background: #f8f9fa;
+        }
+
+        .suggestion-item:last-child {
+            border-bottom: none;
+        }
+
+        .progress-bar {
+            height: 4px;
+            background: #e1e8ed;
+            border-radius: 2px;
+            overflow: hidden;
+            margin: 0.5rem 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #2196F3, #21CBF3);
+            transition: width 0.3s ease;
+            border-radius: 2px;
+        }
+
+        .submit-btn {
+            background: linear-gradient(45deg, #2196F3 30%, #21CBF3 90%);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            box-shadow: 0 4px 15px rgba(33, 150, 243, 0.3);
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(33, 150, 243, 0.4);
+        }
+
+        .submit-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 2rem;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 1rem;
+        }
+
+        .feature-description {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .demo-notice {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-top: 2rem;
+            border-left: 4px solid #2196F3;
+        }
+
+        .demo-notice h3 {
+            color: #2196F3;
+            margin-bottom: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .main-card {
+                padding: 2rem;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #2196F3;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .result-section {
+            display: none;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            margin-top: 2rem;
+        }
+
+        .result-section.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🔮 Thần Số Học AI Pro</h1>
+            <p>Trải nghiệm nâng cấp với UI/UX hiện đại, phân tích thông minh và giao diện trực quan</p>
+        </div>
+
+        <!-- Main Form -->
+        <div class="main-card">
+            <div class="form-section">
+                <h2 style="text-align: center; color: #333; margin-bottom: 2rem;">
+                    ✨ Bắt Đầu Phân Tích Thần Số Học
+                </h2>
+
+                <form id="numerology-form">
+                    <div class="form-group">
+                        <label for="fullName">👤 Họ và Tên Đầy Đủ</label>
+                        <div class="input-container">
+                            <span class="input-icon">👤</span>
+                            <input 
+                                type="text" 
+                                id="fullName" 
+                                class="form-input" 
+                                placeholder="Ví dụ: Nguyễn Văn An"
+                                autocomplete="name"
+                            >
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="name-progress" style="width: 0%"></div>
+                        </div>
+                        <div id="name-suggestions" class="suggestions" style="display: none;"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="birthDate">📅 Ngày Sinh</label>
+                        <div class="input-container">
+                            <span class="input-icon">📅</span>
+                            <input 
+                                type="date" 
+                                id="birthDate" 
+                                class="form-input"
+                                max="2024-12-31"
+                                min="1900-01-01"
+                            >
+                        </div>
+                    </div>
+
+                    <button type="submit" class="submit-btn" id="submit-btn" disabled>
+                        🔮 Bắt Đầu Phân Tích Thần Số Học
+                    </button>
+                </form>
+            </div>
+
+            <!-- Loading State -->
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <h3>🔮 Đang phân tích thần số học...</h3>
+                <p>📊 Tính toán các số cốt lõi và phân tích tính cách</p>
+            </div>
+
+            <!-- Demo Notice -->
+            <div class="demo-notice">
+                <h3>💡 Đây là Demo UI/UX Nâng Cấp</h3>
+                <p>
+                    Giao diện này thể hiện các cải tiến về UI/UX được yêu cầu:
+                    <br>• Thiết kế hiện đại với gradient và glassmorphism
+                    <br>• Auto-complete thông minh với gợi ý tên phổ biến
+                    <br>• Real-time validation và progress indicator
+                    <br>• Responsive design cho mobile và desktop
+                    <br>• Smooth animations và micro-interactions
+                </p>
+            </div>
+        </div>
+
+        <!-- Features Grid -->
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🎯</div>
+                <div class="feature-title">Phân Tích Thông Minh</div>
+                <div class="feature-description">
+                    Sử dụng AI để phân tích sâu các số cốt lõi và đưa ra tư vấn cá nhân hóa
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <div class="feature-title">Biểu Đồ Trực Quan</div>
+                <div class="feature-description">
+                    Hiển thị kết quả qua biểu đồ radar, progress bars và infographics
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">💫</div>
+                <div class="feature-title">Trải Nghiệm Hiện Đại</div>
+                <div class="feature-description">
+                    Giao diện mượt mà với animations, transitions và responsive design
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">🌐</div>
+                <div class="feature-title">Đa Ngôn Ngữ</div>
+                <div class="feature-description">
+                    Hỗ trợ tiếng Việt và tiếng Anh với khả năng mở rộng cho các ngôn ngữ khác
+                </div>
+            </div>
+        </div>
+
+        <!-- Result Section (Hidden by default) -->
+        <div class="result-section" id="result-section">
+            <h2 style="text-align: center; color: #333; margin-bottom: 2rem;">
+                📋 Kết Quả Phân Tích Thần Số Học
+            </h2>
+            <div id="result-content">
+                <!-- Results will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Common Vietnamese names for autocomplete
+        const vietnameseNames = [
+            { name: 'Nguyễn Văn An', meaning: 'Bình an, tĩnh lặng' },
+            { name: 'Trần Thị Bình', meaning: 'Hòa bình, cân bằng' },
+            { name: 'Lê Văn Cường', meaning: 'Mạnh mẽ, cương quyết' },
+            { name: 'Phạm Thị Dung', meaning: 'Dũng cảm, can đảm' },
+            { name: 'Hoàng Văn Em', meaning: 'Khiêm tốn, nhẹ nhàng' },
+            { name: 'Vũ Thị Phương', meaning: 'Hương thơm, duyên dáng' },
+            { name: 'Đặng Văn Giang', meaning: 'Sông nước, rộng lớn' },
+            { name: 'Bùi Thị Hoa', meaning: 'Hoa đẹp, tinh khôi' },
+        ];
+
+        const nameInput = document.getElementById('fullName');
+        const birthDateInput = document.getElementById('birthDate');
+        const nameProgress = document.getElementById('name-progress');
+        const nameSuggestions = document.getElementById('name-suggestions');
+        const submitBtn = document.getElementById('submit-btn');
+        const form = document.getElementById('numerology-form');
+        const loading = document.getElementById('loading');
+        const resultSection = document.getElementById('result-section');
+
+        // Name input validation and suggestions
+        nameInput.addEventListener('input', function() {
+            const value = this.value.trim();
+            let strength = 0;
+
+            // Calculate input strength
+            if (value.length >= 2) strength += 20;
+            if (value.length >= 5) strength += 20;
+            if (/^[a-zA-ZÀ-ỹĐđ\s]+$/.test(value)) strength += 30;
+            if (value.includes(' ') && value.split(' ').length >= 2) strength += 20;
+            if (value.split(' ').length >= 3) strength += 10;
+
+            nameProgress.style.width = strength + '%';
+
+            // Show suggestions
+            if (value.length >= 2) {
+                const filtered = vietnameseNames.filter(item => 
+                    item.name.toLowerCase().includes(value.toLowerCase())
+                );
+
+                if (filtered.length > 0) {
+                    nameSuggestions.innerHTML = filtered.map(item => 
+                        `<div class="suggestion-item" onclick="selectName('${item.name}')">
+                            <strong>${item.name}</strong><br>
+                            <small style="color: #666;">${item.meaning}</small>
+                        </div>`
+                    ).join('');
+                    nameSuggestions.style.display = 'block';
+                } else {
+                    nameSuggestions.style.display = 'none';
+                }
+            } else {
+                nameSuggestions.style.display = 'none';
+            }
+
+            validateForm();
+        });
+
+        function selectName(name) {
+            nameInput.value = name;
+            nameSuggestions.style.display = 'none';
+            nameProgress.style.width = '100%';
+            validateForm();
+        }
+
+        birthDateInput.addEventListener('change', validateForm);
+
+        function validateForm() {
+            const nameValid = nameInput.value.trim().length >= 2;
+            const dateValid = birthDateInput.value !== '';
+            
+            submitBtn.disabled = !(nameValid && dateValid);
+            
+            if (nameValid && dateValid) {
+                submitBtn.style.background = 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)';
+            } else {
+                submitBtn.style.background = '#ccc';
+            }
+        }
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Show loading
+            loading.classList.add('active');
+            form.style.display = 'none';
+            
+            // Simulate analysis process
+            setTimeout(() => {
+                loading.classList.remove('active');
+                resultSection.classList.add('active');
+                
+                // Populate demo results
+                document.getElementById('result-content').innerHTML = `
+                    <div style="text-align: center; padding: 2rem;">
+                        <h3 style="color: #2196F3; margin-bottom: 1rem;">✨ Phân Tích Hoàn Thành!</h3>
+                        <p style="font-size: 1.1rem; margin-bottom: 2rem;">
+                            Kết quả cho <strong>${nameInput.value}</strong> - Ngày sinh: <strong>${new Date(birthDateInput.value).toLocaleDateString('vi-VN')}</strong>
+                        </p>
+                        
+                        <div style="background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); padding: 2rem; border-radius: 16px; margin: 2rem 0;">
+                            <h4 style="color: #333; margin-bottom: 1rem;">🔢 Các Số Cốt Lõi</h4>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                                <div style="background: white; padding: 1rem; border-radius: 8px; text-align: center;">
+                                    <div style="font-size: 2rem; color: #2196F3; font-weight: bold;">7</div>
+                                    <div style="font-weight: 600;">Số Đường Đời</div>
+                                </div>
+                                <div style="background: white; padding: 1rem; border-radius: 8px; text-align: center;">
+                                    <div style="font-size: 2rem; color: #9C27B0; font-weight: bold;">3</div>
+                                    <div style="font-weight: 600;">Số Sứ Mệnh</div>
+                                </div>
+                                <div style="background: white; padding: 1rem; border-radius: 8px; text-align: center;">
+                                    <div style="font-size: 2rem; color: #4CAF50; font-weight: bold;">9</div>
+                                    <div style="font-weight: 600;">Số Nhân Cách</div>
+                                </div>
+                                <div style="background: white; padding: 1rem; border-radius: 8px; text-align: center;">
+                                    <div style="font-size: 2rem; color: #FF9800; font-weight: bold;">1</div>
+                                    <div style="font-weight: 600;">Số Linh Hồn</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <p style="color: #666; font-style: italic;">
+                            🚀 Đây là demo UI/UX nâng cấp. Trong version đầy đủ, bạn sẽ thấy:
+                            <br>• Phân tích chi tiết từng số với biểu đồ radar
+                            <br>• Tư vấn nghề nghiệp và tương thích
+                            <br>• Chu kỳ phát triển theo từng giai đoạn
+                            <br>• Khả năng xuất báo cáo PDF và chia sẻ
+                        </p>
+                        
+                        <button onclick="resetForm()" style="
+                            background: linear-gradient(45deg, #9C27B0 30%, #E91E63 90%);
+                            color: white;
+                            border: none;
+                            padding: 1rem 2rem;
+                            border-radius: 12px;
+                            font-size: 1rem;
+                            font-weight: 600;
+                            cursor: pointer;
+                            margin-top: 2rem;
+                            transition: all 0.3s ease;
+                        ">
+                            🔄 Phân Tích Mới
+                        </button>
+                    </div>
+                `;
+            }, 3000);
+        });
+
+        function resetForm() {
+            form.style.display = 'block';
+            resultSection.classList.remove('active');
+            nameInput.value = '';
+            birthDateInput.value = '';
+            nameProgress.style.width = '0%';
+            nameSuggestions.style.display = 'none';
+            submitBtn.disabled = true;
+            submitBtn.style.background = '#ccc';
+        }
+
+        // Hide suggestions when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.input-container')) {
+                nameSuggestions.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

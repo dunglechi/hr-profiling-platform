@@ -10,6 +10,7 @@ import NumerologyPage from './pages/NumerologyPage';
 import DISCPage from './pages/DISCPage';
 import MBTIPage from './components/MBTI/MBTIPage';
 import LanguageSwitcher from './components/common/LanguageSwitcher';
+import SimpleTestApp from './components/enhanced/SimpleTestApp';
 
 // Import i18n configuration
 import './i18n';
@@ -26,7 +27,7 @@ function App() {
         <AppBar position="static">
           <Toolbar>
             <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-              HR Profiling Platform
+              HR Profiling Platform (Enhanced)
             </Typography>
             <LanguageSwitcher />
           </Toolbar>
@@ -40,6 +41,7 @@ function App() {
               <Route path="/register" element={<Register />} />
               <Route path="/assessment/:id" element={<Assessment />} />
               <Route path="/numerology" element={<NumerologyPage />} />
+              <Route path="/numerology-enhanced" element={<SimpleTestApp />} />
               <Route path="/disc" element={<DISCPage />} />
               <Route path="/mbti" element={<MBTIPage />} />
             </Routes>
