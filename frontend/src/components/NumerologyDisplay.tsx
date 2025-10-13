@@ -236,7 +236,7 @@ const NumerologyDisplay: React.FC<NumerologyDisplayProps> = ({ result }) => {
             
             <Grid item xs={12} md={4}>
               <Typography variant="h6" color="primary" gutterBottom>
-                🏷️ Từ Khóa
+                🏷️ {t('results.coreTraits.keywords')}
               </Typography>
               <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
                 {result.coreTraits.keywords.map((keyword, index) => (
@@ -309,21 +309,21 @@ const NumerologyDisplay: React.FC<NumerologyDisplayProps> = ({ result }) => {
             </Grid>
             
             <Grid item xs={12} md={6}>
-              <Typography variant="h6" gutterBottom>Số Thách Thức & Đỉnh Cao</Typography>
+              <Typography variant="h6" gutterBottom>{t('results.challengesAndPinnacles.title')}</Typography>
               <TableContainer component={Paper}>
                 <Table size="small">
                   <TableHead>
                     <TableRow>
-                      <TableCell>Loại</TableCell>
-                      <TableCell>Giai Đoạn 1</TableCell>
-                      <TableCell>Giai Đoạn 2</TableCell>
-                      <TableCell>Giai Đoạn 3</TableCell>
-                      <TableCell>Giai Đoạn 4</TableCell>
+                      <TableCell>{t('results.challengesAndPinnacles.type')}</TableCell>
+                      <TableCell>{t('results.challengesAndPinnacles.stage1')}</TableCell>
+                      <TableCell>{t('results.challengesAndPinnacles.stage2')}</TableCell>
+                      <TableCell>{t('results.challengesAndPinnacles.stage3')}</TableCell>
+                      <TableCell>{t('results.challengesAndPinnacles.stage4')}</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
                     <TableRow>
-                      <TableCell><strong>Thách Thức</strong></TableCell>
+                      <TableCell><strong>{t('results.challengesAndPinnacles.challenges')}</strong></TableCell>
                       {result.challengeNumbers.map((num, index) => (
                         <TableCell key={index}>{num}</TableCell>
                       ))}
@@ -345,7 +345,7 @@ const NumerologyDisplay: React.FC<NumerologyDisplayProps> = ({ result }) => {
       {/* Life Cycles */}
       <Accordion expanded={expanded === 'lifecycle'} onChange={handleChange('lifecycle')}>
         <AccordionSummary expandIcon={<ExpandMore />}>
-          <Typography variant="h6">🔄 Chu Kỳ Cuộc Đời</Typography>
+          <Typography variant="h6">🔄 {t('results.lifeCycle.title')}</Typography>
         </AccordionSummary>
         <AccordionDetails>
           <Grid container spacing={3}>
@@ -353,7 +353,7 @@ const NumerologyDisplay: React.FC<NumerologyDisplayProps> = ({ result }) => {
               <Card>
                 <CardContent>
                   <Typography variant="h6" color="primary" gutterBottom>
-                    🌱 Giai Đoạn Trẻ (0-27 tuổi)
+                    🌱 {t('results.lifeCycle.youthPhase')}
                   </Typography>
                   <Typography variant="body2">
                     {result.lifeCycle.youthPhase}
@@ -366,7 +366,7 @@ const NumerologyDisplay: React.FC<NumerologyDisplayProps> = ({ result }) => {
               <Card>
                 <CardContent>
                   <Typography variant="h6" color="success.main" gutterBottom>
-                    🌳 Giai Đoạn Trưởng Thành (28-54 tuổi)
+                    🌳 {t('results.lifeCycle.adulthoodPhase')}
                   </Typography>
                   <Typography variant="body2">
                     {result.lifeCycle.adulthoodPhase}
@@ -379,7 +379,7 @@ const NumerologyDisplay: React.FC<NumerologyDisplayProps> = ({ result }) => {
               <Card>
                 <CardContent>
                   <Typography variant="h6" color="warning.main" gutterBottom>
-                    🏛️ Giai Đoạn Chín Muồi (55+ tuổi)
+                    🏛️ {t('results.lifeCycle.maturityPhase')}
                   </Typography>
                   <Typography variant="body2">
                     {result.lifeCycle.maturityPhase}

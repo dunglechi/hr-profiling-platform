@@ -1,4 +1,24 @@
 import { format, isValid } from 'date-fns';
+import i18n from '../i18n';
+
+export interface CoreTraits {
+  positive: string[];
+  negative: string[];
+  keywords: string[];
+}
+
+export interface CareerGuidance {
+  suitableCareers: string[];
+  workStyle: string;
+  leadershipStyle: string;
+  teamRole: string;
+}
+
+export interface Relationships {
+  compatibility: string[];
+  challenges: string[];
+  advice: string[];
+}
 
 export interface NumerologyCalculation {
   // Core Numbers (Pythagorean Tetractys)
@@ -19,11 +39,11 @@ export interface NumerologyCalculation {
   masterNumbers: number[];
   
   // Pythagorean Analysis
-  coreTraits: string[];
+  coreTraits: CoreTraits;
   strengths: string[];
   challenges: string[];
-  careerGuidance: string[];
-  relationships: string[];
+  careerGuidance: CareerGuidance;
+  relationships: Relationships;
   lifeCycle: LifeCyclePhase[];
   harmonyAnalysis: HarmonyOfSpheres;
   tetractysMapping: TetractysMapping;
@@ -240,7 +260,7 @@ class NumerologyService {
       }
     });
     
-    return [...new Set(foundDebtNumbers)]; // Remove duplicates
+    return Array.from(new Set(foundDebtNumbers)); // Remove duplicates
   }
 
   // Master Numbers detection
@@ -264,26 +284,28 @@ class NumerologyService {
       masterNumbers.push(nameSum);
     }
     
-    return [...new Set(masterNumbers)];
+    return Array.from(new Set(masterNumbers));
   }
 
   // Pythagorean Core Traits based on Life Path
-  getCoreTraits(lifePathNumber: number): string[] {
-    const traits: { [key: number]: string[] } = {
-      1: ["Tiên phong", "Độc lập", "Lãnh đạo", "Sáng tạo", "Quyết đoán", "Tham vọng"],
-      2: ["Hợp tác", "Nhạy cảm", "Hòa giải", "Kiên nhẫn", "Hỗ trợ", "Trực giác"],
-      3: ["Sáng tạo nghệ thuật", "Giao tiếp", "Lạc quan", "Biểu đạt", "Xã hội", "Cảm hứng"],
-      4: ["Thực tế", "Có tổ chức", "Chăm chỉ", "Đáng tin cậy", "Kỷ luật", "Xây dựng"],
-      5: ["Tự do", "Phiêu lưu", "Linh hoạt", "Tò mò", "Năng động", "Đa năng"],
-      6: ["Chăm sóc", "Có trách nhiệm", "Yêu thương", "Cân bằng", "Hòa hợp", "Chữa lành"],
-      7: ["Phân tích", "Tâm linh", "Sâu sắc", "Hoàn hảo", "Trí tuệ", "Huyền bí"],
-      8: ["Thành công vật chất", "Tổ chức", "Quyền lực", "Kinh doanh", "Thực tế", "Tham vọng"],
-      9: ["Nhân đạo", "Rộng lượng", "Lý tưởng", "Phục vụ", "Toàn cầu", "Từ bi"],
-      11: ["Trực giác cao", "Tâm linh", "Cảm hứng", "Lãnh đạo tâm linh", "Nhạy cảm", "Sứ mệnh"],
-      22: ["Chủ mộng", "Xây dựng lớn", "Tầm nhìn", "Thực tế cao", "Kiến tạo", "Thành tựu lớn"],
-      33: ["Thầy giáo tâm linh", "Chữa lành", "Yêu thương vô điều kiện", "Phục vụ nhân loại", "Cống hiến", "Thương xót"]
+  getCoreTraits(lifePathNumber: number): CoreTraits {
+    const traitsData = i18n.t(`numerology.traits.${lifePathNumber}`, { returnObjects: true }) as any;
+    
+    if (!traitsData || typeof traitsData === 'string') {
+      // Fallback for unknown numbers
+      const unknownData = i18n.t('numerology.traits.unknown', { returnObjects: true }) as any;
+      return {
+        positive: [unknownData.positive],
+        negative: [unknownData.negative],
+        keywords: [unknownData.keywords]
+      };
+    }
+    
+    return {
+      positive: traitsData.positive || [],
+      negative: traitsData.negative || [],
+      keywords: traitsData.keywords || []
     };
-    return traits[lifePathNumber] || ["Cần khám phá thêm"];
   }
 
   // Harmony of Spheres - Pythagorean musical correspondence
@@ -353,36 +375,44 @@ class NumerologyService {
   }
 
   // Enhanced Career Guidance based on Pythagorean principles
-  getCareerGuidance(lifePathNumber: number, destinyNumber: number, masterNumbers: number[]): string[] {
-    const careers: { [key: number]: string[] } = {
-      1: ["CEO/Giám đốc điều hành", "Doanh nhân", "Nhà lãnh đạo chính trị", "Khởi nghiệp", "Quản lý cấp cao", "Nhà phát minh"],
-      2: ["Nhân sự", "Tư vấn tâm lý", "Ngoại giao", "Công tác xã hội", "Hòa giải", "Trợ lý điều hành"],
-      3: ["Nghệ sĩ", "Nhà văn", "Diễn viên", "Marketing sáng tạo", "Giáo viên", "MC/Presenter"],
-      4: ["Kỹ sư", "Kế toán", "Xây dựng", "Quản lý dự án", "Ngân hàng", "Kiến trúc sư"],
-      5: ["Du lịch", "Báo chí", "Bán hàng", "Vận chuyển", "Freelancer", "Nhà thám hiểm"],
-      6: ["Y tế", "Giáo dục", "Tư vấn gia đình", "Thiết kế nội thất", "Đầu bếp", "Dịch vụ chăm sóc"],
-      7: ["Nghiên cứu khoa học", "IT/Công nghệ", "Tâm lý học", "Triết học", "Tâm linh", "Phân tích dữ liệu"],
-      8: ["Tài chính", "Luật sư", "Bất động sản", "Quản lý ngân hàng", "Kinh doanh lớn", "Đầu tư"],
-      9: ["Tổ chức phi lợi nhuận", "Bác sĩ", "Giáo viên", "Nhà trị liệu", "Hoạt động xã hội", "Từ thiện"],
-      11: ["Nghệ thuật tâm linh", "Huấn luyện viên life coach", "Tư vấn tâm linh", "Nhà phát minh", "Giáo viên yoga"],
-      22: ["Kiến trúc sư lớn", "Kỹ sư trưởng", "Nhà tổ chức quốc tế", "Chính trị gia", "Nhà đầu tư lớn"],
-      33: ["Giáo viên tâm linh", "Nhà trị liệu", "Tư vấn tâm lý sâu", "Hoạt động xã hội", "Y tá chăm sóc đặc biệt"]
+  getCareerGuidance(lifePathNumber: number, destinyNumber: number, masterNumbers: number[]): CareerGuidance {
+    // Get career data from i18n
+    const suitableCareers = i18n.t(`numerology.career.${lifePathNumber}.suitableCareers`, { returnObjects: true }) as string[] || 
+                           i18n.t(`numerology.career.default.suitableCareers`, { returnObjects: true }) as string[];
+    
+    const workStyle = i18n.t(`numerology.career.${lifePathNumber}.workStyle`) || 
+                     i18n.t(`numerology.career.default.workStyle`);
+    
+    const leadershipStyle = i18n.t(`numerology.career.${lifePathNumber}.leadershipStyle`) || 
+                           i18n.t(`numerology.career.default.leadershipStyle`);
+    
+    const teamRole = i18n.t(`numerology.career.${lifePathNumber}.teamRole`) || 
+                    i18n.t(`numerology.career.default.teamRole`);
+
+    let result: CareerGuidance = {
+      suitableCareers,
+      workStyle,
+      leadershipStyle,
+      teamRole
     };
     
-    let guidance = careers[lifePathNumber] || ["Cần khám phá định hướng phù hợp"];
-    
     // Add master number influences
+    const masterInfluences: string[] = [];
     if (masterNumbers.includes(11)) {
-      guidance.push("Công việc liên quan đến cảm hứng và dẫn dắt tinh thần");
+      masterInfluences.push(i18n.t("numerology.masterInfluences.11"));
     }
     if (masterNumbers.includes(22)) {
-      guidance.push("Các dự án xây dựng tầm cỡ quốc tế");
+      masterInfluences.push(i18n.t("numerology.masterInfluences.22"));
     }
     if (masterNumbers.includes(33)) {
-      guidance.push("Sứ mệnh chữa lành và giảng dạy");
+      masterInfluences.push(i18n.t("numerology.masterInfluences.33"));
     }
     
-    return guidance;
+    if (masterInfluences.length > 0) {
+      result.suitableCareers = [...result.suitableCareers, ...masterInfluences];
+    }
+    
+    return result;
   }
 
   // Enhanced Life Cycle with Pinnacles and Challenges
@@ -396,36 +426,44 @@ class NumerologyService {
     const secondCycleEnd = firstCycleEnd + 9;
     const thirdCycleEnd = secondCycleEnd + 9;
 
+    // Helper function to determine age status
+    const getAgeStatus = (startAge: number, endAge: number) => {
+      if (age >= startAge && age <= endAge) return i18n.t("numerology.lifeCycle.ageStatus.current");
+      if (age > endAge) return i18n.t("numerology.lifeCycle.ageStatus.past");
+      if (age < startAge) return startAge - age <= 5 ? i18n.t("numerology.lifeCycle.ageStatus.upcoming") : i18n.t("numerology.lifeCycle.ageStatus.future");
+      return i18n.t("numerology.lifeCycle.ageStatus.future");
+    };
+
     return [
       {
-        phase: `Giai đoạn Hình thành (0-${firstCycleEnd} tuổi)`,
-        age: age <= firstCycleEnd ? "Hiện tại" : "Đã qua",
-        description: "Thời kỳ học hỏi, khám phá bản thân và hình thành tính cách cơ bản",
-        focus: "Giáo dục, kỹ năng cơ bản, mối quan hệ gia đình",
+        phase: `${i18n.t("numerology.lifeCycle.phases.formation")} (0-${firstCycleEnd} ${i18n.t("numerology.lifeCycle.ageUnit")})`,
+        age: getAgeStatus(0, firstCycleEnd),
+        description: i18n.t("numerology.lifeCycle.descriptions.formation"),
+        focus: i18n.t("numerology.lifeCycle.focus.formation"),
         pinnacleNumber: pinnacleNumbers[0],
         challengeNumber: challengeNumbers[0]
       },
       {
-        phase: `Giai đoạn Phát triển (${firstCycleEnd + 1}-${secondCycleEnd} tuổi)`,
-        age: age >= firstCycleEnd + 1 && age <= secondCycleEnd ? "Hiện tại" : age < firstCycleEnd + 1 ? "Sắp tới" : "Đã qua",
-        description: "Thời kỳ xây dựng sự nghiệp, tình yêu và thành tựu cá nhân",
-        focus: "Sự nghiệp, hôn nhân, thành công vật chất",
+        phase: `${i18n.t("numerology.lifeCycle.phases.development")} (${firstCycleEnd + 1}-${secondCycleEnd} ${i18n.t("numerology.lifeCycle.ageUnit")})`,
+        age: getAgeStatus(firstCycleEnd + 1, secondCycleEnd),
+        description: i18n.t("numerology.lifeCycle.descriptions.development"),
+        focus: i18n.t("numerology.lifeCycle.focus.development"),
         pinnacleNumber: pinnacleNumbers[1],
         challengeNumber: challengeNumbers[1]
       },
       {
-        phase: `Giai đoạn Thành tựu (${secondCycleEnd + 1}-${thirdCycleEnd} tuổi)`,
-        age: age >= secondCycleEnd + 1 && age <= thirdCycleEnd ? "Hiện tại" : age < secondCycleEnd + 1 ? "Sắp tới" : "Đã qua",
-        description: "Thời kỳ gặt hái thành quả và đạt đến đỉnh cao trong lĩnh vực của mình",
-        focus: "Thành tựu nghề nghiệp, ảnh hưởng xã hội, di sản",
+        phase: `${i18n.t("numerology.lifeCycle.phases.achievement")} (${secondCycleEnd + 1}-${thirdCycleEnd} ${i18n.t("numerology.lifeCycle.ageUnit")})`,
+        age: getAgeStatus(secondCycleEnd + 1, thirdCycleEnd),
+        description: i18n.t("numerology.lifeCycle.descriptions.achievement"),
+        focus: i18n.t("numerology.lifeCycle.focus.achievement"),
         pinnacleNumber: pinnacleNumbers[2],
         challengeNumber: challengeNumbers[2]
       },
       {
-        phase: `Giai đoạn Trưởng thành (${thirdCycleEnd + 1}+ tuổi)`,
-        age: age >= thirdCycleEnd + 1 ? "Hiện tại" : "Tương lai",
-        description: "Thời kỳ chia sẻ trí tuệ, phục vụ cộng đồng và chuẩn bị cho hành trình tiếp theo",
-        focus: "Chia sẻ kiến thức, di sản tinh thần, cống hiến xã hội",
+        phase: `${i18n.t("numerology.lifeCycle.phases.maturity")} (${thirdCycleEnd + 1}+ ${i18n.t("numerology.lifeCycle.ageUnit")})`,
+        age: getAgeStatus(thirdCycleEnd + 1, 150), // Using 150 as max age
+        description: i18n.t("numerology.lifeCycle.descriptions.maturity"),
+        focus: i18n.t("numerology.lifeCycle.focus.maturity"),
         pinnacleNumber: pinnacleNumbers[3],
         challengeNumber: challengeNumbers[3]
       }
@@ -572,33 +610,93 @@ class NumerologyService {
   }
 
   // Get relationship patterns
-  getRelationshipPatterns(lifePathNumber: number, soulUrgeNumber: number): string[] {
-    const patterns: string[] = [];
+  getRelationshipPatterns(lifePathNumber: number, soulUrgeNumber: number): Relationships {
+    const compatibilityList: string[] = [];
+    const challengesList: string[] = [];
+    const adviceList: string[] = [];
     
     // Life Path relationship patterns
     switch (lifePathNumber) {
-      case 1: patterns.push("Cần đối tác hiểu và hỗ trợ tính độc lập, tham vọng"); break;
-      case 2: patterns.push("Tìm kiếm sự hòa hợp, cân bằng và hỗ trợ lẫn nhau"); break;
-      case 3: patterns.push("Cần không gian để thể hiện bản thân và sáng tạo"); break;
-      case 4: patterns.push("Đánh giá cao sự ổn định, cam kết và xây dựng lâu dài"); break;
-      case 5: patterns.push("Cần tự do, không gian cá nhân và sự đa dạng"); break;
-      case 6: patterns.push("Có xu hướng chăm sóc, bảo vệ và yêu thương sâu sắc"); break;
-      case 7: patterns.push("Cần thời gian riêng tư để suy ngẫm và tìm hiểu sâu"); break;
-      case 8: patterns.push("Tìm kiếm đối tác có tham vọng và mục tiêu tương đồng"); break;
-      case 9: patterns.push("Quan tâm đến các giá trị nhân văn và mục đích cao cả chung"); break;
-      case 11: patterns.push("Cần đối tác hiểu được tính nhạy cảm và trực giác cao"); break;
-      case 22: patterns.push("Tìm kiếm đối tác chia sẻ tầm nhìn lớn và ước mơ cao"); break;
-      case 33: patterns.push("Mối quan hệ dựa trên sự chữa lành và phục vụ chung"); break;
+      case 1: 
+        compatibilityList.push("Số 3, 5, 6 - Người có thể hỗ trợ và hiểu tính độc lập");
+        challengesList.push("Khó khăn với những người quá phụ thuộc hoặc thiếu tham vọng");
+        adviceList.push("Tìm kiếm đối tác hiểu và hỗ trợ tính độc lập, tham vọng");
+        break;
+      case 2: 
+        compatibilityList.push("Số 6, 8, 9 - Những người trân trọng sự hòa hợp");
+        challengesList.push("Xung đột với tính cách quá mạnh mẽ hoặc độc đoán");
+        adviceList.push("Tìm kiếm sự hòa hợp, cân bằng và hỗ trợ lẫn nhau");
+        break;
+      case 3: 
+        compatibilityList.push("Số 1, 5, 7 - Những người đánh giá cao sự sáng tạo");
+        challengesList.push("Khó khăn với những người quá nghiêm túc hoặc hạn chế");
+        adviceList.push("Cần không gian để thể hiện bản thân và sáng tạo");
+        break;
+      case 4: 
+        compatibilityList.push("Số 2, 6, 8 - Những người cùng trân trọng sự ổn định");
+        challengesList.push("Khó thích ứng với những thay đổi đột ngột hoặc bất ổn");
+        adviceList.push("Đánh giá cao sự ổn định, cam kết và xây dựng lâu dài");
+        break;
+      case 5: 
+        compatibilityList.push("Số 1, 3, 7 - Những người hiểu nhu cầu tự do");
+        challengesList.push("Xung đột với tính kiểm soát hoặc quá nhiều ràng buộc");
+        adviceList.push("Cần tự do, không gian cá nhân và sự đa dạng");
+        break;
+      case 6: 
+        compatibilityList.push("Số 2, 4, 9 - Những người cùng có tinh thần chăm sóc");
+        challengesList.push("Xu hướng hy sinh quá mức hoặc kiểm soát quá nhiều");
+        adviceList.push("Có xu hướng chăm sóc, bảo vệ và yêu thương sâu sắc");
+        break;
+      case 7: 
+        compatibilityList.push("Số 3, 5, 9 - Những người hiểu nhu cầu riêng tư");
+        challengesList.push("Khó khăn trong việc chia sẻ cảm xúc và mở lòng");
+        adviceList.push("Cần thời gian riêng tư để suy ngẫm và tìm hiểu sâu");
+        break;
+      case 8: 
+        compatibilityList.push("Số 2, 4, 6 - Những người hỗ trợ mục tiêu sự nghiệp");
+        challengesList.push("Có thể quá tập trung vào vật chất và bỏ qua cảm xúc");
+        adviceList.push("Tìm kiếm đối tác có tham vọng và mục tiêu tương đồng");
+        break;
+      case 9: 
+        compatibilityList.push("Số 2, 6, 7 - Những người cùng có lý tưởng cao");
+        challengesList.push("Xu hướng lý tưởng hóa mối quan hệ hoặc hy sinh quá mức");
+        adviceList.push("Quan tâm đến các giá trị nhân văn và mục đích cao cả chung");
+        break;
+      case 11: 
+        compatibilityList.push("Số 2, 7, 9 - Những người hiểu tính nhạy cảm cao");
+        challengesList.push("Dễ bị tổn thương bởi năng lượng tiêu cực hoặc xung đột");
+        adviceList.push("Cần đối tác hiểu được tính nhạy cảm và trực giác cao");
+        break;
+      case 22: 
+        compatibilityList.push("Số 4, 8, 11 - Những người cùng có tầm nhìn lớn");
+        challengesList.push("Áp lực cao từ kỳ vọng và trách nhiệm lớn");
+        adviceList.push("Tìm kiếm đối tác chia sẻ tầm nhìn lớn và ước mơ cao");
+        break;
+      case 33: 
+        compatibilityList.push("Số 6, 9, 11 - Những người cùng có sứ mệnh phục vụ");
+        challengesList.push("Xu hướng hy sinh bản thân quá mức cho người khác");
+        adviceList.push("Mối quan hệ dựa trên sự chữa lành và phục vụ chung");
+        break;
+      default:
+        compatibilityList.push("Cần tìm hiểu thêm về tương thích");
+        challengesList.push("Cần khám phá thêm các thử thách");
+        adviceList.push("Cần tìm hiểu thêm về mối quan hệ phù hợp");
     }
     
     // Soul Urge influence
-    if (soulUrgeNumber === 1) patterns.push("Khao khát được công nhận và dẫn dắt trong mối quan hệ");
-    if (soulUrgeNumber === 2) patterns.push("Mong muốn hòa hợp và kết nối cảm xúc sâu sắc");
-    if (soulUrgeNumber === 3) patterns.push("Cần sự vui vẻ, sáng tạo và biểu đạt trong tình cảm");
-    if (soulUrgeNumber === 7) patterns.push("Tìm kiếm sự thấu hiểu sâu sắc và kết nối tâm linh");
-    if (soulUrgeNumber === 9) patterns.push("Mong muốn phục vụ và cống hiến cùng nhau");
+    switch (soulUrgeNumber) {
+      case 1: adviceList.push("Khao khát được công nhận và dẫn dắt trong mối quan hệ"); break;
+      case 2: adviceList.push("Mong muốn hòa hợp và kết nối cảm xúc sâu sắc"); break;
+      case 3: adviceList.push("Cần sự vui vẻ, sáng tạo và biểu đạt trong tình cảm"); break;
+      case 7: adviceList.push("Tìm kiếm sự thấu hiểu sâu sắc và kết nối tâm linh"); break;
+      case 9: adviceList.push("Mong muốn phục vụ và cống hiến cùng nhau"); break;
+    }
     
-    return patterns;
+    return {
+      compatibility: compatibilityList,
+      challenges: challengesList,
+      advice: adviceList
+    };
   }
 
   // Main calculation method
@@ -624,12 +722,12 @@ class NumerologyService {
     const karmicDebt = this.calculateKarmicDebt(birthDate, fullName);
     const masterNumbers = this.calculateMasterNumbers(birthDate, fullName);
     
-    // Generate analysis
-    const coreTraits = this.getCoreTraits(lifePathNumber);
-    const strengths = this.getStrengths(lifePathNumber, destinyNumber, masterNumbers);
-    const challenges = this.getChallenges(challengeNumbers, lifePathNumber, karmicDebt);
-    const careerGuidance = this.getCareerGuidance(lifePathNumber, destinyNumber, masterNumbers);
-    const relationships = this.getRelationshipPatterns(lifePathNumber, soulUrgeNumber);
+    // Generate analysis - ensure correct types
+    const coreTraits: CoreTraits = this.getCoreTraits(lifePathNumber);
+    const strengths: string[] = this.getStrengths(lifePathNumber, destinyNumber, masterNumbers);
+    const challenges: string[] = this.getChallenges(challengeNumbers, lifePathNumber, karmicDebt);
+    const careerGuidance: CareerGuidance = this.getCareerGuidance(lifePathNumber, destinyNumber, masterNumbers);
+    const relationships: Relationships = this.getRelationshipPatterns(lifePathNumber, soulUrgeNumber);
     const lifeCycle = this.getLifeCycleAnalysis(birthDate, lifePathNumber, pinnacleNumbers, challengeNumbers);
     const harmonyAnalysis = this.getHarmonyOfSpheres(lifePathNumber, birthDate);
     const tetractysMapping = this.getTetractysMapping(lifePathNumber, destinyNumber, soulUrgeNumber, birthDayNumber, maturityNumber);
@@ -700,7 +798,14 @@ Ngày sinh: ${format(data.birthDate, 'dd/MM/yyyy')}
 • Số trưởng thành (Maturity): ${data.maturityNumber} - Hội tụ năng lượng ở tuổi trưởng thành
 ${masterNumberText}
 === ĐẶC ĐIỂM CỐT LÕI (PYTHAGOREAN TRAITS) ===
-${data.coreTraits.map((trait: string) => `• ${trait}`).join('\n')}
+Điểm mạnh:
+${data.coreTraits.positive.map((trait: string) => `• ${trait}`).join('\n')}
+
+Thách thức:
+${data.coreTraits.negative.map((trait: string) => `• ${trait}`).join('\n')}
+
+Từ khóa chính:
+${data.coreTraits.keywords.map((keyword: string) => `• ${keyword}`).join('\n')}
 
 === ĐIỂM MẠNH TỰ NHIÊN ===
 ${data.strengths.map((strength: string) => `• ${strength}`).join('\n')}
@@ -709,7 +814,12 @@ ${data.strengths.map((strength: string) => `• ${strength}`).join('\n')}
 ${data.challenges.map((challenge: string) => `• ${challenge}`).join('\n')}
 
 === HƯỚNG NGHIỆP PHÙ HỢP ===
-${data.careerGuidance.map((career: string) => `• ${career}`).join('\n')}
+Nghề nghiệp phù hợp:
+${data.careerGuidance.suitableCareers.map((career: string) => `• ${career}`).join('\n')}
+
+Phong cách làm việc: ${data.careerGuidance.workStyle}
+Phong cách lãnh đạo: ${data.careerGuidance.leadershipStyle}
+Vai trò trong nhóm: ${data.careerGuidance.teamRole}
 ${harmonyText}
 ${tetractysText}
 

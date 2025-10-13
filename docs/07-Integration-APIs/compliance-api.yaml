@@ -1,0 +1,919 @@
+openapi: 3.0.3
+info:
+  title: HR Profiling Platform - Compliance API
+  description: |
+    CPO-mandated compliance API for Reference-Only positioning of personality assessments.
+    
+    **Critical Features:**
+    - Kill-switch & Regional toggles
+    - Consent management with versioning
+    - Data erasure (GDPR compliance)
+    - Export policy controls
+    - Zero-leakage validation
+    
+    **Security:** Bearer token required for all endpoints
+  version: 1.0.0
+  contact:
+    name: HR Profiling Platform Team
+    email: dev@hrprofiling.com
+  license:
+    name: Proprietary
+    
+servers:
+  - url: http://localhost:5001/api/compliance
+    description: Development server
+  - url: https://api.hrprofiling.com/compliance
+    description: Production server
+
+security:
+  - bearerAuth: []
+
+paths:
+  /health:
+    get:
+      summary: Compliance service health check
+      description: Check compliance service status and schema guards
+      tags:
+        - Health
+      security: []
+      responses:
+        '200':
+          description: Service healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  service:
+                    type: string
+                    example: compliance
+                  status:
+                    type: string
+                    enum: [healthy, degraded, unhealthy]
+                  checks:
+                    type: object
+                    properties:
+                      database_connection:
+                        type: boolean
+                      schema_guards_active:
+                        type: boolean
+                      audit_logging_working:
+                        type: boolean
+                  timestamp:
+                    type: string
+                    format: date-time
+        '503':
+          description: Service unhealthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /kill-switch/{tenantId}/disable:
+    post:
+      summary: Emergency disable insights tab
+      description: |
+        CPO Requirement: Tenant-level kill-switch for immediate disable of Reference insights.
+        Requires admin role and audit logging.
+      tags:
+        - Kill Switch
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: tenantId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - reason
+                - authorizedBy
+              properties:
+                reason:
+                  type: string
+                  description: Reason for emergency disable
+                  example: "policy_violation"
+                authorizedBy:
+                  type: string
+                  description: Admin email authorizing the action
+                  example: "admin@company.com"
+      responses:
+        '200':
+          description: Kill-switch activated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Insights tab disabled for tenant"
+                  tenantId:
+                    type: string
+                    format: uuid
+                  disabledAt:
+                    type: string
+                    format: date-time
+                  auditId:
+                    type: string
+                    format: uuid
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Admin role required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /kill-switch/{tenantId}/enable:
+    post:
+      summary: Enable insights tab with validation
+      description: |
+        Enable insights tab after validating compliance requirements.
+        Requires checklist validation and audit logging.
+      tags:
+        - Kill Switch
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: tenantId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - authorizedBy
+                - checklist
+              properties:
+                authorizedBy:
+                  type: string
+                  description: Admin email authorizing the action
+                  example: "admin@company.com"
+                checklist:
+                  type: array
+                  description: Compliance checklist validation
+                  items:
+                    type: string
+                    enum:
+                      - schema_guard_ok
+                      - bias_monitoring_on
+                      - consent_center_on
+                      - watermark_enabled
+                      - export_compliance_on
+                  example: ["schema_guard_ok", "bias_monitoring_on", "consent_center_on"]
+      responses:
+        '200':
+          description: Insights tab enabled successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  tenantId:
+                    type: string
+                    format: uuid
+                  enabledAt:
+                    type: string
+                    format: date-time
+        '412':
+          description: Precondition failed - compliance requirements not met
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Error'
+                  - type: object
+                    properties:
+                      violations:
+                        type: array
+                        items:
+                          type: string
+                        example: ["Watermark not enabled", "Bias monitoring inactive"]
+
+  /kill-switch/{tenantId}/status:
+    get:
+      summary: Check insights tab status
+      description: Get current kill-switch status and compliance settings
+      tags:
+        - Kill Switch
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: tenantId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Kill-switch status retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  tenantId:
+                    type: string
+                    format: uuid
+                  insightsTabEnabled:
+                    type: boolean
+                  settings:
+                    type: object
+                    properties:
+                      region:
+                        type: string
+                        enum: [EU, US, VN, APAC, GLOBAL]
+                      explicitConsentRequired:
+                        type: boolean
+                      biasAuditMandatory:
+                        type: boolean
+                      exportIncludesReference:
+                        type: boolean
+                      emergencyDisabled:
+                        type: boolean
+
+  /consent/request:
+    post:
+      summary: Request explicit consent
+      description: |
+        CPO Requirement: Request explicit consent before showing Reference insights.
+        Returns versioned consent text based on region.
+      tags:
+        - Consent Management
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - userId
+                - purposes
+                - tenantId
+              properties:
+                userId:
+                  type: string
+                  format: uuid
+                  description: User ID requiring consent
+                purposes:
+                  type: array
+                  description: Purposes for data processing
+                  items:
+                    type: string
+                    enum:
+                      - reference_insights
+                      - team_development
+                      - personal_growth
+                      - research_analytics
+                  example: ["reference_insights"]
+                tenantId:
+                  type: string
+                  format: uuid
+                region:
+                  type: string
+                  enum: [EU, US, VN, APAC, GLOBAL]
+                  default: GLOBAL
+                ipAddress:
+                  type: string
+                  format: ipv4
+                  description: User IP for audit trail
+                userAgent:
+                  type: string
+                  description: User agent for audit trail
+      responses:
+        '200':
+          description: Consent request processed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  consentId:
+                    type: string
+                    format: uuid
+                  requiresAction:
+                    type: boolean
+                    description: True if explicit consent needed
+                  consentText:
+                    type: string
+                    description: Versioned consent text for region
+                  version:
+                    type: string
+                    example: "1.0.0"
+                  expiresAt:
+                    type: string
+                    format: date-time
+
+  /consent/grant:
+    post:
+      summary: Grant explicit consent
+      description: Grant consent with explicit text and audit trail
+      tags:
+        - Consent Management
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - userId
+                - purposes
+                - tenantId
+                - consentText
+              properties:
+                userId:
+                  type: string
+                  format: uuid
+                purposes:
+                  type: array
+                  items:
+                    type: string
+                    enum:
+                      - reference_insights
+                      - team_development
+                      - personal_growth
+                      - research_analytics
+                tenantId:
+                  type: string
+                  format: uuid
+                consentText:
+                  type: string
+                  description: Full consent text user agreed to
+                version:
+                  type: string
+                  description: Consent text version
+                  example: "1.0.0"
+                ipAddress:
+                  type: string
+                  format: ipv4
+                userAgent:
+                  type: string
+      responses:
+        '201':
+          description: Consent granted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  consentId:
+                    type: string
+                    format: uuid
+                  auditId:
+                    type: string
+                    format: uuid
+                  expiresAt:
+                    type: string
+                    format: date-time
+        '409':
+          description: Conflict - consent already withdrawn or invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /consent/{userId}/{tenantId}/check:
+    get:
+      summary: Check consent status
+      description: Check if user has valid consent for specific purpose
+      tags:
+        - Consent Management
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: tenantId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: purpose
+          in: query
+          required: true
+          schema:
+            type: string
+            enum:
+              - reference_insights
+              - team_development
+              - personal_growth
+              - research_analytics
+      responses:
+        '200':
+          description: Consent status checked
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  userId:
+                    type: string
+                    format: uuid
+                  tenantId:
+                    type: string
+                    format: uuid
+                  purpose:
+                    type: string
+                  hasConsent:
+                    type: boolean
+                  consentDetails:
+                    type: object
+                    properties:
+                      grantedAt:
+                        type: string
+                        format: date-time
+                      expiresAt:
+                        type: string
+                        format: date-time
+                      version:
+                        type: string
+
+  /consent/{userId}/{tenantId}/withdraw:
+    post:
+      summary: Withdraw consent
+      description: |
+        CPO Requirement: Right to withdraw consent.
+        Immediately hides Reference data and logs action.
+      tags:
+        - Consent Management
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: tenantId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - purposes
+              properties:
+                purposes:
+                  type: array
+                  items:
+                    type: string
+                    enum:
+                      - reference_insights
+                      - team_development
+                      - personal_growth
+                      - research_analytics
+                reason:
+                  type: string
+                  description: Reason for withdrawal
+                  example: "No longer want insights"
+      responses:
+        '200':
+          description: Consent withdrawn successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  withdrawnCount:
+                    type: integer
+                  message:
+                    type: string
+                  auditId:
+                    type: string
+                    format: uuid
+
+  /data-erasure/{userId}/{tenantId}:
+    post:
+      summary: Request data erasure
+      description: |
+        CPO Requirement: GDPR right to erasure.
+        Erases Reference data while preserving job-relevant data for legal retention.
+      tags:
+        - Data Rights
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: tenantId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - reason
+              properties:
+                reason:
+                  type: string
+                  description: Reason for data erasure request
+                  example: "User requested account deletion"
+                scope:
+                  type: array
+                  description: Data types to erase
+                  items:
+                    type: string
+                    enum:
+                      - reference_assessments
+                      - personal_info
+                      - consent_records
+                  default: ["reference_assessments", "personal_info", "consent_records"]
+      responses:
+        '202':
+          description: Data erasure request accepted (async processing)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  jobId:
+                    type: string
+                    format: uuid
+                  message:
+                    type: string
+                  erasedDataTypes:
+                    type: array
+                    items:
+                      type: string
+                  auditId:
+                    type: string
+                    format: uuid
+        '400':
+          description: Data erasure not available in this region
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /transparency/{userId}/{tenantId}:
+    get:
+      summary: Generate transparency report
+      description: Generate user transparency report showing data processing activities
+      tags:
+        - Data Rights
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: tenantId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Transparency report generated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  report:
+                    type: object
+                    properties:
+                      userId:
+                        type: string
+                        format: uuid
+                      dataCollected:
+                        type: array
+                        items:
+                          type: string
+                        example: ["Personality Assessments (Reference Only)", "Job-Relevant Assessments"]
+                      purposesGranted:
+                        type: array
+                        items:
+                          type: string
+                      dataRetentionDays:
+                        type: integer
+                      lastAccessed:
+                        type: string
+                        format: date-time
+                      canWithdraw:
+                        type: boolean
+                      canErase:
+                        type: boolean
+
+  /export/{tenantId}/policy:
+    get:
+      summary: Get export policy for tenant
+      description: |
+        CPO Requirement: Check export compliance policy.
+        Determines if Reference data should be included in exports.
+      tags:
+        - Export Control
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: tenantId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Export policy retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  tenantId:
+                    type: string
+                    format: uuid
+                  exportPolicy:
+                    type: object
+                    properties:
+                      includeReference:
+                        type: boolean
+                        description: Whether to include Reference data in exports
+                      defaultHide:
+                        type: boolean
+                        description: Default hide Reference data
+                      watermarkRequired:
+                        type: boolean
+                        description: Watermark required if Reference included
+                      disclaimerRequired:
+                        type: boolean
+                        description: Disclaimer required if Reference included
+                      auditRequired:
+                        type: boolean
+                        description: Audit logging required for exports
+                  settings:
+                    type: object
+                    properties:
+                      region:
+                        type: string
+                      exportIncludesReference:
+                        type: boolean
+                      emergencyDisabled:
+                        type: boolean
+
+  /regional-toggles/{tenantId}/configure:
+    post:
+      summary: Configure regional compliance
+      description: Configure tenant compliance settings based on region
+      tags:
+        - Regional Compliance
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: tenantId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - region
+              properties:
+                region:
+                  type: string
+                  enum: [EU, US, VN, APAC, GLOBAL]
+                  description: Target region for compliance configuration
+                customSettings:
+                  type: object
+                  description: Override default regional settings
+                  properties:
+                    explicitConsentRequired:
+                      type: boolean
+                    biasAuditMandatory:
+                      type: boolean
+                    dataRetentionDays:
+                      type: integer
+                    auditLogLevel:
+                      type: string
+                      enum: [MINIMAL, STANDARD, FULL]
+      responses:
+        '200':
+          description: Regional compliance configured
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  settings:
+                    $ref: '#/components/schemas/TenantComplianceSettings'
+
+  /regional-toggles/requirements/{region}:
+    get:
+      summary: Get regional compliance requirements
+      description: Get compliance requirements for specific region
+      tags:
+        - Regional Compliance
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: region
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [EU, US, VN, APAC, GLOBAL]
+      responses:
+        '200':
+          description: Regional requirements retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  region:
+                    type: string
+                  requirements:
+                    type: object
+                    properties:
+                      explicitConsentRequired:
+                        type: boolean
+                      biasAuditMandatory:
+                        type: boolean
+                      dataRetentionDays:
+                        type: integer
+                      rightToErasure:
+                        type: boolean
+                      auditLogDetail:
+                        type: string
+                        enum: [MINIMAL, STANDARD, FULL]
+                      mandatoryWatermarks:
+                        type: boolean
+                      exportDefaultHide:
+                        type: boolean
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token for authentication
+
+  schemas:
+    Error:
+      type: object
+      required:
+        - success
+        - error
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: string
+          description: Error message
+        code:
+          type: string
+          description: Error code for programmatic handling
+        details:
+          type: array
+          items:
+            type: string
+          description: Additional error details
+        timestamp:
+          type: string
+          format: date-time
+
+    TenantComplianceSettings:
+      type: object
+      properties:
+        tenantId:
+          type: string
+          format: uuid
+        region:
+          type: string
+          enum: [EU, US, VN, APAC, GLOBAL]
+        insightsTabEnabled:
+          type: boolean
+        explicitConsentRequired:
+          type: boolean
+        biasAuditMandatory:
+          type: boolean
+        exportIncludesReference:
+          type: boolean
+        auditLogLevel:
+          type: string
+          enum: [MINIMAL, STANDARD, FULL]
+        dataRetentionDays:
+          type: integer
+        emergencyDisabled:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+tags:
+  - name: Health
+    description: Service health and status checks
+  - name: Kill Switch
+    description: Emergency controls for insights tab
+  - name: Consent Management
+    description: GDPR-compliant consent handling
+  - name: Data Rights
+    description: User data rights (erasure, transparency)
+  - name: Export Control
+    description: Export policy and compliance controls
+  - name: Regional Compliance
+    description: Region-specific compliance configuration

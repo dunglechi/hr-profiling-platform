@@ -1,0 +1,20 @@
+repos:
+  - repo: local
+    hooks:
+      - id: sdlc-4-7-document-naming
+        name: SDLC 4.7 Document Naming
+        entry: python .sdlc/scripts/validate_naming.py
+        language: system
+        files: '\.md$'
+        
+      - id: sdlc-4-7-zero-mock
+        name: SDLC 4.7 Zero Mock Policy
+        entry: python .sdlc/scripts/validate_no_mocks.py
+        language: system
+        files: '\.(ts|js|py)$'
+        
+      - id: sdlc-4-7-headers
+        name: SDLC 4.7 Documentation Headers
+        entry: python .sdlc/scripts/validate_headers.py
+        language: system
+        files: '\.md$'

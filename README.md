@@ -1,3 +1,12 @@
+---
+SDLC_VERSION: "4.7.0"
+DOCUMENT_TYPE: "Business"
+COMPONENT: "HR-Platform"
+STATUS: "ACTIVE"
+AUTHORITY: "CTO Approved"
+LAST_UPDATED: "2025-10-11"
+---
+
 # HR Profiling & Assessment Platform
 
 A comprehensive full-stack web application for HR personnel profiling and assessment using multiple scientific methodologies including DISC assessment, MBTI personality testing, modern numerology analysis, and AI-powered CV analysis.

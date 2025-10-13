@@ -1,0 +1,1088 @@
+{
+  "info": {
+    "name": "HR Profiling - Compliance API Test Suite",
+    "description": "CPO-mandated contract, negative, and security tests for compliance endpoints",
+    "version": "1.0.0",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{admin_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:5000/api/compliance",
+      "type": "string"
+    },
+    {
+      "key": "admin_token",
+      "value": "admin_jwt_token_here",
+      "type": "string"
+    },
+    {
+      "key": "user_token",
+      "value": "user_jwt_token_here",
+      "type": "string"
+    },
+    {
+      "key": "dpo_token", 
+      "value": "dpo_jwt_token_here",
+      "type": "string"
+    },
+    {
+      "key": "test_tenant_id",
+      "value": "550e8400-e29b-41d4-a716-446655440000",
+      "type": "string"
+    },
+    {
+      "key": "test_user_id",
+      "value": "123e4567-e89b-12d3-a456-426614174000",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health Check Tests",
+      "item": [
+        {
+          "name": "Health Check - Success",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has correct structure', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('service', 'compliance');",
+                  "    pm.expect(jsonData).to.have.property('status');",
+                  "    pm.expect(jsonData).to.have.property('checks');",
+                  "    pm.expect(jsonData).to.have.property('timestamp');",
+                  "});",
+                  "",
+                  "pm.test('Schema guards are active', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.checks.schema_guards_active).to.be.true;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health",
+              "host": ["{{base_url}}"],
+              "path": ["health"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Kill-Switch Tests",
+      "item": [
+        {
+          "name": "Kill-Switch Disable - Success",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response confirms disable', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.success).to.be.true;",
+                  "    pm.expect(jsonData.tenantId).to.eql(pm.variables.get('test_tenant_id'));",
+                  "    pm.expect(jsonData).to.have.property('disabledAt');",
+                  "    pm.expect(jsonData).to.have.property('auditId');",
+                  "});",
+                  "",
+                  "// Store audit ID for later verification",
+                  "const jsonData = pm.response.json();",
+                  "pm.collectionVariables.set('disable_audit_id', jsonData.auditId);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"policy_violation\",\n  \"authorizedBy\": \"admin@company.com\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/kill-switch/{{test_tenant_id}}/disable",
+              "host": ["{{base_url}}"],
+              "path": ["kill-switch", "{{test_tenant_id}}", "disable"]
+            }
+          }
+        },
+        {
+          "name": "Kill-Switch Disable - Unauthorized (401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 401', function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});",
+                  "",
+                  "pm.test('Error response structure', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.success).to.be.false;",
+                  "    pm.expect(jsonData).to.have.property('error');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"policy_violation\",\n  \"authorizedBy\": \"admin@company.com\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/kill-switch/{{test_tenant_id}}/disable",
+              "host": ["{{base_url}}"],
+              "path": ["kill-switch", "{{test_tenant_id}}", "disable"]
+            }
+          }
+        },
+        {
+          "name": "Kill-Switch Disable - Missing Fields (400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 400', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test('Error mentions missing fields', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.success).to.be.false;",
+                  "    pm.expect(jsonData.error).to.include('required');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"policy_violation\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/kill-switch/{{test_tenant_id}}/disable",
+              "host": ["{{base_url}}"],
+              "path": ["kill-switch", "{{test_tenant_id}}", "disable"]
+            }
+          }
+        },
+        {
+          "name": "Kill-Switch Enable - Precondition Failed (412)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 412', function () {",
+                  "    pm.response.to.have.status(412);",
+                  "});",
+                  "",
+                  "pm.test('Response includes violations', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.success).to.be.false;",
+                  "    pm.expect(jsonData).to.have.property('violations');",
+                  "    pm.expect(jsonData.violations).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"authorizedBy\": \"admin@company.com\",\n  \"checklist\": [\"schema_guard_ok\"]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/kill-switch/{{test_tenant_id}}/enable",
+              "host": ["{{base_url}}"],
+              "path": ["kill-switch", "{{test_tenant_id}}", "enable"]
+            }
+          }
+        },
+        {
+          "name": "Kill-Switch Status Check",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Status response structure', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.success).to.be.true;",
+                  "    pm.expect(jsonData).to.have.property('insightsTabEnabled');",
+                  "    pm.expect(jsonData).to.have.property('settings');",
+                  "    pm.expect(jsonData.settings).to.have.property('region');",
+                  "});",
+                  "",
+                  "pm.test('Insights tab is disabled after kill-switch', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.insightsTabEnabled).to.be.false;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/kill-switch/{{test_tenant_id}}/status",
+              "host": ["{{base_url}}"],
+              "path": ["kill-switch", "{{test_tenant_id}}", "status"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Consent Management Tests",
+      "item": [
+        {
+          "name": "Consent Request - Success",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Consent request response', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.success).to.be.true;",
+                  "    pm.expect(jsonData).to.have.property('requiresAction');",
+                  "    ",
+                  "    if (jsonData.requiresAction) {",
+                  "        pm.expect(jsonData).to.have.property('consentText');",
+                  "        pm.expect(jsonData).to.have.property('version');",
+                  "    }",
+                  "});",
+                  "",
+                  "// Store consent info for next request",
+                  "const jsonData = pm.response.json();",
+                  "if (jsonData.consentText) {",
+                  "    pm.collectionVariables.set('consent_text', jsonData.consentText);",
+                  "    pm.collectionVariables.set('consent_version', jsonData.version);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"{{test_user_id}}\",\n  \"purposes\": [\"reference_insights\"],\n  \"tenantId\": \"{{test_tenant_id}}\",\n  \"region\": \"VN\",\n  \"ipAddress\": \"127.0.0.1\",\n  \"userAgent\": \"PostmanTest/1.0\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/consent/request",
+              "host": ["{{base_url}}"],
+              "path": ["consent", "request"]
+            }
+          }
+        },
+        {
+          "name": "Consent Grant - Success",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test('Consent grant response', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.success).to.be.true;",
+                  "    pm.expect(jsonData).to.have.property('consentId');",
+                  "    pm.expect(jsonData).to.have.property('auditId');",
+                  "    pm.expect(jsonData).to.have.property('expiresAt');",
+                  "});",
+                  "",
+                  "// Store consent ID for later tests",
+                  "const jsonData = pm.response.json();",
+                  "pm.collectionVariables.set('consent_id', jsonData.consentId);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{user_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"{{test_user_id}}\",\n  \"purposes\": [\"reference_insights\"],\n  \"tenantId\": \"{{test_tenant_id}}\",\n  \"consentText\": \"{{consent_text}}\",\n  \"version\": \"{{consent_version}}\",\n  \"ipAddress\": \"127.0.0.1\",\n  \"userAgent\": \"PostmanTest/1.0\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/consent/grant",
+              "host": ["{{base_url}}"],
+              "path": ["consent", "grant"]
+            }
+          }
+        },
+        {
+          "name": "Consent Check - Has Valid Consent",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('User has valid consent', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.success).to.be.true;",
+                  "    pm.expect(jsonData.hasConsent).to.be.true;",
+                  "    pm.expect(jsonData).to.have.property('consentDetails');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/consent/{{test_user_id}}/{{test_tenant_id}}/check?purpose=reference_insights",
+              "host": ["{{base_url}}"],
+              "path": ["consent", "{{test_user_id}}", "{{test_tenant_id}}", "check"],
+              "query": [
+                {
+                  "key": "purpose",
+                  "value": "reference_insights"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Consent Withdraw - Success",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Consent withdrawn successfully', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.success).to.be.true;",
+                  "    pm.expect(jsonData.withdrawnCount).to.be.greaterThan(0);",
+                  "    pm.expect(jsonData).to.have.property('auditId');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{user_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"purposes\": [\"reference_insights\"],\n  \"reason\": \"Test withdrawal\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/consent/{{test_user_id}}/{{test_tenant_id}}/withdraw",
+              "host": ["{{base_url}}"],
+              "path": ["consent", "{{test_user_id}}", "{{test_tenant_id}}", "withdraw"]
+            }
+          }
+        },
+        {
+          "name": "Consent Check - No Consent After Withdrawal",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('User has no consent after withdrawal', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.success).to.be.true;",
+                  "    pm.expect(jsonData.hasConsent).to.be.false;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/consent/{{test_user_id}}/{{test_tenant_id}}/check?purpose=reference_insights",
+              "host": ["{{base_url}}"],
+              "path": ["consent", "{{test_user_id}}", "{{test_tenant_id}}", "check"],
+              "query": [
+                {
+                  "key": "purpose",
+                  "value": "reference_insights"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Data Rights Tests",
+      "item": [
+        {
+          "name": "Transparency Report - Success",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Transparency report structure', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.success).to.be.true;",
+                  "    pm.expect(jsonData).to.have.property('report');",
+                  "    ",
+                  "    const report = jsonData.report;",
+                  "    pm.expect(report).to.have.property('userId');",
+                  "    pm.expect(report).to.have.property('dataCollected');",
+                  "    pm.expect(report).to.have.property('purposesGranted');",
+                  "    pm.expect(report).to.have.property('canWithdraw');",
+                  "    pm.expect(report).to.have.property('canErase');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{user_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/transparency/{{test_user_id}}/{{test_tenant_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["transparency", "{{test_user_id}}", "{{test_tenant_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Data Erasure - Success (GDPR)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 202', function () {",
+                  "    pm.response.to.have.status(202);",
+                  "});",
+                  "",
+                  "pm.test('Data erasure response', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.success).to.be.true;",
+                  "    pm.expect(jsonData).to.have.property('jobId');",
+                  "    pm.expect(jsonData).to.have.property('erasedDataTypes');",
+                  "    pm.expect(jsonData.erasedDataTypes).to.be.an('array');",
+                  "    pm.expect(jsonData).to.have.property('auditId');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{dpo_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"User requested account deletion\",\n  \"scope\": [\"reference_assessments\", \"personal_info\", \"consent_records\"]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/data-erasure/{{test_user_id}}/{{test_tenant_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["data-erasure", "{{test_user_id}}", "{{test_tenant_id}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Export Control Tests",
+      "item": [
+        {
+          "name": "Export Policy - Default Hide Reference",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Export policy enforces default hide', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.success).to.be.true;",
+                  "    pm.expect(jsonData.exportPolicy.defaultHide).to.be.true;",
+                  "    pm.expect(jsonData.exportPolicy.watermarkRequired).to.be.true;",
+                  "    pm.expect(jsonData.exportPolicy.disclaimerRequired).to.be.true;",
+                  "    pm.expect(jsonData.exportPolicy.auditRequired).to.be.true;",
+                  "});",
+                  "",
+                  "pm.test('Reference data not included by default', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.exportPolicy.includeReference).to.be.false;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/export/{{test_tenant_id}}/policy",
+              "host": ["{{base_url}}"],
+              "path": ["export", "{{test_tenant_id}}", "policy"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Regional Compliance Tests",
+      "item": [
+        {
+          "name": "Regional Requirements - Vietnam",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Vietnam compliance requirements', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.success).to.be.true;",
+                  "    pm.expect(jsonData.region).to.equal('VN');",
+                  "    pm.expect(jsonData.requirements).to.have.property('explicitConsentRequired');",
+                  "    pm.expect(jsonData.requirements).to.have.property('dataRetentionDays');",
+                  "    pm.expect(jsonData.requirements).to.have.property('rightToErasure');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/regional-toggles/requirements/VN",
+              "host": ["{{base_url}}"],
+              "path": ["regional-toggles", "requirements", "VN"]
+            }
+          }
+        },
+        {
+          "name": "Configure Regional Compliance - Success",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Regional compliance configured', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.success).to.be.true;",
+                  "    pm.expect(jsonData).to.have.property('settings');",
+                  "    pm.expect(jsonData.settings.region).to.equal('VN');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"region\": \"VN\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/regional-toggles/{{test_tenant_id}}/configure",
+              "host": ["{{base_url}}"],
+              "path": ["regional-toggles", "{{test_tenant_id}}", "configure"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Security & Negative Tests",
+      "item": [
+        {
+          "name": "Invalid Token - 401",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 401', function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});",
+                  "",
+                  "pm.test('Authentication error response', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.success).to.be.false;",
+                  "    pm.expect(jsonData).to.have.property('error');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "invalid_token_123",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/kill-switch/{{test_tenant_id}}/status",
+              "host": ["{{base_url}}"],
+              "path": ["kill-switch", "{{test_tenant_id}}", "status"]
+            }
+          }
+        },
+        {
+          "name": "Invalid Tenant ID - 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 400', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test('Invalid tenant ID error', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.success).to.be.false;",
+                  "    pm.expect(jsonData.error).to.include('tenant');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/kill-switch/invalid-tenant-id/status",
+              "host": ["{{base_url}}"],
+              "path": ["kill-switch", "invalid-tenant-id", "status"]
+            }
+          }
+        },
+        {
+          "name": "Invalid Purpose - 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 400', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test('Invalid purpose error', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.success).to.be.false;",
+                  "    pm.expect(jsonData.error).to.include('purpose');",
+                  "    pm.expect(jsonData).to.have.property('validPurposes');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/consent/{{test_user_id}}/{{test_tenant_id}}/check?purpose=invalid_purpose",
+              "host": ["{{base_url}}"],
+              "path": ["consent", "{{test_user_id}}", "{{test_tenant_id}}", "check"],
+              "query": [
+                {
+                  "key": "purpose",
+                  "value": "invalid_purpose"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "SQL Injection Attempt - Sanitized",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 400 or 404 (sanitized)', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([400, 404]);",
+                  "});",
+                  "",
+                  "pm.test('No SQL injection vulnerability', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.success).to.be.false;",
+                  "    // Should not contain SQL error details",
+                  "    pm.expect(jsonData.error).to.not.include('SQL');",
+                  "    pm.expect(jsonData.error).to.not.include('database');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/consent/{{test_user_id}}'; DROP TABLE users; --/{{test_tenant_id}}/check?purpose=reference_insights",
+              "host": ["{{base_url}}"],
+              "path": ["consent", "{{test_user_id}}'; DROP TABLE users; --", "{{test_tenant_id}}", "check"],
+              "query": [
+                {
+                  "key": "purpose",
+                  "value": "reference_insights"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Zero-Leakage Validation",
+      "item": [
+        {
+          "name": "CRITICAL: Reference Data Not in Decision Endpoint",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('CRITICAL: No reference fields in decision data', function () {",
+                  "    const responseText = pm.response.text();",
+                  "    ",
+                  "    // Critical test: Reference fields should NEVER appear",
+                  "    pm.expect(responseText).to.not.include('mbti_type');",
+                  "    pm.expect(responseText).to.not.include('disc_quadrant');",
+                  "    pm.expect(responseText).to.not.include('numerology_score');",
+                  "    pm.expect(responseText).to.not.include('personality');",
+                  "    pm.expect(responseText).to.not.include('reference_only');",
+                  "    ",
+                  "    // Should only contain job-relevant data",
+                  "    const jsonData = pm.response.json();",
+                  "    if (jsonData.data) {",
+                  "        const dataStr = JSON.stringify(jsonData.data);",
+                  "        pm.expect(dataStr).to.not.include('mbti');",
+                  "        pm.expect(dataStr).to.not.include('disc');",
+                  "        pm.expect(dataStr).to.not.include('numerology');",
+                  "    }",
+                  "});",
+                  "",
+                  "pm.test('CRITICAL: Only job-relevant fields present', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    if (jsonData.data && Array.isArray(jsonData.data)) {",
+                  "        jsonData.data.forEach(item => {",
+                  "            // Check that only allowed fields are present",
+                  "            const allowedFields = ['id', 'skills', 'experience', 'work_sample', 'interview', 'job_relevance_score'];",
+                  "            const itemKeys = Object.keys(item);",
+                  "            ",
+                  "            itemKeys.forEach(key => {",
+                  "                pm.expect(key).to.not.include('mbti');",
+                  "                pm.expect(key).to.not.include('disc');",
+                  "                pm.expect(key).to.not.include('numerology');",
+                  "            });",
+                  "        });",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:5001/api/assessments",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5001",
+              "path": ["api", "assessments"]
+            }
+          }
+        },
+        {
+          "name": "CRITICAL: Export Default Hides Reference",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('CRITICAL: Export does not include reference data by default', function () {",
+                  "    const responseText = pm.response.text();",
+                  "    ",
+                  "    // Export should not contain reference data",
+                  "    pm.expect(responseText).to.not.include('mbti_type');",
+                  "    pm.expect(responseText).to.not.include('disc_style');",
+                  "    pm.expect(responseText).to.not.include('numerology_profile');",
+                  "    pm.expect(responseText).to.not.include('personality_insights');",
+                  "});",
+                  "",
+                  "pm.test('CRITICAL: Watermark and disclaimer required if reference included', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    if (jsonData.exportPolicy && jsonData.exportPolicy.includeReference) {",
+                  "        pm.expect(jsonData.exportPolicy.watermarkRequired).to.be.true;",
+                  "        pm.expect(jsonData.exportPolicy.disclaimerRequired).to.be.true;",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/export/{{test_tenant_id}}/policy",
+              "host": ["{{base_url}}"],
+              "path": ["export", "{{test_tenant_id}}", "policy"]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Global setup for test suite",
+          "console.log('Running compliance API test suite...');",
+          "",
+          "// Ensure test tenant and user exist",
+          "if (!pm.collectionVariables.get('test_tenant_id')) {",
+          "    pm.collectionVariables.set('test_tenant_id', '550e8400-e29b-41d4-a716-446655440000');",
+          "}",
+          "",
+          "if (!pm.collectionVariables.get('test_user_id')) {",
+          "    pm.collectionVariables.set('test_user_id', '123e4567-e89b-12d3-a456-426614174000');",
+          "}"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Global test validation",
+          "pm.test('Response time is acceptable', function () {",
+          "    pm.expect(pm.response.responseTime).to.be.below(5000);",
+          "});",
+          "",
+          "pm.test('Response has correct Content-Type', function () {",
+          "    pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');",
+          "});",
+          "",
+          "// Security headers check",
+          "pm.test('Security headers present', function () {",
+          "    pm.expect(pm.response.headers.get('X-Content-Type-Options')).to.eql('nosniff');",
+          "});"
+        ]
+      }
+    }
+  ]
+}

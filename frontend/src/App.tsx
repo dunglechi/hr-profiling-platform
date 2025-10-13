@@ -11,6 +11,9 @@ import DISCPage from './pages/DISCPage';
 import MBTIPage from './components/MBTI/MBTIPage';
 import LanguageSwitcher from './components/common/LanguageSwitcher';
 
+// Import i18n configuration
+import './i18n';
+
 function App() {
   return (
     <Router

@@ -1,0 +1,11 @@
+﻿{
+    "violations":  [
+
+                   ],
+    "folderStructure":  "COMPLIANT",
+    "missingHeaders":  149,
+    "complianceScore":  79,
+    "date":  "2025-10-11",
+    "namingViolations":  57,
+    "project":  "HR Profiling \u0026 Assessment Platform"
+}

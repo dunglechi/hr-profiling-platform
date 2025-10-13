@@ -1,0 +1,39 @@
+﻿{
+    "date":  "2025-10-11 23:05:18",
+    "fixes":  [
+                  {
+                      "OriginalName":  "CPO_RESPONSE_STRATEGIC_PLAN.md",
+                      "Violations":  [
+                                         "Underscore instead of kebab-case"
+                                     ],
+                      "File":  "C:\\Users\\Admin\\Projects\\docs\\00-Project-Foundation\\CPO_RESPONSE_STRATEGIC_PLAN.md",
+                      "SuggestedName":  "CPO-RESPONSE-STRATEGIC-PLAN.md"
+                  },
+                  {
+                      "OriginalName":  "IMMEDIATE_ACTION_PLAN.md",
+                      "Violations":  [
+                                         "Underscore instead of kebab-case"
+                                     ],
+                      "File":  "C:\\Users\\Admin\\Projects\\docs\\00-Project-Foundation\\IMMEDIATE_ACTION_PLAN.md",
+                      "SuggestedName":  "IMMEDIATE-ACTION-PLAN.md"
+                  },
+                  {
+                      "OriginalName":  "COMPLIANCE_ARCHITECTURE.md",
+                      "Violations":  [
+                                         "Underscore instead of kebab-case"
+                                     ],
+                      "File":  "C:\\Users\\Admin\\Projects\\docs\\02-Design-Architecture\\COMPLIANCE_ARCHITECTURE.md",
+                      "SuggestedName":  "COMPLIANCE-ARCHITECTURE.md"
+                  },
+                  {
+                      "OriginalName":  "TECHNICAL_IMPLEMENTATION_PLAN.md",
+                      "Violations":  [
+                                         "Underscore instead of kebab-case"
+                                     ],
+                      "File":  "C:\\Users\\Admin\\Projects\\docs\\03-Development-Implementation\\TECHNICAL_IMPLEMENTATION_PLAN.md",
+                      "SuggestedName":  "TECHNICAL-IMPLEMENTATION-PLAN.md"
+                  }
+              ],
+    "violationsFound":  4,
+    "mode":  "AUTO-FIX"
+}

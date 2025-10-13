@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Box,
   Container,
@@ -17,9 +18,10 @@ import NumerologyForm from '../components/NumerologyForm';
 import NumerologyDisplay from '../components/NumerologyDisplay';
 import numerologyService, { NumerologyResult } from '../services/numerologyService';
 
-const steps = ['Nhập Thông Tin', 'Kết Quả Phân Tích'];
-
 const NumerologyPage: React.FC = () => {
+  const { t } = useTranslation('numerology');
+  const steps = [t('steps.enterInfo'), t('steps.results')];
+  
   const [activeStep, setActiveStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>('');
@@ -52,7 +54,7 @@ const NumerologyPage: React.FC = () => {
       setResult(calculationResult);
       setActiveStep(1);
     } catch (err: any) {
-      setError(err.message || 'Có lỗi xảy ra khi tính toán thần số học');
+      setError(err.message || t('errors.calculationError'));
     } finally {
       setLoading(false);
     }
@@ -126,7 +128,7 @@ ${result.careerGuidance.suitableCareers.slice(0, 3).map(career => `• ${career}
       try {
         await navigator.clipboard.writeText(shareText);
         // You could show a toast notification here
-        alert('Đã sao chép kết quả vào clipboard!');
+        alert(t('actions.copySuccess'));
       } catch (err) {
         console.error('Failed to copy to clipboard');
       }
@@ -137,11 +139,11 @@ ${result.careerGuidance.suitableCareers.slice(0, 3).map(career => `• ${career}
     <Container maxWidth="lg" sx={{ py: 4 }}>
       <Paper elevation={2} sx={{ p: 3, mb: 4 }}>
         <Typography variant="h3" component="h1" gutterBottom color="primary" sx={{ fontWeight: 'bold', textAlign: 'center' }}>
-          🔮 Thần Số Học Pythagoras
+          🔮 {t('title')}
         </Typography>
         
         <Typography variant="h6" color="text.secondary" sx={{ textAlign: 'center', mb: 4 }}>
-          Khám phá bản thân và định hướng tương lai qua các con số thiêng liêng
+          {t('subtitle')}
         </Typography>
 
         <Stepper activeStep={activeStep} sx={{ mb: 4 }}>

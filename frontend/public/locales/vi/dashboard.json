@@ -1,6 +1,22 @@
 {
   "title": "Bảng Điều Khiển HR",
   "subtitle": "Khám phá và phát triển tiềm năng nhân lực qua các công cụ đánh giá tâm lý",
+  "quickActions": {
+    "title": "Bắt Đầu Đánh Giá",
+    "startButton": "Bắt Đầu",
+    "numerology": {
+      "title": "Thần Số Học",
+      "description": "Phân tích tính cách qua Pythagoras"
+    },
+    "disc": {
+      "title": "Test DISC",
+      "description": "Đánh giá phong cách hành vi"
+    },
+    "mbti": {
+      "title": "MBTI",
+      "description": "Phân loại tính cách Myers-Briggs"
+    }
+  },
   "assessments": {
     "title": "Công Cụ Đánh Giá",
     "disc": {

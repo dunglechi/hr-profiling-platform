@@ -1,9 +1,11 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Paper, Typography, Box, Grid, Card, CardContent, Button } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { Psychology, Assessment, Work } from '@mui/icons-material';
 
 const Dashboard: React.FC = () => {
+  const { t } = useTranslation('dashboard');
   const navigate = useNavigate();
 
   return (
@@ -56,7 +58,7 @@ const Dashboard: React.FC = () => {
       {/* Quick Actions */}
       <Paper sx={{ mt: 4, p: 3 }}>
         <Typography variant="h6" gutterBottom>
-          🚀 Bắt Đầu Đánh Giá
+          🚀 {t('quickActions.title')}
         </Typography>
         <Grid container spacing={2}>
           <Grid item xs={12} sm={6} md={4}>
@@ -65,12 +67,30 @@ const Dashboard: React.FC = () => {
               <CardContent sx={{ textAlign: 'center', py: 3 }}>
                 <Psychology sx={{ fontSize: 48, color: 'primary.main', mb: 2 }} />
                 <Typography variant="h6" gutterBottom>
-                  🔮 Thần Số Học
+                  🔮 {t('quickActions.numerology.title')}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  Phân tích tính cách qua Pythagoras
+                  {t('quickActions.numerology.description')}
                 </Typography>
                 <Button variant="contained" sx={{ mt: 2 }} fullWidth>
+                  {t('quickActions.startButton')}
+                </Button>
+              </CardContent>
+            </Card>
+          </Grid>
+          
+          <Grid item xs={12} sm={6} md={4}>
+            <Card sx={{ height: '100%', cursor: 'pointer', '&:hover': { elevation: 4 } }}
+                  onClick={() => navigate('/disc')}>
+              <CardContent sx={{ textAlign: 'center', py: 3 }}>
+                <Assessment sx={{ fontSize: 48, color: 'secondary.main', mb: 2 }} />
+                <Typography variant="h6" gutterBottom>
+                  📊 Test DISC
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Đánh giá phong cách hành vi
+                </Typography>
+                <Button variant="contained" color="secondary" sx={{ mt: 2 }} fullWidth>
                   Bắt Đầu
                 </Button>
               </CardContent>
@@ -78,34 +98,18 @@ const Dashboard: React.FC = () => {
           </Grid>
           
           <Grid item xs={12} sm={6} md={4}>
-            <Card sx={{ height: '100%', opacity: 0.6 }}>
+            <Card sx={{ height: '100%', cursor: 'pointer', '&:hover': { elevation: 4 } }}
+                  onClick={() => navigate('/mbti')}>
               <CardContent sx={{ textAlign: 'center', py: 3 }}>
-                <Assessment sx={{ fontSize: 48, color: 'text.secondary', mb: 2 }} />
+                <Work sx={{ fontSize: 48, color: 'success.main', mb: 2 }} />
                 <Typography variant="h6" gutterBottom>
-                  📊 Test DISC
+                  🧠 {t('quickActions.mbti.title')}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  Đánh giá phong cách hành vi
+                  {t('quickActions.mbti.description')}
                 </Typography>
-                <Button variant="outlined" disabled sx={{ mt: 2 }} fullWidth>
-                  Sắp Ra Mắt
-                </Button>
-              </CardContent>
-            </Card>
-          </Grid>
-          
-          <Grid item xs={12} sm={6} md={4}>
-            <Card sx={{ height: '100%', opacity: 0.6 }}>
-              <CardContent sx={{ textAlign: 'center', py: 3 }}>
-                <Work sx={{ fontSize: 48, color: 'text.secondary', mb: 2 }} />
-                <Typography variant="h6" gutterBottom>
-                  🧠 MBTI
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Phân loại tính cách Myers-Briggs
-                </Typography>
-                <Button variant="outlined" disabled sx={{ mt: 2 }} fullWidth>
-                  Sắp Ra Mắt
+                <Button variant="contained" color="success" sx={{ mt: 2 }} fullWidth>
+                  {t('quickActions.startButton')}
                 </Button>
               </CardContent>
             </Card>

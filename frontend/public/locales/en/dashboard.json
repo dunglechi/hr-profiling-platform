@@ -1,6 +1,22 @@
 {
   "title": "HR Dashboard",
   "subtitle": "Discover and develop human potential through psychological assessment tools",
+  "quickActions": {
+    "title": "Start Assessment",
+    "startButton": "Start",
+    "numerology": {
+      "title": "Numerology",
+      "description": "Personality analysis through Pythagoras"
+    },
+    "disc": {
+      "title": "DISC Test",
+      "description": "Behavioral style assessment"
+    },
+    "mbti": {
+      "title": "MBTI",
+      "description": "Myers-Briggs personality classification"
+    }
+  },
   "assessments": {
     "title": "Assessment Tools",
     "disc": {

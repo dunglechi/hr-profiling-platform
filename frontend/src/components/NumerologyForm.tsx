@@ -40,10 +40,10 @@ const NumerologyForm: React.FC<NumerologyFormProps> = ({
       setNameError(t('form.validation.nameRequired'));
       isValid = false;
     } else if (fullName.trim().length < 2) {
-      setNameError('Họ và tên phải có ít nhất 2 ký tự');
+      setNameError(t('form.validation.nameMinLength'));
       isValid = false;
     } else if (!/^[a-zA-ZÀ-ỹĐđ\s]+$/.test(fullName.trim())) {
-      setNameError('Họ và tên chỉ được chứa chữ cái và khoảng trắng');
+      setNameError(t('form.validation.nameInvalidCharacters'));
       isValid = false;
     } else {
       setNameError('');
@@ -54,7 +54,7 @@ const NumerologyForm: React.FC<NumerologyFormProps> = ({
       setDateError(t('form.validation.dateRequired'));
       isValid = false;
     } else if (birthDate > new Date()) {
-      setDateError('Ngày sinh không thể trong tương lai');
+      setDateError(t('form.validation.dateFuture'));
       isValid = false;
     } else if (birthDate < new Date('1900-01-01')) {
       setDateError(t('form.validation.invalidDate'));
@@ -90,7 +90,7 @@ const NumerologyForm: React.FC<NumerologyFormProps> = ({
         if (dateError) setDateError('');
       } else {
         setBirthDate(null);
-        setDateError('Ngày sinh không hợp lệ');
+        setDateError(t('form.validation.invalidDate'));
       }
     } else {
       setBirthDate(null);
@@ -135,7 +135,7 @@ const NumerologyForm: React.FC<NumerologyFormProps> = ({
                   value={fullName}
                   onChange={handleNameChange}
                   error={!!nameError}
-                  helperText={nameError || 'Nhập họ và tên như trong giấy khai sinh'}
+                  helperText={nameError || t('form.nameHelper')}
                   variant="outlined"
                   disabled={loading}
                   sx={{ mb: 2 }}
@@ -235,9 +235,9 @@ const NumerologyForm: React.FC<NumerologyFormProps> = ({
           {fullName && birthDate && (
             <Alert severity="info" sx={{ mt: 3 }}>
               <Typography variant="body2">
-                <strong>Thông tin nhập:</strong><br />
-                👤 Họ tên: {fullName}<br />
-                📅 Ngày sinh: {format(birthDate, 'dd/MM/yyyy')}
+                <strong>{t('form.enteredInfo')}:</strong><br />
+                👤 {t('form.fullName')}: {fullName}<br />
+                📅 {t('form.birthDate')}: {format(birthDate, 'dd/MM/yyyy')}
               </Typography>
             </Alert>
           )}

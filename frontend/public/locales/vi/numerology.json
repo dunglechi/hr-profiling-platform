@@ -1,16 +1,28 @@
 {
-  "title": "Thần Số Học",
-  "subtitle": "Khám phá con số định mệnh và tính cách của bạn",
+  "title": "Thần Số Học Pythagoras",
+  "subtitle": "Khám phá bản thân và định hướng tương lai qua các con số thiêng liêng",
+  "steps": {
+    "enterInfo": "Nhập Thông Tin",
+    "results": "Kết Quả Phân Tích"
+  },
+  "actions": {
+    "copySuccess": "Đã sao chép kết quả vào clipboard!"
+  },
   "form": {
     "fullName": "Họ và tên",
     "fullNamePlaceholder": "Vui lòng nhập họ và tên",
+    "nameHelper": "Nhập họ và tên như trong giấy khai sinh",
     "birthDate": "Ngày sinh",
     "birthDatePlaceholder": "Chọn ngày sinh chính xác (DD/MM/YYYY)",
     "calculate": "Phân Tích Thần Số",
     "calculating": "Đang Tính Toán...",
+    "enteredInfo": "Thông tin nhập",
     "validation": {
       "nameRequired": "Vui lòng nhập họ và tên",
+      "nameMinLength": "Họ và tên phải có ít nhất 2 ký tự",
+      "nameInvalidCharacters": "Họ và tên chỉ được chứa chữ cái và khoảng trắng",
       "dateRequired": "Vui lòng nhập ngày sinh",
+      "dateFuture": "Ngày sinh không thể trong tương lai",
       "invalidDate": "Ngày sinh không hợp lệ"
     }
   },
@@ -23,7 +35,23 @@
       "title": "Đặc Điểm Cốt Lõi",
       "strengths": "✅ Điểm Mạnh",
       "challenges": "⚠️ Thách Thức",
-      "opportunities": "🚀 Cơ Hội"
+      "opportunities": "🚀 Cơ Hội",
+      "keywords": "Từ Khóa"
+    },
+    "challengesAndPinnacles": {
+      "title": "Số Thách Thức & Đỉnh Cao",
+      "type": "Loại",
+      "stage1": "Giai Đoạn 1",
+      "stage2": "Giai Đoạn 2", 
+      "stage3": "Giai Đoạn 3",
+      "stage4": "Giai Đoạn 4",
+      "challenges": "Thách Thức"
+    },
+    "lifeCycle": {
+      "title": "Chu Kỳ Cuộc Đời",
+      "youthPhase": "Giai Đoạn Trẻ (0-27 tuổi)",
+      "adulthoodPhase": "Giai Đoạn Trưởng Thành (28-54 tuổi)",
+      "maturityPhase": "Giai Đoạn Chín Muồi (55+ tuổi)"
     },
     "career": {
       "title": "Hướng Dẫn Nghề Nghiệp",

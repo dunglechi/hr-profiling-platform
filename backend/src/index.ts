@@ -12,6 +12,10 @@ import candidateRoutes from './routes/candidates';
 import assessmentRoutes from './routes/assessments';
 import jobPositionRoutes from './routes/jobPositions';
 import numerologyRoutes from './routes/numerology';
+import discRoutes from './routes/disc';
+import mbtiRoutes from './routes/mbti';
+import complianceRoutes from './routes/compliance';
+import aiRoutes from './routes/ai';
 
 // Initialize Express app
 const app = express();
@@ -47,6 +51,10 @@ app.use('/api/candidates', candidateRoutes);
 app.use('/api/assessments', assessmentRoutes);
 app.use('/api/job-positions', jobPositionRoutes);
 app.use('/api/numerology', numerologyRoutes);
+app.use('/api/disc', discRoutes);
+app.use('/api/mbti', mbtiRoutes);
+app.use('/api/compliance', complianceRoutes); // CPO T+30 Requirement
+app.use('/api/ai', aiRoutes); // AI-powered CV analysis
 
 // Error handling middleware
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {

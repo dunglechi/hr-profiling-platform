@@ -1,0 +1,87 @@
+{
+  "report_timestamp": "2025-10-11T19:08:40.885120",
+  "project": "HR Profiling & Assessment Platform",
+  "sdlc_version": "4.7.0",
+  "overall_health_score": 74.7,
+  "performance_metrics": {
+    "api_performance": {
+      "Health Check": {
+        "response_time_ms": null,
+        "status_code": null,
+        "error": "Cannot connect to host localhost:3000 ssl:default [The remote computer refused the network connection]",
+        "target_met": false,
+        "timestamp": "2025-10-11T19:08:32.960529"
+      },
+      "Assessments API": {
+        "response_time_ms": null,
+        "status_code": null,
+        "error": "Cannot connect to host localhost:3000 ssl:default [The remote computer refused the network connection]",
+        "target_met": false,
+        "timestamp": "2025-10-11T19:08:35.274440"
+      },
+      "Candidates API": {
+        "response_time_ms": null,
+        "status_code": null,
+        "error": "Cannot connect to host localhost:3000 ssl:default [The remote computer refused the network connection]",
+        "target_met": false,
+        "timestamp": "2025-10-11T19:08:37.576375"
+      },
+      "Reports API": {
+        "response_time_ms": null,
+        "status_code": null,
+        "error": "Cannot connect to host localhost:3000 ssl:default [The remote computer refused the network connection]",
+        "target_met": false,
+        "timestamp": "2025-10-11T19:08:39.879426"
+      }
+    },
+    "system_resources": {
+      "cpu_usage_percent": 16.1,
+      "memory_usage_percent": 74.4,
+      "memory_available_gb": 4.03,
+      "disk_usage_percent": 82.21,
+      "disk_free_gb": 46.23,
+      "timestamp": "2025-10-11T19:08:40.882901"
+    },
+    "database_performance": {
+      "query_response_time_ms": 34.24847822332816,
+      "connection_pool_usage": 52.06373639644195,
+      "slow_queries_count": 0,
+      "cache_hit_ratio": 92.23432353405514,
+      "timestamp": "2025-10-11T19:08:40.884721"
+    },
+    "assessment_accuracy": {
+      "DISC": {
+        "accuracy_percent": 97.89,
+        "target_met": true,
+        "timestamp": "2025-10-11T19:08:40.883883"
+      },
+      "MBTI": {
+        "accuracy_percent": 92.2,
+        "target_met": false,
+        "timestamp": "2025-10-11T19:08:40.884122"
+      },
+      "Numerology": {
+        "accuracy_percent": 96.3,
+        "target_met": true,
+        "timestamp": "2025-10-11T19:08:40.884334"
+      },
+      "CV_Analysis": {
+        "accuracy_percent": 93.41,
+        "target_met": false,
+        "timestamp": "2025-10-11T19:08:40.884494"
+      }
+    },
+    "user_experience": {}
+  },
+  "targets": {
+    "api_response_time": 50,
+    "cpu_usage": 80,
+    "memory_usage": 80,
+    "assessment_accuracy": 95,
+    "uptime": 99.9
+  },
+  "recommendations": [
+    "Improve MBTI accuracy - Current: 92.2%, Target: \u226595%",
+    "Improve CV_Analysis accuracy - Current: 93.41%, Target: \u226595%"
+  ]
+}
