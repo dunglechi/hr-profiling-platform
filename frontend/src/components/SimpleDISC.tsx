@@ -42,7 +42,7 @@ const SimpleDISC: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [result, setResult] = useState<DISCResult | null>(null);
-  const [userName, setUserName] = useState('');
+  // Removed unused userName state
 
   const questions = [
     {

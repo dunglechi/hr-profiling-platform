@@ -3,7 +3,7 @@ import { Paper, Typography, Box, Grid, Card, CardContent, Button } from '@mui/ma
 import { useNavigate } from 'react-router-dom';
 import { Psychology, Assessment, Work, BarChart } from '@mui/icons-material';
 import { numerologyAPI, assessmentAPI } from '../lib/supabase';
-import RecentActivity from './RecentActivity';
+import SimpleRecentActivity from './SimpleRecentActivity';
 
 const SimpleDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -181,7 +181,7 @@ const SimpleDashboard: React.FC = () => {
       <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold', mb: 2 }}>
         Hoạt Động Gần Đây
       </Typography>
-      <RecentActivity />
+      <SimpleRecentActivity />
     </Box>
   );
 };

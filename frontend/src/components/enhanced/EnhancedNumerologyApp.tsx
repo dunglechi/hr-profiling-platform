@@ -125,7 +125,7 @@ const EnhancedNumerologyApp: React.FC = () => {
     birthDate: Date;
   } | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  // Removed unused error state
 
   // Save dark mode preference
   useEffect(() => {
