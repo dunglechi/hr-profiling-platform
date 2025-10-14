@@ -11,11 +11,10 @@ import {
 import {
   Psychology,
   Home,
-  Assessment
+  Assessment,
+  Work
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { LanguageSwitcher } from './LanguageSwitcher';
-import { useSecureTranslation } from '../../hooks/useSecureTranslation';
 
 interface NavigationHeaderProps {
   onMenuClick?: () => void;
@@ -25,31 +24,36 @@ export const NavigationHeader: React.FC<NavigationHeaderProps> = ({ onMenuClick 
   const theme = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
-  const { t } = useSecureTranslation('common');
 
   const navigationItems = [
     {
       path: '/',
       icon: <Home />,
-      label: t('navigation.home', 'Trang Chủ'),
-      title: t('navigation.dashboard', 'Bảng Điều Khiển')
+      label: 'Trang Chủ',
+      title: 'Bảng Điều Khiển HR'
     },
     {
-      path: '/numerology-enhanced',
+      path: '/numerology',
       icon: <Psychology />,
-      label: t('navigation.numerology', 'Thần Số Học'),
-      title: t('navigation.numerologyAdvanced', 'Thần Số Học Nâng Cao')
+      label: 'Thần Số Học',
+      title: 'Thần Số Học Nâng Cao'
     },
     {
       path: '/disc',
       icon: <Assessment />,
-      label: t('navigation.assessments', 'Đánh Giá'),
-      title: t('navigation.discAssessment', 'Đánh Giá DISC')
+      label: 'DISC',
+      title: 'Đánh Giá DISC'
+    },
+    {
+      path: '/mbti',
+      icon: <Work />,
+      label: 'MBTI',
+      title: 'Phân Loại MBTI'
     }
   ];
 
   const currentItem = navigationItems.find(item => item.path === location.pathname);
-  const currentTitle = currentItem?.title || t('app.title', 'HR Profiling Platform');
+  const currentTitle = currentItem?.title || 'HR Profiling Platform';
 
   return (
     <AppBar 
@@ -95,7 +99,7 @@ export const NavigationHeader: React.FC<NavigationHeaderProps> = ({ onMenuClick 
                 display: { xs: 'none', md: 'block' }
               }}
             >
-              {t('app.subtitle', 'Khám phá tiềm năng qua khoa học tâm lý')}
+              Khám phá tiềm năng qua khoa học tâm lý
             </Typography>
           </Box>
         </Box>
@@ -128,17 +132,8 @@ export const NavigationHeader: React.FC<NavigationHeaderProps> = ({ onMenuClick 
             ))}
           </Box>
 
-          {/* Language Switcher */}
-          <Box 
-            sx={{ 
-              color: 'white',
-              '& .MuiIconButton-root': {
-                color: 'white'
-              }
-            }}
-          >
-            <LanguageSwitcher variant="icon" size="medium" />
-          </Box>
+          {/* Language Switcher - Removed for stability */}
+          <Box sx={{ width: 40 }} />
         </Box>
       </Toolbar>
     </AppBar>
