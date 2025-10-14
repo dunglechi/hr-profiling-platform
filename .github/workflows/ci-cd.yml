@@ -1,0 +1,87 @@
+name: 🚀 CI/CD Pipeline - Streamlined
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 📦 Setup Node.js  
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: 'frontend/package-lock.json'
+        
+    - name: 🔧 Install dependencies
+      working-directory: ./frontend
+      run: npm ci
+      
+    - name: 🧹 Run linting
+      working-directory: ./frontend  
+      run: npm run lint
+      
+    - name: 🧪 Run unit tests
+      working-directory: ./frontend
+      run: npm run test:ci
+      
+    - name: 🏗️ Build application
+      working-directory: ./frontend
+      run: npm run build
+      env:
+        VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+        VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+        
+    - name: 📊 Upload build artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: build-files
+        path: frontend/dist/
+        
+  security-scan:
+    runs-on: ubuntu-latest
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 🔍 Run npm audit
+      working-directory: ./frontend
+      run: npm audit --audit-level moderate
+      
+    - name: 🛡️ Run CodeQL analysis
+      uses: github/codeql-action/init@v2
+      with:
+        languages: javascript, typescript
+        
+    - name: 🔎 Perform CodeQL analysis
+      uses: github/codeql-action/analyze@v2
+
+  # Deployment handled automatically by Vercel
+  # This job just confirms deployment success
+  verify-deployment:
+    needs: [test-and-build, security-scan]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: ⏱️ Wait for Vercel deployment
+      run: sleep 180  # Wait 3 minutes for Vercel to deploy
+      
+    - name: 🏥 Health check
+      run: |
+        curl -f https://hr-profiling-platform.vercel.app/ || exit 1
+        echo "✅ Deployment verified successfully!"
+        
+    - name: 📈 Update deployment status
+      run: |
+        echo "🚀 Deployment Status: SUCCESS" 
+        echo "📅 Deployed at: $(date)"
+        echo "🔗 URL: https://hr-profiling-platform.vercel.app"
