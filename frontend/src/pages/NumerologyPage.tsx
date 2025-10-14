@@ -17,6 +17,7 @@ import { ArrowBack, Download, Share } from '@mui/icons-material';
 import NumerologyForm from '../components/NumerologyForm';
 import NumerologyDisplay from '../components/NumerologyDisplay';
 import numerologyService, { NumerologyResult } from '../services/numerologyService';
+import { numerologyAPI } from '../lib/supabase';
 
 const NumerologyPage: React.FC = () => {
   const { t } = useTranslation('numerology');
@@ -50,6 +51,19 @@ const NumerologyPage: React.FC = () => {
         fullName,
         birthDate: numerologyService.formatDateForApi(birthDate)
       });
+
+      // Save to Supabase database
+      try {
+        await numerologyAPI.saveResult({
+          user_name: fullName,
+          birth_date: numerologyService.formatDateForApi(birthDate),
+          calculation_data: calculationResult
+        });
+        console.log('✅ Result saved to database successfully');
+      } catch (dbError: any) {
+        console.warn('⚠️ Could not save to database:', dbError.message);
+        // Continue anyway - don't block user experience
+      }
 
       setResult(calculationResult);
       setActiveStep(1);

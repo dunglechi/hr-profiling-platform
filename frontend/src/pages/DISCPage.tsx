@@ -29,6 +29,7 @@ import {
 import DISCForm from '../components/DISCForm';
 import DISCDisplay from '../components/DISCDisplay';
 import { type DISCResult } from '../services/discService';
+import { assessmentAPI } from '../lib/supabase';
 
 const DISCPage: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(0);
@@ -37,7 +38,21 @@ const DISCPage: React.FC = () => {
 
   const steps = ['Introduction', 'Assessment', 'Results'];
 
-  const handleAssessmentComplete = (result: DISCResult) => {
+  const handleAssessmentComplete = async (result: DISCResult) => {
+    try {
+      // Save DISC result to database
+      await assessmentAPI.saveResult({
+        user_id: `anonymous_${Date.now()}`, // Generate unique anonymous user ID
+        assessment_type: 'DISC',
+        result_data: result
+      });
+      
+      console.log('✅ DISC result saved to database successfully');
+    } catch (dbError: any) {
+      console.warn('⚠️ Database save error:', dbError.message);
+      // Continue anyway - don't block user experience
+    }
+
     setDiscResult(result);
     setCurrentStep(2);
     setError('');

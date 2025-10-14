@@ -16,14 +16,14 @@ import {
   Slide,
   Chip,
   InputAdornment,
-  IconButton,
   Stepper,
   Step,
   StepLabel,
   StepContent,
   Paper,
   Tooltip,
-  FormHelperText
+  useMediaQuery,
+  useTheme
 } from '@mui/material';
 import {
   Person,
@@ -34,7 +34,7 @@ import {
   CheckCircle,
   Psychology
 } from '@mui/icons-material';
-import { format, isValid, parseISO } from 'date-fns';
+import { format, isValid } from 'date-fns';
 import { vi, enUS } from 'date-fns/locale';
 
 interface EnhancedNumerologyFormProps {
@@ -63,6 +63,10 @@ const EnhancedNumerologyForm: React.FC<EnhancedNumerologyFormProps> = ({
   error 
 }) => {
   const { t, i18n } = useTranslation('numerology');
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isTouchDevice = useMediaQuery('(pointer: coarse)');
+  
   const [fullName, setFullName] = useState('');
   const [birthDate, setBirthDate] = useState<Date | null>(null);
   const [birthDateString, setBirthDateString] = useState('');
@@ -136,7 +140,7 @@ const EnhancedNumerologyForm: React.FC<EnhancedNumerologyFormProps> = ({
     }
   }, [fullName, validateName]);
 
-  const handleNameChange = (event: React.SyntheticEvent, value: string | null) => {
+  const handleNameChange = (_event: React.SyntheticEvent, value: string | null) => {
     const newName = value || '';
     setFullName(newName);
     if (nameError && newName) setNameError('');
@@ -218,8 +222,15 @@ const EnhancedNumerologyForm: React.FC<EnhancedNumerologyFormProps> = ({
       </Fade>
 
       <Slide in direction="up" timeout={600}>
-        <Card elevation={4} sx={{ borderRadius: 3 }}>
-          <CardContent sx={{ p: 4 }}>
+        <Card elevation={isMobile ? 2 : 4} sx={{ 
+          borderRadius: isMobile ? 2 : 3,
+          mx: isMobile ? 1 : 0,
+          my: isMobile ? 1 : 0
+        }}>
+          <CardContent sx={{ 
+            p: isMobile ? 2 : 4,
+            '&:last-child': { pb: isMobile ? 2 : 4 }
+          }}>
             {error && (
               <Fade in>
                 <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>
@@ -232,7 +243,11 @@ const EnhancedNumerologyForm: React.FC<EnhancedNumerologyFormProps> = ({
               {/* Step 1: Name Input */}
               <Step>
                 <StepLabel>
-                  <Typography variant="h6" color="primary">
+                  <Typography 
+                    variant={isMobile ? "subtitle1" : "h6"} 
+                    color="primary"
+                    sx={{ fontSize: isMobile ? '18px' : '20px' }}
+                  >
                     <Person sx={{ mr: 1, verticalAlign: 'middle' }} />
                     {steps[0]}
                   </Typography>
@@ -270,9 +285,17 @@ const EnhancedNumerologyForm: React.FC<EnhancedNumerologyFormProps> = ({
                           sx={{
                             '& .MuiOutlinedInput-root': {
                               borderRadius: 2,
+                              height: isMobile ? 56 : 'auto',
+                              fontSize: isMobile ? '16px' : '14px', // Prevents zoom on iOS
                               '&:hover fieldset': {
                                 borderColor: 'primary.main',
                               }
+                            },
+                            '& .MuiInputLabel-root': {
+                              fontSize: isMobile ? '16px' : '14px'
+                            },
+                            '& .MuiFormHelperText-root': {
+                              fontSize: isMobile ? '14px' : '12px'
                             }
                           }}
                         />
@@ -306,7 +329,11 @@ const EnhancedNumerologyForm: React.FC<EnhancedNumerologyFormProps> = ({
               {/* Step 2: Date Input */}
               <Step>
                 <StepLabel>
-                  <Typography variant="h6" color="primary">
+                  <Typography 
+                    variant={isMobile ? "subtitle1" : "h6"} 
+                    color="primary"
+                    sx={{ fontSize: isMobile ? '18px' : '20px' }}
+                  >
                     <CalendarToday sx={{ mr: 1, verticalAlign: 'middle' }} />
                     {steps[1]}
                   </Typography>
@@ -338,9 +365,17 @@ const EnhancedNumerologyForm: React.FC<EnhancedNumerologyFormProps> = ({
                       sx={{
                         '& .MuiOutlinedInput-root': {
                           borderRadius: 2,
+                          height: isMobile ? 56 : 'auto',
+                          fontSize: isMobile ? '16px' : '14px',
                           '&:hover fieldset': {
                             borderColor: 'primary.main',
                           }
+                        },
+                        '& .MuiInputLabel-root': {
+                          fontSize: isMobile ? '16px' : '14px'
+                        },
+                        '& .MuiFormHelperText-root': {
+                          fontSize: isMobile ? '14px' : '12px'
                         }
                       }}
                     />
@@ -421,14 +456,20 @@ const EnhancedNumerologyForm: React.FC<EnhancedNumerologyFormProps> = ({
                       disabled={loading || !fullName || !birthDate || !!nameError || !!dateError}
                       sx={{ 
                         flex: 1,
-                        py: 1.5,
+                        py: isMobile ? 2 : 1.5,
+                        px: isMobile ? 3 : 2,
+                        fontSize: isMobile ? '16px' : '14px',
+                        minHeight: isMobile ? 48 : 'auto',
                         fontWeight: 'bold',
                         borderRadius: 2,
                         background: 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)',
                         '&:hover': {
                           background: 'linear-gradient(45deg, #1976D2 30%, #1CB5E0 90%)',
-                          transform: 'translateY(-1px)',
+                          transform: isTouchDevice ? 'none' : 'translateY(-1px)',
                           boxShadow: 4
+                        },
+                        '&:active': {
+                          transform: isTouchDevice ? 'scale(0.98)' : 'translateY(-1px)'
                         },
                         transition: 'all 0.3s ease'
                       }}
@@ -444,12 +485,18 @@ const EnhancedNumerologyForm: React.FC<EnhancedNumerologyFormProps> = ({
                         onClick={clearForm}
                         disabled={loading}
                         sx={{ 
-                          py: 1.5,
+                          py: isMobile ? 2 : 1.5,
+                          px: isMobile ? 3 : 2,
+                          fontSize: isMobile ? '16px' : '14px',
+                          minHeight: isMobile ? 48 : 'auto',
                           fontWeight: 'bold',
                           borderRadius: 2,
                           '&:hover': {
-                            transform: 'translateY(-1px)',
+                            transform: isTouchDevice ? 'none' : 'translateY(-1px)',
                             boxShadow: 2
+                          },
+                          '&:active': {
+                            transform: isTouchDevice ? 'scale(0.98)' : 'translateY(-1px)'
                           },
                           transition: 'all 0.3s ease'
                         }}

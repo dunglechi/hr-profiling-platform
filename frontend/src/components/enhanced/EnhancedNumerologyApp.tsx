@@ -1,17 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import {
   Box,
-  Snackbar,
-  Alert,
   CircularProgress,
   Backdrop,
-  useMediaQuery,
-  useTheme
+  Typography
 } from '@mui/material';
 import EnhancedLayout from './EnhancedLayout';
 import EnhancedNumerologyForm from './EnhancedNumerologyForm';
 import EnhancedNumerologyDisplay from './EnhancedNumerologyDisplay';
+import MobileOptimizedContainer from './MobileOptimizedContainer';
+import MobileActionMenu from './MobileActionMenu';
+import { useNotification } from '../../context/ErrorContext';
 
 interface NumerologyResult {
   lifePathNumber: number;
@@ -58,9 +57,7 @@ interface NumerologyResult {
 }
 
 const EnhancedNumerologyApp: React.FC = () => {
-  const { t } = useTranslation();
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const { showError, showSuccess, showInfo } = useNotification();
   
   const [darkMode, setDarkMode] = useState(() => {
     const saved = localStorage.getItem('darkMode');
@@ -69,53 +66,60 @@ const EnhancedNumerologyApp: React.FC = () => {
   
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<NumerologyResult | null>(null);
-  const [error, setError] = useState<string>('');
-  const [success, setSuccess] = useState<string>('');
   const [currentUser, setCurrentUser] = useState<{
     fullName: string;
     birthDate: Date;
   } | null>(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Save dark mode preference
   useEffect(() => {
     localStorage.setItem('darkMode', JSON.stringify(darkMode));
   }, [darkMode]);
 
-  const handleToggleDarkMode = () => {
+  const handleToggleDarkMode = useCallback(() => {
     setDarkMode(!darkMode);
-  };
+  }, [darkMode]);
 
-  const handleCalculate = async (fullName: string, birthDate: Date) => {
+  const handleCalculate = useCallback(async (fullName: string, birthDate: Date) => {
     setLoading(true);
-    setError('');
     setResult(null);
+    
+    console.log('🔮 Starting numerology calculation for:', { fullName, birthDate });
     
     try {
       // Simulate API call with enhanced loading experience
       await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      const requestBody = {
+        fullName: fullName.trim(),
+        birthDate: birthDate.toISOString().split('T')[0]
+      };
+      
+      console.log('📤 Sending request to API:', requestBody);
       
       const response = await fetch('/api/numerology/calculate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          fullName: fullName.trim(),
-          birthDate: birthDate.toISOString().split('T')[0],
-          language: 'vi'
-        }),
+        body: JSON.stringify(requestBody),
       });
+
+      console.log('📥 API response status:', response.status);
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       const data = await response.json();
+      console.log('📊 API response data:', data);
       
-      if (data.success) {
-        setResult(data.result);
+      if (data.data) {
+        console.log('✅ Setting result:', data.data);
+        setResult(data.data);
         setCurrentUser({ fullName, birthDate });
-        setSuccess('Phân tích thành công! Hãy khám phá kết quả bên dưới.');
+        showSuccess('Phân tích thành công! Hãy khám phá kết quả bên dưới.', 'Hoàn thành');
         
         // Save to history (localStorage for demo)
         const history = JSON.parse(localStorage.getItem('numerologyHistory') || '[]');
@@ -123,7 +127,7 @@ const EnhancedNumerologyApp: React.FC = () => {
           id: Date.now(),
           fullName,
           birthDate: birthDate.toISOString(),
-          result: data.result,
+          result: data.data,
           timestamp: new Date().toISOString()
         });
         localStorage.setItem('numerologyHistory', JSON.stringify(history.slice(0, 10))); // Keep last 10
@@ -139,40 +143,90 @@ const EnhancedNumerologyApp: React.FC = () => {
           }
         }, 500);
       } else {
-        throw new Error(data.message || 'Có lỗi xảy ra khi tính toán');
+        console.error('❌ No data in response:', data);
+        throw new Error(data.error || 'Có lỗi xảy ra khi tính toán');
       }
     } catch (error) {
-      console.error('Error calculating numerology:', error);
-      setError(
-        error instanceof Error 
-          ? error.message 
-          : 'Không thể kết nối với máy chủ. Vui lòng thử lại sau.'
-      );
+      console.error('💥 Error calculating numerology:', error);
+      
+      let errorMessage = 'Có lỗi xảy ra khi tính toán thần số học';
+      
+      if (error instanceof Error) {
+        if (error.message.includes('fetch')) {
+          errorMessage = 'Không thể kết nối đến server. Vui lòng kiểm tra kết nối mạng.';
+        } else if (error.message.includes('500')) {
+          errorMessage = 'Server đang gặp sự cố. Vui lòng thử lại sau.';
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      
+      showError(errorMessage, 'Lỗi Tính Toán');
     } finally {
+      console.log('🏁 Calculation finished, setting loading to false');
       setLoading(false);
     }
-  };
+  }, [showError]);
 
-  const handleCloseSnackbar = () => {
-    setError('');
-    setSuccess('');
-  };
-
-  const handleNewAnalysis = () => {
+  const handleNewAnalysis = useCallback(() => {
     setResult(null);
     setCurrentUser(null);
-    setError('');
-    setSuccess('');
+    
+    showInfo('Bắt đầu phân tích mới', 'Làm mới');
     
     // Smooth scroll to form
     setTimeout(() => {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }, 100);
-  };
+  }, [showInfo]);
+
+  // Mobile action handlers
+  const handleMobileShare = useCallback(() => {
+    if (navigator.share && result) {
+      navigator.share({
+        title: 'Báo cáo Thần số học',
+        text: `Báo cáo thần số học của ${currentUser?.fullName}`,
+        url: window.location.href
+      }).catch(console.error);
+    } else {
+      showInfo('Tính năng chia sẻ không được hỗ trợ trên thiết bị này', 'Thông báo');
+    }
+  }, [result, currentUser, showInfo]);
+
+  const handleMobileScrollToTop = useCallback(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
+
+  const handleMobileRefresh = useCallback(() => {
+    handleNewAnalysis();
+  }, [handleNewAnalysis]);
+
+  // Memoized props for performance optimization
+  const formProps = useMemo(() => ({
+    onCalculate: handleCalculate,
+    loading
+  }), [handleCalculate, loading]);
+
+  const resultDisplayProps = useMemo(() => {
+    if (!result || !currentUser) return null;
+    return {
+      result,
+      fullName: currentUser.fullName,
+      birthDate: currentUser.birthDate
+    };
+  }, [result, currentUser]);
+
+  const debugState = useMemo(() => ({
+    loading,
+    hasResult: !!result,
+    hasCurrentUser: !!currentUser,
+    resultKeys: result ? Object.keys(result).length : 0
+  }), [loading, result, currentUser]);
 
   return (
     <EnhancedLayout darkMode={darkMode} onToggleDarkMode={handleToggleDarkMode}>
-      <Box sx={{ position: 'relative', minHeight: '100vh' }}>
+      <MobileOptimizedContainer>
+        <Box sx={{ position: 'relative', minHeight: '100vh' }}>
         {/* Enhanced Loading Backdrop */}
         <Backdrop
           sx={{ 
@@ -219,20 +273,31 @@ const EnhancedNumerologyApp: React.FC = () => {
 
         {/* Main Form Section */}
         <Box sx={{ mb: 4 }}>
-          <EnhancedNumerologyForm
-            onCalculate={handleCalculate}
-            loading={loading}
-            error={error}
-          />
+          <EnhancedNumerologyForm {...formProps} />
+        </Box>
+
+        {/* Debug State Display */}
+        <Box sx={{ mt: 2, p: 2, bgcolor: 'background.paper', borderRadius: 1 }}>
+          <Typography variant="subtitle2" gutterBottom>🔍 Debug State:</Typography>
+          <Typography variant="body2">
+            - Loading: {debugState.loading ? 'true' : 'false'}<br/>
+            - Has Result: {debugState.hasResult ? 'true' : 'false'}<br/>
+            - Has CurrentUser: {debugState.hasCurrentUser ? 'true' : 'false'}<br/>
+            - Notifications: Handled by global system
+          </Typography>
+          {debugState.hasResult && (
+            <Typography variant="body2" sx={{ mt: 1 }}>
+              - Result has {debugState.resultKeys} properties
+            </Typography>
+          )}
         </Box>
 
         {/* Results Section */}
-        {result && currentUser && (
+        
+        {result && currentUser && resultDisplayProps ? (
           <Box id="results-section" sx={{ mt: 6 }}>
             <EnhancedNumerologyDisplay
-              result={result}
-              fullName={currentUser.fullName}
-              birthDate={currentUser.birthDate}
+              {...resultDisplayProps}
             />
             
             {/* New Analysis Button */}
@@ -264,55 +329,29 @@ const EnhancedNumerologyApp: React.FC = () => {
               </button>
             </Box>
           </Box>
+        ) : (
+          <Box sx={{ textAlign: 'center', mt: 4, p: 3 }}>
+            <Typography variant="h6" color="text.secondary">
+              🔍 Debug: result={result ? 'exists' : 'null'}, currentUser={currentUser ? 'exists' : 'null'}
+            </Typography>
+          </Box>
         )}
 
         {/* Success/Error Notifications */}
-        <Snackbar
-          open={!!success}
-          autoHideDuration={6000}
-          onClose={handleCloseSnackbar}
-          anchorOrigin={{ vertical: 'bottom', horizontal: isMobile ? 'center' : 'right' }}
-        >
-          <Alert 
-            onClose={handleCloseSnackbar} 
-            severity="success" 
-            variant="filled"
-            sx={{ 
-              borderRadius: 2,
-              fontWeight: 'medium',
-              '& .MuiAlert-icon': {
-                fontSize: '1.2rem'
-              }
-            }}
-          >
-            {success}
-          </Alert>
-        </Snackbar>
+{/* Notifications are handled by the global notification system */}
 
-        <Snackbar
-          open={!!error}
-          autoHideDuration={8000}
-          onClose={handleCloseSnackbar}
-          anchorOrigin={{ vertical: 'bottom', horizontal: isMobile ? 'center' : 'right' }}
-        >
-          <Alert 
-            onClose={handleCloseSnackbar} 
-            severity="error" 
-            variant="filled"
-            sx={{ 
-              borderRadius: 2,
-              fontWeight: 'medium',
-              '& .MuiAlert-icon': {
-                fontSize: '1.2rem'
-              }
-            }}
-          >
-            {error}
-          </Alert>
-        </Snackbar>
-      </Box>
+        {/* Mobile Action Menu */}
+        <MobileActionMenu
+          onShare={handleMobileShare}
+          onScrollToTop={handleMobileScrollToTop}
+          onRefresh={handleMobileRefresh}
+          open={mobileMenuOpen}
+          onToggle={setMobileMenuOpen}
+        />
+        </Box>
+      </MobileOptimizedContainer>
     </EnhancedLayout>
   );
 };
 
-export default EnhancedNumerologyApp;
+export default React.memo(EnhancedNumerologyApp);

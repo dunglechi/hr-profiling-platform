@@ -1,7 +1,12 @@
 {
+  "appTitle": "Nền Tảng Hồ Sơ HR",
   "language": {
     "vi": "Tiếng Việt",
     "en": "English"
+  },
+  "app": {
+    "title": "HR Profiling Platform",
+    "subtitle": "Khám phá tiềm năng qua khoa học tâm lý"
   },
   "navigation": {
     "home": "Trang Chủ",
@@ -9,6 +14,9 @@
     "disc": "DISC",
     "mbti": "MBTI",
     "numerology": "Thần Số Học",
+    "numerologyAdvanced": "Thần Số Học Nâng Cao",
+    "assessments": "Đánh Giá",
+    "discAssessment": "Đánh Giá DISC",
     "profile": "Hồ Sơ",
     "settings": "Cài Đặt"
   },

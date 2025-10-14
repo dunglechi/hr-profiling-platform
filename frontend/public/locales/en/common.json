@@ -1,7 +1,12 @@
 {
+  "appTitle": "HR Profiling Platform",
   "language": {
     "vi": "Vietnamese",
     "en": "English"
+  },
+  "app": {
+    "title": "HR Profiling Platform",
+    "subtitle": "Discover potential through psychological science"
   },
   "navigation": {
     "home": "Home",
@@ -9,6 +14,9 @@
     "disc": "DISC",
     "mbti": "MBTI",
     "numerology": "Numerology",
+    "numerologyAdvanced": "Advanced Numerology",
+    "assessments": "Assessments",
+    "discAssessment": "DISC Assessment",
     "profile": "Profile",
     "settings": "Settings"
   },

@@ -21,6 +21,12 @@ i18n
     // Backend options
     backend: {
       loadPath: '/locales/{{lng}}/{{ns}}.json',
+      addPath: '/locales/add/{{lng}}/{{ns}}',
+      crossDomain: false,
+      withCredentials: false,
+      requestOptions: {
+        cache: 'default'
+      }
     },
 
     // Namespaces
@@ -29,11 +35,26 @@ i18n
 
     interpolation: {
       escapeValue: false, // react already does escaping
+      skipOnVariables: false,
     },
 
     react: {
       useSuspense: false,
+      bindI18n: 'languageChanged loaded',
+      bindI18nStore: 'added removed',
+      transEmptyNodeValue: '',
+      transSupportBasicHtmlNodes: true,
+      transKeepBasicHtmlNodesFor: ['br', 'strong', 'i', 'em'],
     },
+
+    // Debug configuration - enable for troubleshooting
+    debug: process.env.NODE_ENV === 'development',
+
+    // Load translations eagerly
+    preload: ['vi', 'en'],
+
+    // Save missing keys in development
+    saveMissing: process.env.NODE_ENV === 'development',
 
     // Resources for development
     resources: {

@@ -5,14 +5,14 @@ import { PrismaClient } from '@prisma/client';
 const router = Router();
 const prisma = new PrismaClient();
 
-// POST /api/numerology/calculate
+// POST /api/numerology/calculate - Simple calculation without database
 router.post('/calculate', async (req, res) => {
   try {
-    const { assessmentId, fullName, birthDate } = req.body;
+    const { fullName, birthDate } = req.body;
 
-    if (!assessmentId || !fullName || !birthDate) {
+    if (!fullName || !birthDate) {
       return res.status(400).json({
-        error: 'Missing required fields: assessmentId, fullName, birthDate'
+        error: 'Missing required fields: fullName, birthDate'
       });
     }
 
@@ -27,36 +27,9 @@ router.post('/calculate', async (req, res) => {
     // Calculate numerology
     const calculation = numerologyService.calculateNumerology(fullName, birthDateObj);
 
-    // Save to database
-    const numerologyResult = await prisma.numerologyResult.create({
-      data: {
-        assessmentId,
-        lifePathNumber: calculation.lifePathNumber,
-        destinyNumber: calculation.destinyNumber,
-        personalityNumber: calculation.personalityNumber,
-        soulUrgeNumber: calculation.soulUrgeNumber,
-        attitudeLessonNumber: calculation.attitudeLessonNumber,
-        birthDayNumber: calculation.birthDayNumber,
-        challengeNumbers: JSON.stringify(calculation.challengeNumbers),
-        pinnacleNumbers: JSON.stringify(calculation.pinnacleNumbers),
-        personalYearNumber: calculation.personalYearNumber,
-        coreTraits: JSON.stringify(calculation.coreTraits),
-        strengths: JSON.stringify(calculation.strengths),
-        challenges: JSON.stringify(calculation.challenges),
-        careerGuidance: JSON.stringify(calculation.careerGuidance),
-        relationships: JSON.stringify(calculation.relationships),
-        lifeCycle: JSON.stringify(calculation.lifeCycle),
-        analysis: calculation.analysis,
-        compatibility: JSON.stringify(calculation.compatibility)
-      }
-    });
-
     res.json({
       message: 'Numerology calculation completed successfully',
-      data: {
-        ...calculation,
-        id: numerologyResult.id
-      }
+      data: calculation
     });
 
   } catch (error) {

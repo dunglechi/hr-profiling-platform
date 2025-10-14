@@ -1,6 +1,11 @@
 {
   "title": "HR Dashboard",
   "subtitle": "Discover and develop human potential through psychological assessment tools",
+  "stats": {
+    "candidates": "Total Candidates",
+    "assessments": "Active Assessments",
+    "positions": "Job Positions"
+  },
   "quickActions": {
     "title": "Start Assessment",
     "startButton": "Start",
@@ -9,29 +14,29 @@
       "description": "Personality analysis through Pythagoras"
     },
     "disc": {
-      "title": "DISC Test",
+      "title": "DISC Assessment",
       "description": "Behavioral style assessment"
     },
     "mbti": {
-      "title": "MBTI",
+      "title": "MBTI Classification",
       "description": "Myers-Briggs personality classification"
     }
   },
   "assessments": {
     "title": "Assessment Tools",
     "disc": {
-      "title": "DISC",
+      "title": "DISC Assessment",
       "description": "Assess behavioral styles and communication patterns",
       "action": "🚀 Start DISC Assessment"
     },
     "mbti": {
-      "title": "MBTI",
+      "title": "MBTI Classification",
       "description": "Discover personality types and career tendencies",
-      "action": "🧭 Start MBTI Assessment"
+      "action": "🧭 Start MBTI Classification"
     },
     "numerology": {
-      "title": "Numerology",
-      "description": "Explore destiny numbers and personal characteristics",
+      "title": "Advanced Numerology",
+      "description": "Explore destiny numbers and personal characteristics - Enhanced UX",
       "action": "🔮 Start Numerology Analysis"
     }
   },
@@ -41,5 +46,9 @@
     "scientificApproach": "🔬 Scientifically Validated Methods",
     "personalizedResults": "📊 Personalized and Detailed Results",
     "careerGuidance": "💼 Career Development Guidance"
+  },
+  "recentActivity": {
+    "title": "Recent Activity",
+    "noData": "No recent activity to display."
   }
 }

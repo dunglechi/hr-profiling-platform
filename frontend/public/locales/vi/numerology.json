@@ -6,7 +6,10 @@
     "results": "Kết Quả Phân Tích"
   },
   "actions": {
-    "copySuccess": "Đã sao chép kết quả vào clipboard!"
+    "copySuccess": "Đã sao chép kết quả vào clipboard!",
+    "share": "Chia Sẻ",
+    "download": "Tải Xuống",
+    "print": "In Báo Cáo"
   },
   "form": {
     "fullName": "Họ và tên",
@@ -27,6 +30,9 @@
     }
   },
   "results": {
+    "reportTitle": "Báo Cáo Thần Số Học Nâng Cao",
+    "birthDate": "Ngày sinh",
+    "shareText": "Báo cáo thần số học nâng cao của",
     "lifePathNumber": "Đường Đời",
     "destinyNumber": "Sứ Mệnh", 
     "soulNumber": "Linh Hồn",

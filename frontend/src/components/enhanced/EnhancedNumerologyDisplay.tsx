@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Box,
@@ -8,34 +8,24 @@ import {
   Grid,
   Chip,
   Divider,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
   LinearProgress,
   Paper,
   Alert,
   Fade,
   Slide,
   Grow,
-  CircularProgress,
   Avatar,
   List,
   ListItem,
   ListItemIcon,
   ListItemText,
-  Tooltip,
   Tabs,
   Tab,
-  IconButton,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button
+  Button,
+  useMediaQuery,
+  useTheme
 } from '@mui/material';
 import {
-  ExpandMore,
-  Person,
   Work,
   Psychology,
   TrendingUp,
@@ -45,10 +35,11 @@ import {
   Group,
   Lightbulb,
   Share,
-  Download,
-  Info
+  Download
 } from '@mui/icons-material';
-import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from 'recharts';
+import { CompatibilityRadarChart } from '../charts/CSPCompatibleChart';
+// Temporarily disable recharts to avoid CSP eval issues
+// import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from 'recharts';
 
 interface NumerologyResult {
   lifePathNumber: number;
@@ -164,33 +155,8 @@ const NumberCard: React.FC<{
   </Grow>
 );
 
-const CompatibilityRadarChart: React.FC<{ data: any }> = ({ data }) => {
-  const chartData = [
-    { subject: 'Lãnh đạo', A: data.leadership, fullMark: 100 },
-    { subject: 'Teamwork', A: data.teamwork, fullMark: 100 },
-    { subject: 'Giao tiếp', A: data.communication, fullMark: 100 },
-    { subject: 'Sáng tạo', A: data.innovation, fullMark: 100 },
-    { subject: 'Phân tích', A: data.analytical, fullMark: 100 }
-  ];
-
-  return (
-    <ResponsiveContainer width="100%" height={300}>
-      <RadarChart data={chartData}>
-        <PolarGrid />
-        <PolarAngleAxis dataKey="subject" tick={{ fontSize: 12 }} />
-        <PolarRadiusAxis angle={90} domain={[0, 100]} tick={{ fontSize: 10 }} />
-        <Radar
-          name="Khả năng"
-          dataKey="A"
-          stroke="#2196F3"
-          fill="#2196F3"
-          fillOpacity={0.3}
-          strokeWidth={2}
-        />
-      </RadarChart>
-    </ResponsiveContainer>
-  );
-};
+// CSP-compliant chart component using Chart.js
+// Note: Original CompatibilityRadarChart now imported from charts/CSPCompatibleChart
 
 const ProgressBar: React.FC<{ label: string; value: number; color?: string }> = ({ 
   label, 
@@ -230,11 +196,22 @@ const EnhancedNumerologyDisplay: React.FC<EnhancedNumerologyDisplayProps> = ({
   birthDate 
 }) => {
   const { t } = useTranslation('numerology');
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  
   const [tabValue, setTabValue] = useState(0);
-  const [showDetails, setShowDetails] = useState(false);
-  const [selectedNumber, setSelectedNumber] = useState<number | null>(null);
 
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+  // Debug removed to avoid CSP eval issues
+  if (!result) {
+    return (
+      <Box sx={{ p: 4, textAlign: 'center' }}>
+        <Typography variant="h6">❌ Không có kết quả để hiển thị</Typography>
+        <Typography variant="body2">Result object is null or undefined</Typography>
+      </Box>
+    );
+  }
+
+  const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
   };
 
@@ -264,17 +241,29 @@ const EnhancedNumerologyDisplay: React.FC<EnhancedNumerologyDisplayProps> = ({
           background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
           color: 'white'
         }}>
-          <Grid container spacing={3} alignItems="center">
+          <Grid container spacing={isMobile ? 2 : 3} alignItems="center">
             <Grid item xs={12} md={8}>
-              <Typography variant="h4" fontWeight="bold" gutterBottom>
-                <Psychology sx={{ mr: 2, verticalAlign: 'middle' }} />
-                Báo Cáo Thần Số Học
+              <Typography 
+                variant={isMobile ? "h5" : "h4"} 
+                fontWeight="bold" 
+                gutterBottom
+                sx={{ fontSize: isMobile ? '24px' : '32px' }}
+              >
+                <Psychology sx={{ mr: isMobile ? 1 : 2, verticalAlign: 'middle' }} />
+                {t('results.reportTitle', 'Báo Cáo Thần Số Học')}
               </Typography>
-              <Typography variant="h6" sx={{ opacity: 0.9, mb: 2 }}>
+              <Typography 
+                variant={isMobile ? "subtitle1" : "h6"} 
+                sx={{ 
+                  opacity: 0.9, 
+                  mb: 2,
+                  fontSize: isMobile ? '16px' : '20px'
+                }}
+              >
                 👤 {fullName}
               </Typography>
               <Typography variant="body1" sx={{ opacity: 0.8 }}>
-                📅 Ngày sinh: {birthDate.toLocaleDateString('vi-VN')}
+                📅 {t('results.birthDate', 'Ngày sinh')}: {birthDate.toLocaleDateString('vi-VN')}
               </Typography>
             </Grid>
             <Grid item xs={12} md={4} sx={{ textAlign: 'center' }}>
@@ -303,7 +292,19 @@ const EnhancedNumerologyDisplay: React.FC<EnhancedNumerologyDisplayProps> = ({
       {/* Main Content Tabs */}
       <Card elevation={3} sx={{ borderRadius: 3 }}>
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-          <Tabs value={tabValue} onChange={handleTabChange} variant="scrollable" scrollButtons="auto">
+          <Tabs 
+            value={tabValue} 
+            onChange={handleTabChange} 
+            variant="scrollable" 
+            scrollButtons="auto"
+            sx={{
+              '& .MuiTab-root': {
+                fontSize: isMobile ? '14px' : '16px',
+                minHeight: isMobile ? 40 : 48,
+                px: isMobile ? 2 : 3
+              }
+            }}
+          >
             <Tab icon={<Star />} label="Tổng Quan" />
             <Tab icon={<Psychology />} label="Tính Cách" />
             <Tab icon={<Work />} label="Nghề Nghiệp" />
@@ -595,14 +596,14 @@ const EnhancedNumerologyDisplay: React.FC<EnhancedNumerologyDisplayProps> = ({
             onClick={() => {
               if (navigator.share) {
                 navigator.share({
-                  title: 'Báo Cáo Thần Số Học',
-                  text: `Báo cáo thần số học của ${fullName}`,
+                  title: t('results.reportTitle', 'Báo Cáo Thần Số Học'),
+                  text: t('results.shareText', `Báo cáo thần số học của ${fullName}`),
                   url: window.location.href
                 });
               }
             }}
           >
-            Chia Sẻ
+            {t('actions.share', 'Chia Sẻ')}
           </Button>
           <Button
             variant="outlined"
