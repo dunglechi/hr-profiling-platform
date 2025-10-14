@@ -55,6 +55,10 @@ function App() {
                   <Route path="/disc" element={<SimpleDISC />} />
                   <Route path="/mbti" element={<SimpleMBTI />} />
                   <Route path="/database-setup" element={<DatabaseSetup />} />
+                  
+                  {/* Redirect old enhanced routes to simple versions */}
+                  <Route path="/numerology-enhanced" element={<SimpleNumerology />} />
+                  <Route path="/numerology-old" element={<SimpleNumerology />} />
                 </Routes>
               </Suspense>
             </ErrorBoundary>
