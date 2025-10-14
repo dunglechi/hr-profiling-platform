@@ -81,37 +81,37 @@ const EnhancedNumerologyForm: React.FC<EnhancedNumerologyFormProps> = ({
   // Real-time validation with debounce
   const validateName = useCallback((name: string): boolean => {
     if (!name.trim()) {
-      setNameError(t('form.validation.nameRequired'));
+      setNameError('Vui lòng nhập họ và tên');
       return false;
     }
     if (name.trim().length < 2) {
-      setNameError(t('form.validation.nameMinLength'));
+      setNameError('Tên phải có ít nhất 2 ký tự');
       return false;
     }
     if (!/^[a-zA-ZÀ-ỹĐđ\s]+$/.test(name.trim())) {
-      setNameError(t('form.validation.nameInvalidCharacters'));
+      setNameError('Tên chỉ được chứa chữ cái và khoảng trắng');
       return false;
     }
     setNameError('');
     return true;
-  }, [t]);
+  }, []);
 
   const validateDate = useCallback((date: Date | null): boolean => {
     if (!date) {
-      setDateError(t('form.validation.dateRequired'));
+      setDateError('Vui lòng chọn ngày sinh');
       return false;
     }
     if (date > new Date()) {
-      setDateError(t('form.validation.dateFuture'));
+      setDateError('Ngày sinh không thể là tương lai');
       return false;
     }
     if (date < new Date('1900-01-01')) {
-      setDateError(t('form.validation.invalidDate'));
+      setDateError('Ngày sinh không hợp lệ');
       return false;
     }
     setDateError('');
     return true;
-  }, [t]);
+  }, []);
 
   // Auto-advance steps when fields are valid
   useEffect(() => {
@@ -212,10 +212,10 @@ const EnhancedNumerologyForm: React.FC<EnhancedNumerologyFormProps> = ({
           <CardContent sx={{ textAlign: 'center', py: 4 }}>
             <Psychology sx={{ fontSize: 48, mb: 2, opacity: 0.9 }} />
             <Typography variant="h3" gutterBottom sx={{ fontWeight: 'bold', mb: 1 }}>
-              {t('title')}
+              🌟 Thần Số Học Nâng Cao
             </Typography>
             <Typography variant="h6" sx={{ opacity: 0.9, maxWidth: 500, mx: 'auto' }}>
-              {t('subtitle')}
+              Khám phá con số định mệnh và đặc điểm cá nhân của bạn
             </Typography>
           </CardContent>
         </Card>
@@ -263,10 +263,10 @@ const EnhancedNumerologyForm: React.FC<EnhancedNumerologyFormProps> = ({
                         <TextField
                           {...params}
                           fullWidth
-                          label={t('form.fullName')}
-                          placeholder={t('form.fullNamePlaceholder')}
+                          label="Họ và tên đầy đủ"
+                          placeholder="Ví dụ: Nguyễn Văn An"
                           error={!!nameError}
-                          helperText={nameError || t('form.nameHelper')}
+                          helperText={nameError || "Nhập họ tên đầy đủ để có kết quả chính xác nhất"}
                           variant="outlined"
                           disabled={loading}
                           InputProps={{
@@ -342,12 +342,12 @@ const EnhancedNumerologyForm: React.FC<EnhancedNumerologyFormProps> = ({
                   <Box sx={{ mt: 2, mb: 3 }}>
                     <TextField
                       fullWidth
-                      label={t('form.birthDate')}
+                      label="Ngày sinh"
                       type="date"
                       value={birthDateString}
                       onChange={handleDateChange}
                       error={!!dateError}
-                      helperText={dateError || t('form.birthDatePlaceholder')}
+                      helperText={dateError || "Chọn ngày sinh để tính toán thần số học"}
                       variant="outlined"
                       disabled={loading}
                       InputLabelProps={{ shrink: true }}
@@ -475,7 +475,7 @@ const EnhancedNumerologyForm: React.FC<EnhancedNumerologyFormProps> = ({
                       }}
                       startIcon={loading ? <CircularProgress size={20} color="inherit" /> : <AutoAwesome />}
                     >
-                      {loading ? t('form.calculating') : `🔮 ${t('form.calculate')}`}
+                      {loading ? 'Đang tính toán...' : '🔮 Phân Tích Thần Số Học'}
                     </Button>
 
                     <Tooltip title="Xóa tất cả và bắt đầu lại">
