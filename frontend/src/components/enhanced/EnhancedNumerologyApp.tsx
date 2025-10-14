@@ -11,6 +11,7 @@ import EnhancedNumerologyDisplay from './EnhancedNumerologyDisplay';
 import MobileOptimizedContainer from './MobileOptimizedContainer';
 import MobileActionMenu from './MobileActionMenu';
 import { useNotification } from '../../context/ErrorContext';
+import { useNumerologyAnalysis } from '../../hooks/useNumerologyAnalysis'; // Giả sử hook được tạo ở đây
 
 interface NumerologyResult {
   lifePathNumber: number;
@@ -72,6 +73,14 @@ const EnhancedNumerologyApp: React.FC = () => {
   } | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  const { 
+    result, 
+    loading, 
+    error, 
+    calculate, 
+    setResult 
+  } = useNumerologyAnalysis();
+
   // Save dark mode preference
   useEffect(() => {
     localStorage.setItem('darkMode', JSON.stringify(darkMode));
@@ -81,99 +90,38 @@ const EnhancedNumerologyApp: React.FC = () => {
     setDarkMode(!darkMode);
   }, [darkMode]);
 
-  const handleCalculate = useCallback(async (fullName: string, birthDate: Date) => {
-    setLoading(true);
-    setResult(null);
-    
-    console.log('🔮 Starting numerology calculation for:', { fullName, birthDate });
-    
-    try {
-      // Simulate API call with enhanced loading experience
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      const requestBody = {
-        fullName: fullName.trim(),
-        birthDate: birthDate.toISOString().split('T')[0]
-      };
-      
-      console.log('📤 Sending request to API:', requestBody);
-      
-      const response = await fetch('/api/numerology/calculate', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestBody),
-      });
-
-      console.log('📥 API response status:', response.status);
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      console.log('📊 API response data:', data);
-      
-      if (data.data) {
-        console.log('✅ Setting result:', data.data);
-        setResult(data.data);
-        setCurrentUser({ fullName, birthDate });
-        showSuccess('Phân tích thành công! Hãy khám phá kết quả bên dưới.', 'Hoàn thành');
-        
-        // Save to history (localStorage for demo)
-        const history = JSON.parse(localStorage.getItem('numerologyHistory') || '[]');
-        history.unshift({
-          id: Date.now(),
-          fullName,
-          birthDate: birthDate.toISOString(),
-          result: data.data,
-          timestamp: new Date().toISOString()
-        });
-        localStorage.setItem('numerologyHistory', JSON.stringify(history.slice(0, 10))); // Keep last 10
-        
-        // Smooth scroll to results
-        setTimeout(() => {
-          const resultsElement = document.getElementById('results-section');
-          if (resultsElement) {
-            resultsElement.scrollIntoView({ 
-              behavior: 'smooth', 
-              block: 'start' 
-            });
-          }
-        }, 500);
-      } else {
-        console.error('❌ No data in response:', data);
-        throw new Error(data.error || 'Có lỗi xảy ra khi tính toán');
-      }
-    } catch (error) {
-      console.error('💥 Error calculating numerology:', error);
-      
-      let errorMessage = 'Có lỗi xảy ra khi tính toán thần số học';
-      
-      if (error instanceof Error) {
-        if (error.message.includes('fetch')) {
-          errorMessage = 'Không thể kết nối đến server. Vui lòng kiểm tra kết nối mạng.';
-        } else if (error.message.includes('500')) {
-          errorMessage = 'Server đang gặp sự cố. Vui lòng thử lại sau.';
-        } else {
-          errorMessage = error.message;
+  // Xử lý kết quả thành công từ hook
+  useEffect(() => {
+    if (result && currentUser) {
+      showSuccess('Phân tích thành công! Hãy khám phá kết quả bên dưới.', 'Hoàn thành');
+      // Smooth scroll to results
+      setTimeout(() => {
+        const resultsElement = document.getElementById('results-section');
+        if (resultsElement) {
+          resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
-      }
-      
-      showError(errorMessage, 'Lỗi Tính Toán');
-    } finally {
-      console.log('🏁 Calculation finished, setting loading to false');
-      setLoading(false);
+      }, 500);
     }
-  }, [showError]);
+  }, [result, currentUser, showSuccess]);
+
+  // Xử lý lỗi từ hook
+  useEffect(() => {
+    if (error) {
+      showError(error, 'Lỗi Tính Toán');
+    }
+  }, [error, showError]);
+
+  const handleCalculate = useCallback(async (fullName: string, birthDate: Date) => {
+    setCurrentUser({ fullName, birthDate });
+    await calculate(fullName, birthDate);
+  }, [calculate]);
 
   const handleNewAnalysis = useCallback(() => {
     setResult(null);
     setCurrentUser(null);
     
     showInfo('Bắt đầu phân tích mới', 'Làm mới');
-    
+
     // Smooth scroll to form
     setTimeout(() => {
       window.scrollTo({ top: 0, behavior: 'smooth' });

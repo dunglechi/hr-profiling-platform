@@ -1,5 +1,6 @@
-# Vercel ignore file
+# Vercel ignore file - Deploy only frontend at root level
 backend/
+frontend/
 docs/
 tools/
 tests/
@@ -7,4 +8,3 @@ SDLC-Enterprise-Framework/
 infrastructure/
 *.md
 *.log
-node_modules/
