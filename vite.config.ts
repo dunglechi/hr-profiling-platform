@@ -28,7 +28,7 @@ export default defineConfig(({ mode }) => {
     },
     build: {
       rollupOptions: {
-        input: isProduction ? './index.prod.html' : './index.html'
+        input: './index.html'
       },
     },
     esbuild: {

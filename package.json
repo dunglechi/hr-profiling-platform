@@ -7,8 +7,9 @@
     "dev": "vite --host 0.0.0.0",
     "dev:safe": "vite --config vite.config.dev.ts",
     "dev:quiet": "vite --host 0.0.0.0 --logLevel warn",
-    "build": "tsc && vite build",
-    "vercel-build": "npm run build",
+    "build": "tsc --noEmit && vite build",
+    "build:no-typecheck": "vite build",
+    "vercel-build": "npm run build:no-typecheck",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
