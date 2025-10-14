@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useTranslation } from 'react-i18next';
+// Translation removed - using direct Vietnamese text
 import {
   Box,
   Card,
@@ -62,7 +62,7 @@ const EnhancedNumerologyForm: React.FC<EnhancedNumerologyFormProps> = ({
   loading = false, 
   error 
 }) => {
-  const { t, i18n } = useTranslation('numerology');
+  // Removed translation, using direct Vietnamese text
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const isTouchDevice = useMediaQuery('(pointer: coarse)');
@@ -76,7 +76,7 @@ const EnhancedNumerologyForm: React.FC<EnhancedNumerologyFormProps> = ({
   const [validationStatus, setValidationStatus] = useState<'idle' | 'validating' | 'valid' | 'invalid'>('idle');
   const [showPreview, setShowPreview] = useState(false);
 
-  const locale = i18n.language === 'vi' ? vi : enUS;
+  const locale = vi; // Always use Vietnamese
 
   // Real-time validation with debounce
   const validateName = useCallback((name: string): boolean => {
@@ -146,6 +146,11 @@ const EnhancedNumerologyForm: React.FC<EnhancedNumerologyFormProps> = ({
     if (nameError && newName) setNameError('');
   };
 
+  const handleNameInputChange = (_event: React.SyntheticEvent, value: string) => {
+    setFullName(value);
+    if (nameError && value) setNameError('');
+  };
+
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const dateValue = e.target.value;
     setBirthDateString(dateValue);
@@ -157,7 +162,7 @@ const EnhancedNumerologyForm: React.FC<EnhancedNumerologyFormProps> = ({
         validateDate(parsedDate);
       } else {
         setBirthDate(null);
-        setDateError(t('form.validation.invalidDate'));
+        setDateError('Ngày sinh không hợp lệ');
       }
     } else {
       setBirthDate(null);
@@ -258,7 +263,8 @@ const EnhancedNumerologyForm: React.FC<EnhancedNumerologyFormProps> = ({
                       freeSolo
                       options={vietnameseNames}
                       value={fullName}
-                      onInputChange={handleNameChange}
+                      onChange={handleNameChange}
+                      onInputChange={handleNameInputChange}
                       renderInput={(params) => (
                         <TextField
                           {...params}
