@@ -1,0 +1,10 @@
+# Vercel ignore file
+backend/
+docs/
+tools/
+tests/
+SDLC-Enterprise-Framework/
+infrastructure/
+*.md
+*.log
+node_modules/
