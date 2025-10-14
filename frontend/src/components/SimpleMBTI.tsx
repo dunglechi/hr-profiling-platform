@@ -552,4 +552,6 @@ const SimpleMBTI: React.FC = () => {
       </Box>
     </Container>
   );
+};
+
 export default SimpleMBTI;

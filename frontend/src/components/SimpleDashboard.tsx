@@ -70,6 +70,24 @@ const SimpleDashboard: React.FC = () => {
       path: '/mbti',
       color: '#4caf50',
       bgColor: '#f1f8e9'
+    },
+    {
+      id: 'cv-analysis',
+      title: 'Phân Tích CV Bằng AI',
+      description: 'Phân tích CV với trí tuệ nhân tạo',
+      icon: <Assessment sx={{ fontSize: 40, color: '#ff9800' }} />,
+      path: '/cv-analysis',
+      color: '#ff9800',
+      bgColor: '#fff8e1'
+    },
+    {
+      id: 'job-matching',
+      title: 'Gợi Ý Việc Làm Thông Minh',
+      description: 'Tìm việc phù hợp dựa trên kết quả đánh giá',
+      icon: <Work sx={{ fontSize: 40, color: '#9c27b0' }} />,
+      path: '/job-matching',
+      color: '#9c27b0',
+      bgColor: '#f3e5f5'
     }
   ];
 

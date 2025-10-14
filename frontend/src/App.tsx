@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Container, Box, CircularProgress, Typography } from '@mui/material';
 import ErrorBoundary from './components/ErrorBoundary';
 import { ErrorProvider } from './context/ErrorContext';
+import { AuthProvider } from './context/AuthContext';
 import NavigationHeader from './components/ui/NavigationHeader';
 
 // Lazy load components for better performance
@@ -10,6 +11,9 @@ const Dashboard = lazy(() => import('./components/SimpleDashboard'));
 const SimpleNumerology = lazy(() => import('./components/SimpleNumerology'));
 const SimpleDISC = lazy(() => import('./components/SimpleDISC'));
 const SimpleMBTI = lazy(() => import('./components/SimpleMBTI'));
+const SimpleCVAnalysis = lazy(() => import('./components/SimpleCVAnalysis'));
+const UserProfile = lazy(() => import('./components/UserProfile'));
+const JobMatching = lazy(() => import('./components/JobMatching'));
 // Keep old components for reference, but use Simple versions
 const DatabaseSetup = lazy(() => import('./components/DatabaseSetup'));
 
@@ -36,36 +40,41 @@ const LoadingFallback: React.FC = () => (
 function App() {
 
   return (
-    <ErrorProvider>
-      <Router
-        future={{
-          v7_startTransition: true,
-          v7_relativeSplatPath: true
-        }}
-      >
-        <Box sx={{ flexGrow: 1 }}>
-          <NavigationHeader />
-          
-          <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-            <ErrorBoundary>
-              <Suspense fallback={<LoadingFallback />}>
-                <Routes>
-                  <Route path="/" element={<Dashboard />} />
-                  <Route path="/numerology" element={<SimpleNumerology />} />
-                  <Route path="/disc" element={<SimpleDISC />} />
-                  <Route path="/mbti" element={<SimpleMBTI />} />
-                  <Route path="/database-setup" element={<DatabaseSetup />} />
-                  
-                  {/* Redirect old enhanced routes to simple versions */}
-                  <Route path="/numerology-enhanced" element={<SimpleNumerology />} />
-                  <Route path="/numerology-old" element={<SimpleNumerology />} />
-                </Routes>
-              </Suspense>
-            </ErrorBoundary>
-          </Container>
-        </Box>
-      </Router>
-    </ErrorProvider>
+    <AuthProvider>
+      <ErrorProvider>
+        <Router
+          future={{
+            v7_startTransition: true,
+            v7_relativeSplatPath: true
+          }}
+        >
+          <Box sx={{ flexGrow: 1 }}>
+            <NavigationHeader />
+            
+            <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+              <ErrorBoundary>
+                <Suspense fallback={<LoadingFallback />}>
+                  <Routes>
+                    <Route path="/" element={<Dashboard />} />
+                    <Route path="/numerology" element={<SimpleNumerology />} />
+                    <Route path="/disc" element={<SimpleDISC />} />
+                    <Route path="/mbti" element={<SimpleMBTI />} />
+                    <Route path="/cv-analysis" element={<SimpleCVAnalysis />} />
+                    <Route path="/job-matching" element={<JobMatching />} />
+                    <Route path="/profile" element={<UserProfile />} />
+                    <Route path="/database-setup" element={<DatabaseSetup />} />
+                    
+                    {/* Redirect old enhanced routes to simple versions */}
+                    <Route path="/numerology-enhanced" element={<SimpleNumerology />} />
+                    <Route path="/numerology-old" element={<SimpleNumerology />} />
+                  </Routes>
+                </Suspense>
+              </ErrorBoundary>
+            </Container>
+          </Box>
+        </Router>
+      </ErrorProvider>
+    </AuthProvider>
   );
 }
 

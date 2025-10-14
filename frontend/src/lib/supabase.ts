@@ -170,7 +170,7 @@ export const numerologyAPI = {
 // Assessment API helpers
 export const assessmentAPI = {
   // Save assessment result (DISC, MBTI, etc.)
-  async saveResult(data: {
+  async saveAssessment(data: {
     user_id: string
     assessment_type: string
     result_data: any
@@ -187,6 +187,15 @@ export const assessmentAPI = {
 
     if (error) throw error
     return result
+  },
+
+  // Save assessment result (alias for backward compatibility)
+  async saveResult(data: {
+    user_id: string
+    assessment_type: string
+    result_data: any
+  }) {
+    return this.saveAssessment(data)
   },
 
   // Get user's assessment history

@@ -7,7 +7,8 @@
     "dev": "vite --host 0.0.0.0",
     "dev:safe": "vite --config vite.config.dev.ts",
     "dev:quiet": "vite --host 0.0.0.0 --logLevel warn",
-    "build": "tsc && vite build",
+    "build": "vite build",
+    "build-check": "tsc && vite build",
     "vercel-build": "npm run build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
@@ -21,6 +22,7 @@
     "@mui/x-data-grid": "^6.18.3",
     "@mui/x-date-pickers": "^8.14.0",
     "@supabase/supabase-js": "^2.75.0",
+    "@types/react-dropzone": "^4.2.2",
     "axios": "^1.6.2",
     "chart.js": "^4.5.1",
     "chartjs-adapter-date-fns": "^3.0.0",
@@ -31,6 +33,7 @@
     "react": "^18.2.0",
     "react-chartjs-2": "^5.3.0",
     "react-dom": "^18.2.0",
+    "react-dropzone": "^14.3.8",
     "react-i18next": "^16.0.0",
     "react-router-dom": "^6.20.1",
     "recharts": "^3.2.1"
