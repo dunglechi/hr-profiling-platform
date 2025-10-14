@@ -25,7 +25,7 @@ import {
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import AuthDialog from '../AuthDialog';
-import LanguageSwitcher from './LanguageSwitcher';
+import { LanguageSwitcher } from './LanguageSwitcher';
 
 interface NavigationHeaderProps {
   onMenuClick?: () => void;
