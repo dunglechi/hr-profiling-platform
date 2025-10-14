@@ -1,0 +1,44 @@
+{
+  "appTitle": "HR Profiling Platform",
+  "language": {
+    "vi": "Vietnamese",
+    "en": "English"
+  },
+  "app": {
+    "title": "HR Profiling Platform",
+    "subtitle": "Discover potential through psychological science"
+  },
+  "navigation": {
+    "home": "Home",
+    "dashboard": "Dashboard",
+    "disc": "DISC",
+    "mbti": "MBTI",
+    "numerology": "Numerology",
+    "numerologyAdvanced": "Advanced Numerology",
+    "assessments": "Assessments",
+    "discAssessment": "DISC Assessment",
+    "profile": "Profile",
+    "settings": "Settings"
+  },
+  "actions": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "submit": "Submit",
+    "edit": "Edit",
+    "delete": "Delete",
+    "back": "Back",
+    "next": "Next",
+    "start": "Start",
+    "finish": "Finish"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "warning": "Warning",
+    "info": "Information",
+    "confirmation": "Confirmation",
+    "yes": "Yes",
+    "no": "No"
+  }
+}

@@ -1,0 +1,73 @@
+{
+  "title": "Pythagorean Numerology",
+  "subtitle": "Discover yourself and future direction through sacred numbers",
+  "steps": {
+    "enterInfo": "Enter Information",
+    "results": "Analysis Results"
+  },
+  "actions": {
+    "copySuccess": "Results copied to clipboard!"
+  },
+  "form": {
+    "fullName": "Full Name",
+    "fullNamePlaceholder": "Please enter your full name",
+    "nameHelper": "Enter your full name as on birth certificate",
+    "birthDate": "Birth Date",
+    "birthDatePlaceholder": "Select exact birth date (DD/MM/YYYY)",
+    "calculate": "Analyze Numbers",
+    "calculating": "Calculating...",
+    "enteredInfo": "Entered Information",
+    "validation": {
+      "nameRequired": "Please enter your full name",
+      "nameMinLength": "Full name must be at least 2 characters",
+      "nameInvalidCharacters": "Full name can only contain letters and spaces",
+      "dateRequired": "Please enter birth date",
+      "dateFuture": "Birth date cannot be in the future",
+      "invalidDate": "Invalid birth date"
+    }
+  },
+  "results": {
+    "lifePathNumber": "Life Path",
+    "destinyNumber": "Destiny",
+    "soulNumber": "Soul", 
+    "personalityNumber": "Personality",
+    "coreTraits": {
+      "title": "Core Traits",
+      "strengths": "✅ Strengths",
+      "challenges": "⚠️ Challenges",
+      "opportunities": "🚀 Opportunities",
+      "keywords": "Keywords"
+    },
+    "challengesAndPinnacles": {
+      "title": "Challenge & Pinnacle Numbers",
+      "type": "Type",
+      "stage1": "Stage 1",
+      "stage2": "Stage 2",
+      "stage3": "Stage 3", 
+      "stage4": "Stage 4",
+      "challenges": "Challenges"
+    },
+    "lifeCycle": {
+      "title": "Life Cycles",
+      "youthPhase": "Youth Phase (0-27 years)",
+      "adulthoodPhase": "Adulthood Phase (28-54 years)",
+      "maturityPhase": "Maturity Phase (55+ years)"
+    },
+    "career": {
+      "title": "Career Guidance",
+      "suitableCareers": "Suitable Careers",
+      "workStyle": "Work Style",
+      "environment": "Work Environment"
+    },
+    "relationships": {
+      "title": "Relationships",
+      "compatibility": "Compatibility",
+      "communication": "Communication",
+      "tips": "Tips"
+    }
+  },
+  "errors": {
+    "calculationError": "An error occurred while calculating numerology",
+    "tryAgain": "Please try again"
+  }
+}

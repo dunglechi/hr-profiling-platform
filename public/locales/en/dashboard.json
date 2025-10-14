@@ -1,0 +1,54 @@
+{
+  "title": "HR Dashboard",
+  "subtitle": "Discover and develop human potential through psychological assessment tools",
+  "stats": {
+    "candidates": "Total Candidates",
+    "assessments": "Active Assessments",
+    "positions": "Job Positions"
+  },
+  "quickActions": {
+    "title": "Start Assessment",
+    "startButton": "Start",
+    "numerology": {
+      "title": "Numerology",
+      "description": "Personality analysis through Pythagoras"
+    },
+    "disc": {
+      "title": "DISC Assessment",
+      "description": "Behavioral style assessment"
+    },
+    "mbti": {
+      "title": "MBTI Classification",
+      "description": "Myers-Briggs personality classification"
+    }
+  },
+  "assessments": {
+    "title": "Assessment Tools",
+    "disc": {
+      "title": "DISC Assessment",
+      "description": "Assess behavioral styles and communication patterns",
+      "action": "🚀 Start DISC Assessment"
+    },
+    "mbti": {
+      "title": "MBTI Classification",
+      "description": "Discover personality types and career tendencies",
+      "action": "🧭 Start MBTI Classification"
+    },
+    "numerology": {
+      "title": "Advanced Numerology",
+      "description": "Explore destiny numbers and personal characteristics - Enhanced UX",
+      "action": "🔮 Start Numerology Analysis"
+    }
+  },
+  "features": {
+    "title": "Key Features",
+    "culturalIntelligence": "🇻🇳 Vietnamese Cultural Intelligence Integration",
+    "scientificApproach": "🔬 Scientifically Validated Methods",
+    "personalizedResults": "📊 Personalized and Detailed Results",
+    "careerGuidance": "💼 Career Development Guidance"
+  },
+  "recentActivity": {
+    "title": "Recent Activity",
+    "noData": "No recent activity to display."
+  }
+}

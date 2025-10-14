@@ -1,0 +1,44 @@
+{
+  "appTitle": "Nền Tảng Hồ Sơ HR",
+  "language": {
+    "vi": "Tiếng Việt",
+    "en": "English"
+  },
+  "app": {
+    "title": "HR Profiling Platform",
+    "subtitle": "Khám phá tiềm năng qua khoa học tâm lý"
+  },
+  "navigation": {
+    "home": "Trang Chủ",
+    "dashboard": "Bảng Điều Khiển",
+    "disc": "DISC",
+    "mbti": "MBTI",
+    "numerology": "Thần Số Học",
+    "numerologyAdvanced": "Thần Số Học Nâng Cao",
+    "assessments": "Đánh Giá",
+    "discAssessment": "Đánh Giá DISC",
+    "profile": "Hồ Sơ",
+    "settings": "Cài Đặt"
+  },
+  "actions": {
+    "save": "Lưu",
+    "cancel": "Hủy",
+    "submit": "Gửi",
+    "edit": "Chỉnh Sửa",
+    "delete": "Xóa",
+    "back": "Quay Lại",
+    "next": "Tiếp Theo",
+    "start": "Bắt Đầu",
+    "finish": "Hoàn Thành"
+  },
+  "common": {
+    "loading": "Đang tải...",
+    "error": "Lỗi",
+    "success": "Thành công",
+    "warning": "Cảnh báo",
+    "info": "Thông tin",
+    "confirmation": "Xác nhận",
+    "yes": "Có",
+    "no": "Không"
+  }
+}

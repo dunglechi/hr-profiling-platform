@@ -1,0 +1,54 @@
+{
+  "title": "Bảng Điều Khiển HR",
+  "subtitle": "Khám phá và phát triển tiềm năng nhân lực qua các công cụ đánh giá tâm lý",
+  "stats": {
+    "candidates": "Tổng Ứng Viên",
+    "assessments": "Đánh Giá Đang Thực Hiện",
+    "positions": "Vị Trí Tuyển Dụng"
+  },
+  "quickActions": {
+    "title": "Bắt Đầu Đánh Giá",
+    "startButton": "Bắt Đầu",
+    "numerology": {
+      "title": "Thần Số Học",
+      "description": "Phân tích tính cách qua Pythagoras"
+    },
+    "disc": {
+      "title": "Đánh Giá DISC",
+      "description": "Đánh giá phong cách hành vi"
+    },
+    "mbti": {
+      "title": "Phân Loại MBTI",
+      "description": "Phân loại tính cách Myers-Briggs"
+    }
+  },
+  "assessments": {
+    "title": "Công Cụ Đánh Giá",
+    "disc": {
+      "title": "Đánh Giá DISC",
+      "description": "Đánh giá phong cách hành vi và giao tiếp",
+      "action": "🚀 Bắt Đầu Đánh Giá DISC"
+    },
+    "mbti": {
+      "title": "Phân Loại MBTI",
+      "description": "Khám phá loại tính cách và xu hướng nghề nghiệp",
+      "action": "🧭 Bắt Đầu Phân Loại MBTI"
+    },
+    "numerology": {
+      "title": "Thần Số Học Nâng Cao",
+      "description": "Tìm hiểu con số định mệnh và đặc điểm cá nhân - Enhanced UX",
+      "action": "🔮 Bắt Đầu Thần Số Học"
+    }
+  },
+  "features": {
+    "title": "Tính Năng Nổi Bật",
+    "culturalIntelligence": "🇻🇳 Tích hợp trí tuệ văn hóa Việt Nam",
+    "scientificApproach": "🔬 Phương pháp khoa học đã được kiểm chứng",
+    "personalizedResults": "📊 Kết quả cá nhân hóa và chi tiết",
+    "careerGuidance": "💼 Hướng dẫn phát triển nghề nghiệp"
+  },
+  "recentActivity": {
+    "title": "Hoạt Động Gần Đây",
+    "noData": "Không có hoạt động gần đây để hiển thị."
+  }
+}
