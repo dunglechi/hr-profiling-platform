@@ -235,6 +235,17 @@ export const assessmentAPI = {
     const { data, error } = await query
     if (error) throw error
     return data
+  },
+
+  // Delete assessment
+  async deleteAssessment(assessmentId: string) {
+    const { error } = await supabase
+      .from('assessment_results')
+      .delete()
+      .eq('id', assessmentId)
+
+    if (error) throw error
+    return true
   }
 }
 

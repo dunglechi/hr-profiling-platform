@@ -1,5 +1,8 @@
 // AI-powered CV Analysis Service
 // Integrates with OpenAI for comprehensive resume analysis
+import { trackAiUsage, trackApiError } from '../lib/systemMonitor';
+import { trackUserAction } from '../lib/monitoring';
+import AIFallbackService from '../lib/aiFallbackService';
 
 export interface CVAnalysisRequest {
   cvText: string;
@@ -40,6 +43,16 @@ export interface CVAnalysisResult {
     education: EducationEntry[];
     certifications: string[];
   };
+  isAiAnalysis: boolean; // Flag to indicate if this is AI or fallback analysis
+  analysisMethod: 'openai' | 'fallback' | 'hybrid';
+}
+
+// Fallback analysis results interface
+export interface FallbackAnalysisConfig {
+  enabled: boolean;
+  maxRetries: number;
+  timeoutMs: number;
+  fallbackMessage: string;
 }
 
 interface SkillAnalysis {
@@ -86,25 +99,69 @@ class CVAnalysisService {
   constructor() {
     this.apiKey = import.meta.env.VITE_OPENAI_API_KEY || '';
     if (!this.apiKey) {
-      console.warn('OpenAI API key not configured. CV analysis will use mock data.');
+      console.warn('OpenAI API key not configured. CV analysis will use fallback analysis.');
     }
   }
 
-  // Main analysis method
+  // Main analysis method with fallback
   async analyzCV(request: CVAnalysisRequest): Promise<CVAnalysisResult> {
     try {
       if (!this.apiKey) {
-        return this.getMockAnalysis(request);
+        console.info('No OpenAI API key - using fallback analysis');
+        trackUserAction('cv_analysis_fallback_no_key');
+        return AIFallbackService.generateFallbackAnalysis(request);
       }
 
-      const prompt = this.buildAnalysisPrompt(request);
-      const response = await this.callOpenAI(prompt);
-      return this.parseOpenAIResponse(response);
+      // Attempt AI analysis with retry mechanism
+      return await AIFallbackService.withRetry(
+        () => this.performAIAnalysis(request),
+        'cv_analysis',
+        3
+      );
       
     } catch (error) {
-      console.error('CV Analysis error:', error);
-      // Fallback to mock analysis
-      return this.getMockAnalysis(request);
+      console.error('CV Analysis failed, using fallback:', error);
+      trackApiError('cv_analysis_failed', error);
+      trackUserAction('cv_analysis_fallback_error');
+      
+      // Return fallback analysis with user-friendly message
+      const fallbackResult = AIFallbackService.generateFallbackAnalysis(request);
+      
+      // Add error context to recommendations
+      fallbackResult.fitAnalysis.recommendations.unshift(
+        AIFallbackService.getErrorMessage(error as Error)
+      );
+      
+      return fallbackResult;
+    }
+  }
+
+  // Perform actual AI analysis
+  private async performAIAnalysis(request: CVAnalysisRequest): Promise<CVAnalysisResult> {
+    const startTime = Date.now();
+    
+    try {
+      const prompt = this.buildAnalysisPrompt(request);
+      const response = await this.callOpenAI(prompt);
+      const result = this.parseOpenAIResponse(response);
+      
+      // Track successful AI usage
+      const duration = Date.now() - startTime;
+      const estimatedTokens = Math.ceil(request.cvText.length / 4); // Rough estimation
+      const estimatedCost = estimatedTokens * 0.0001; // Approximate cost per token
+      
+      trackAiUsage('cv-analysis', estimatedTokens, estimatedCost);
+      trackUserAction('cv_analysis_success');
+      
+      // Add AI analysis flags
+      result.isAiAnalysis = true;
+      result.analysisMethod = 'openai';
+      
+      return result;
+      
+    } catch (error) {
+      trackApiError('openai_api_call', error);
+      throw error;
     }
   }
 

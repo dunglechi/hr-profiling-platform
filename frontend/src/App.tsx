@@ -1,10 +1,15 @@
-import React, { Suspense, lazy } from 'react';
+import React, { Suspense, lazy, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Container, Box, CircularProgress, Typography } from '@mui/material';
 import ErrorBoundary from './components/ErrorBoundary';
 import { ErrorProvider } from './context/ErrorContext';
 import { AuthProvider } from './context/AuthContext';
 import NavigationHeader from './components/ui/NavigationHeader';
+
+// Import monitoring services
+import { initSentry } from './lib/monitoring';
+import { systemMonitor } from './lib/systemMonitor';
+import { ErrorBoundary as SentryErrorBoundary } from './components/SentryErrorBoundary';
 
 // Lazy load components for better performance
 const Dashboard = lazy(() => import('./components/SimpleDashboard'));
@@ -38,32 +43,46 @@ const LoadingFallback: React.FC = () => (
 );
 
 function App() {
+  // Initialize monitoring services
+  useEffect(() => {
+    // Initialize Sentry for error tracking
+    if (import.meta.env.PROD) {
+      initSentry();
+    }
+    
+    // Start system monitoring
+    systemMonitor.startMonitoring();
+    
+    // Log app initialization
+    console.log('🚀 HR Profiling Platform initialized with monitoring');
+  }, []);
 
   return (
-    <AuthProvider>
-      <ErrorProvider>
-        <Router
-          future={{
-            v7_startTransition: true,
-            v7_relativeSplatPath: true
-          }}
-        >
-          <Box sx={{ flexGrow: 1 }}>
-            <NavigationHeader />
-            
-            <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-              <ErrorBoundary>
-                <Suspense fallback={<LoadingFallback />}>
-                  <Routes>
-                    <Route path="/" element={<Dashboard />} />
-                    <Route path="/numerology" element={<SimpleNumerology />} />
-                    <Route path="/disc" element={<SimpleDISC />} />
-                    <Route path="/mbti" element={<SimpleMBTI />} />
-                    <Route path="/cv-analysis" element={<SimpleCVAnalysis />} />
-                    <Route path="/job-matching" element={<JobMatching />} />
-                    <Route path="/profile" element={<UserProfile />} />
-                    <Route path="/database-setup" element={<DatabaseSetup />} />
-                    
+    <SentryErrorBoundary>
+      <AuthProvider>
+        <ErrorProvider>
+          <Router
+            future={{
+              v7_startTransition: true,
+              v7_relativeSplatPath: true
+            }}
+          >
+            <Box sx={{ flexGrow: 1 }}>
+              <NavigationHeader />
+              
+              <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+                <ErrorBoundary>
+                  <Suspense fallback={<LoadingFallback />}>
+                    <Routes>
+                      <Route path="/" element={<Dashboard />} />
+                      <Route path="/numerology" element={<SimpleNumerology />} />
+                      <Route path="/disc" element={<SimpleDISC />} />
+                      <Route path="/mbti" element={<SimpleMBTI />} />
+                      <Route path="/cv-analysis" element={<SimpleCVAnalysis />} />
+                      <Route path="/job-matching" element={<JobMatching />} />
+                      <Route path="/profile" element={<UserProfile />} />
+                      <Route path="/database-setup" element={<DatabaseSetup />} />
+                      
                     {/* Redirect old enhanced routes to simple versions */}
                     <Route path="/numerology-enhanced" element={<SimpleNumerology />} />
                     <Route path="/numerology-old" element={<SimpleNumerology />} />
@@ -75,6 +94,7 @@ function App() {
         </Router>
       </ErrorProvider>
     </AuthProvider>
+    </SentryErrorBoundary>
   );
 }
 
