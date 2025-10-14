@@ -9,12 +9,6 @@ export default defineConfig(({ mode }) => {
     plugins: [react()],
     server: {
       port: 3000,
-      proxy: {
-        '/api': {
-          target: 'http://localhost:5000',
-          changeOrigin: true
-        }
-      },
       // Disable HMR overlay to avoid CSP issues
       hmr: {
         overlay: false

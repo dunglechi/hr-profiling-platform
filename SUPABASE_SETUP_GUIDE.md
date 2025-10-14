@@ -46,12 +46,12 @@ npm install @supabase/supabase-js
 Tạo file `.env.local` trong thư mục frontend:
 
 ```env
-# Supabase Configuration
-REACT_APP_SUPABASE_URL=https://[your-project-id].supabase.co
-REACT_APP_SUPABASE_ANON_KEY=eyJ0eXAiOiJKV1Q...
+# Supabase Configuration for Vite
+VITE_SUPABASE_URL=https://[your-project-id].supabase.co
+VITE_SUPABASE_ANON_KEY=eyJ0eXAiOiJKV1Q...
 
 # Development
-REACT_APP_API_URL=https://[your-project-id].supabase.co/rest/v1
+VITE_API_URL=https://[your-project-id].supabase.co/rest/v1
 ```
 
 ### **2.3 Tạo Supabase Client**
