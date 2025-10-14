@@ -15,6 +15,7 @@ import {
   Work
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
+import LanguageSwitcher from './LanguageSwitcher';
 
 interface NavigationHeaderProps {
   onMenuClick?: () => void;
@@ -132,8 +133,8 @@ export const NavigationHeader: React.FC<NavigationHeaderProps> = ({ onMenuClick 
             ))}
           </Box>
 
-          {/* Language Switcher - Removed for stability */}
-          <Box sx={{ width: 40 }} />
+          {/* Language Switcher */}
+          <LanguageSwitcher variant="icon" />
         </Box>
       </Toolbar>
     </AppBar>
