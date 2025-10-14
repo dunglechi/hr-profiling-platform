@@ -189,6 +189,15 @@ const SimpleNumerology: React.FC = () => {
                 placeholder="Ví dụ: Nguyễn Văn An"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
+                autoComplete="off"
+                autoCorrect="off"
+                autoCapitalize="off"
+                spellCheck={false}
+                inputProps={{
+                  autoComplete: 'new-password',
+                  'data-form-type': 'other',
+                  'data-lpignore': 'true'
+                }}
                 InputProps={{
                   startAdornment: <Person sx={{ mr: 1, color: 'primary.main' }} />
                 }}
