@@ -11,7 +11,6 @@ import {
   CircularProgress,
   Grid,
   Divider,
-  Autocomplete,
   Fade,
   Slide,
   Chip,
@@ -43,13 +42,7 @@ interface EnhancedNumerologyFormProps {
   error?: string;
 }
 
-// Common Vietnamese names for autocomplete
-const vietnameseNames = [
-  'Nguyễn Văn An', 'Trần Thị Bình', 'Lê Văn Cường', 'Phạm Thị Dung',
-  'Hoàng Văn Em', 'Vũ Thị Phương', 'Đặng Văn Giang', 'Bùi Thị Hoa',
-  'Đinh Văn Inh', 'Lý Thị Kim', 'Ngô Văn Long', 'Dương Thị Mai',
-  'Chu Văn Nam', 'Võ Thị Oanh', 'Phan Văn Phúc', 'Lưu Thị Quỳnh'
-];
+// Removed autocomplete suggestions - using simple text input
 
 const steps = [
   'Nhập họ tên',
@@ -259,35 +252,28 @@ const EnhancedNumerologyForm: React.FC<EnhancedNumerologyFormProps> = ({
                 </StepLabel>
                 <StepContent>
                   <Box sx={{ mt: 2, mb: 3 }}>
-                    <Autocomplete
-                      freeSolo
-                      options={vietnameseNames}
+                    <TextField
+                      fullWidth
+                      label="Họ và tên đầy đủ"
+                      placeholder="Ví dụ: Nguyễn Văn An"
                       value={fullName}
-                      onChange={handleNameChange}
-                      onInputChange={handleNameInputChange}
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          fullWidth
-                          label="Họ và tên đầy đủ"
-                          placeholder="Ví dụ: Nguyễn Văn An"
-                          error={!!nameError}
-                          helperText={nameError || "Nhập họ tên đầy đủ để có kết quả chính xác nhất"}
-                          variant="outlined"
-                          disabled={loading}
-                          InputProps={{
-                            ...params.InputProps,
-                            startAdornment: (
-                              <InputAdornment position="start">
-                                <Person color="primary" />
-                              </InputAdornment>
-                            ),
-                            endAdornment: (
-                              <InputAdornment position="end">
-                                {getValidationIcon()}
-                              </InputAdornment>
-                            )
-                          }}
+                      onChange={(e) => handleNameInputChange(e, e.target.value)}
+                      error={!!nameError}
+                      helperText={nameError || "Nhập họ tên đầy đủ để có kết quả chính xác nhất"}
+                      variant="outlined"
+                      disabled={loading}
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <Person color="primary" />
+                          </InputAdornment>
+                        ),
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            {getValidationIcon()}
+                          </InputAdornment>
+                        )
+                      }}
                           sx={{
                             '& .MuiOutlinedInput-root': {
                               borderRadius: 2,
@@ -304,17 +290,7 @@ const EnhancedNumerologyForm: React.FC<EnhancedNumerologyFormProps> = ({
                               fontSize: isMobile ? '14px' : '12px'
                             }
                           }}
-                        />
-                      )}
-                      renderOption={(props, option) => (
-                        <Box component="li" {...props} sx={{ 
-                          '&:hover': { backgroundColor: 'primary.50' }
-                        }}>
-                          <Person sx={{ mr: 1, color: 'primary.main' }} />
-                          {option}
-                        </Box>
-                      )}
-                    />
+                      />
                     
                     {fullName && !nameError && (
                       <Fade in>

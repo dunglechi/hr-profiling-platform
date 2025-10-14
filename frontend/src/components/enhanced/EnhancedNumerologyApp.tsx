@@ -144,21 +144,23 @@ const EnhancedNumerologyApp: React.FC = () => {
     setCurrentUser({ fullName, birthDate });
 
     try {
-      // Generate mock numerology calculation for now
+      // Add small delay to simulate calculation
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // Generate mock numerology calculation
       const calculatedResult = generateMockNumerologyResult(fullName, birthDate);
       
-      if (calculatedResult) {
-        setResult(calculatedResult);
-        showSuccess('Phân tích thành công! Hãy khám phá kết quả bên dưới.', 'Hoàn thành');
-        
-        // Smooth scroll to results
-        setTimeout(() => {
-          const resultsElement = document.getElementById('results-section');
-          if (resultsElement) {
-            resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }
-        }, 500);
-      }
+      setResult(calculatedResult);
+      showSuccess('Phân tích thành công! Hãy khám phá kết quả bên dưới.', 'Hoàn thành');
+      
+      // Smooth scroll to results
+      setTimeout(() => {
+        const resultsElement = document.getElementById('results-section');
+        if (resultsElement) {
+          resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 500);
+      
     } catch (error) {
       console.error('Numerology calculation error:', error);
       setError('Có lỗi xảy ra khi tính toán thần số học. Vui lòng thử lại.');
