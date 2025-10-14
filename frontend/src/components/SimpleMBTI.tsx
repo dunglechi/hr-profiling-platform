@@ -16,268 +16,453 @@ import {
   Backdrop,
   CircularProgress,
   Divider,
-  Chip
+  Chip,
+  LinearProgress,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails
 } from '@mui/material';
-import { Work, Psychology } from '@mui/icons-material';
+import { 
+  Work, 
+  Psychology, 
+  CheckCircle, 
+  Warning, 
+  Favorite,
+  ExpandMore,
+  TrendingUp,
+  Group,
+  School,
+  Business
+} from '@mui/icons-material';
 import { assessmentAPI } from '../lib/supabase';
-
-interface MBTIResult {
-  type: string;
-  description: string;
-  characteristics: string[];
-  strengths: string[];
-  challenges: string[];
-  careerSuggestions: string[];
-  workPreferences: string[];
-  communicationStyle: string;
-}
+import MBTICalculator, { 
+  MBTI_QUESTIONS, 
+  MBTIResult as ComprehensiveMBTIResult,
+  MBTIPersonalityType 
+} from '../services/mbtiCalculator';
 
 const SimpleMBTI: React.FC = () => {
   const [currentQuestion, setCurrentQuestion] = useState(0);
-  const [answers, setAnswers] = useState<Record<number, string>>({});
+  const [answers, setAnswers] = useState<Record<number, number>>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [result, setResult] = useState<MBTIResult | null>(null);
+  const [result, setResult] = useState<ComprehensiveMBTIResult | null>(null);
+  const [userName, setUserName] = useState('');
 
-  const questions = [
-    {
-      id: 0,
-      dimension: 'E/I',
-      text: "Trong một bữa tiệc, bạn thường:",
-      options: [
-        { value: "E", text: "Tìm hiểu và trò chuyện với nhiều người mới" },
-        { value: "I", text: "Nói chuyện sâu với một vài người quen" }
-      ]
-    },
-    {
-      id: 1,
-      dimension: 'E/I',
-      text: "Sau một ngày dài, bạn cảm thấy thoải mái nhất khi:",
-      options: [
-        { value: "E", text: "Gặp gỡ bạn bè hoặc tham gia hoạt động xã hội" },
-        { value: "I", text: "Ở nhà một mình hoặc với người thân" }
-      ]
-    },
-    {
-      id: 2,
-      dimension: 'S/N',
-      text: "Khi học điều gì đó mới, bạn thích:",
-      options: [
-        { value: "S", text: "Tìm hiểu các bước cụ thể và ví dụ thực tế" },
-        { value: "N", text: "Hiểu ý tưởng tổng quan và khả năng ứng dụng" }
-      ]
-    },
-    {
-      id: 3,
-      dimension: 'S/N',
-      text: "Bạn tin tưởng hơn vào:",
-      options: [
-        { value: "S", text: "Kinh nghiệm và dữ liệu cụ thể" },
-        { value: "N", text: "Trực giác và khả năng sáng tạo" }
-      ]
-    },
-    {
-      id: 4,
-      dimension: 'T/F',
-      text: "Khi đưa ra quyết định quan trọng:",
-      options: [
-        { value: "T", text: "Phân tích logic và cân nhắc ưu nhược điểm" },
-        { value: "F", text: "Cân nhắc cảm xúc và tác động đến mọi người" }
-      ]
-    },
-    {
-      id: 5,
-      dimension: 'T/F',
-      text: "Trong xung đột, điều quan trọng nhất là:",
-      options: [
-        { value: "T", text: "Tìm ra giải pháp công bằng và logic" },
-        { value: "F", text: "Duy trì mối quan hệ và sự hòa hợp" }
-      ]
-    },
-    {
-      id: 6,
-      dimension: 'J/P',
-      text: "Bạn thích làm việc:",
-      options: [
-        { value: "J", text: "Theo kế hoạch chi tiết và deadline rõ ràng" },
-        { value: "P", text: "Linh hoạt và thích nghi với tình huống" }
-      ]
-    },
-    {
-      id: 7,
-      dimension: 'J/P',
-      text: "Cuối tuần lý tưởng của bạn là:",
-      options: [
-        { value: "J", text: "Có lịch trình cụ thể và hoàn thành công việc" },
-        { value: "P", text: "Tự do quyết định và khám phá điều mới" }
-      ]
-    }
-  ];
+  const progress = ((currentQuestion + 1) / MBTI_QUESTIONS.length) * 100;
 
-  const handleAnswerChange = (questionId: number, value: string) => {
-    setAnswers(prev => ({ ...prev, [questionId]: value }));
-    setError('');
+  const handleAnswer = (questionId: number, value: number) => {
+    setAnswers(prev => ({
+      ...prev,
+      [questionId]: value
+    }));
   };
 
-  const nextQuestion = () => {
-    if (!answers[currentQuestion]) {
-      setError('Vui lòng chọn một đáp án');
-      return;
-    }
-    
-    if (currentQuestion < questions.length - 1) {
-      setCurrentQuestion(currentQuestion + 1);
+  const handleNext = () => {
+    if (currentQuestion < MBTI_QUESTIONS.length - 1) {
+      setCurrentQuestion(prev => prev + 1);
     } else {
       calculateResult();
     }
   };
 
-  const prevQuestion = () => {
+  const handlePrevious = () => {
     if (currentQuestion > 0) {
-      setCurrentQuestion(currentQuestion - 1);
+      setCurrentQuestion(prev => prev - 1);
     }
   };
 
   const calculateResult = async () => {
-    setLoading(true);
-    
     try {
-      // Calculate MBTI type
-      const dimensions = { E: 0, I: 0, S: 0, N: 0, T: 0, F: 0, J: 0, P: 0 };
-      
-      Object.values(answers).forEach(answer => {
-        dimensions[answer as keyof typeof dimensions]++;
-      });
+      setLoading(true);
+      setError('');
 
-      const type = 
-        (dimensions.E > dimensions.I ? 'E' : 'I') +
-        (dimensions.S > dimensions.N ? 'S' : 'N') +
-        (dimensions.T > dimensions.F ? 'T' : 'F') +
-        (dimensions.J > dimensions.P ? 'J' : 'P');
-
-      const typeDescriptions: Record<string, any> = {
-        'ENTJ': {
-          description: 'The Commander - Nhà lãnh đạo tự nhiên, quyết đoán và có tầm nhìn strategically',
-          characteristics: ['Lãnh đạo mạnh mẽ', 'Tư duy chiến lược', 'Quyết đoán', 'Có tổ chức'],
-          strengths: ['Khả năng lãnh đạo xuất sắc', 'Tư duy logic', 'Có tầm nhìn dài hạn', 'Quyết đoán'],
-          challenges: ['Có thể quá nghiêm khắc', 'Thiếu kiên nhẫn', 'Ít chú ý đến cảm xúc'],
-          careerSuggestions: ['CEO', 'Quản lý cấp cao', 'Tư vấn kinh doanh', 'Luật sư', 'Chính trị gia'],
-          workPreferences: ['Môi trường thách thức', 'Vị trí lãnh đạo', 'Dự án chiến lược'],
-          communicationStyle: 'Trực tiếp, rõ ràng và tập trung vào mục tiêu'
-        },
-        'ENTP': {
-          description: 'The Debater - Sáng tạo, đổi mới và thích thử thách các ý tưởng',
-          characteristics: ['Sáng tạo', 'Linh hoạt', 'Nhiệt tình', 'Thích tranh luận'],
-          strengths: ['Tư duy sáng tạo', 'Thích nghi tốt', 'Truyền cảm hứng', 'Giải quyết vấn đề'],
-          challenges: ['Dễ nhàm chán', 'Khó tập trung lâu', 'Tránh chi tiết'],
-          careerSuggestions: ['Doanh nhân', 'Nhà sáng tạo', 'Tư vấn', 'Nhà nghiên cứu', 'Marketer'],
-          workPreferences: ['Môi trường sáng tạo', 'Dự án đa dạng', 'Tự do sáng tạo'],
-          communicationStyle: 'Nhiệt tình, sáng tạo và thích thảo luận ý tưởng'
-        },
-        'ENFJ': {
-          description: 'The Protagonist - Truyền cảm hứng và hỗ trợ người khác phát triển',
-          characteristics: ['Đồng cảm', 'Truyền cảm hứng', 'Có tổ chức', 'Quan tâm người khác'],
-          strengths: ['Kỹ năng giao tiếp xuất sắc', 'Đồng cảm cao', 'Lãnh đạo tự nhiên', 'Động viên tốt'],
-          challenges: ['Quá quan tâm người khác', 'Dễ bị stress', 'Khó từ chối'],
-          careerSuggestions: ['Giáo viên', 'Tư vấn', 'HR Manager', 'Nhà tâm lý', 'Coach'],
-          workPreferences: ['Làm việc với người', 'Phát triển nhân tài', 'Môi trường hỗ trợ'],
-          communicationStyle: 'Ấm áp, khuyến khích và tập trung vào con người'
-        },
-        'ENFP': {
-          description: 'The Campaigner - Nhiệt tình, sáng tạo và luôn tìm kiếm khả năng mới',
-          characteristics: ['Nhiệt tình', 'Sáng tạo', 'Linh hoạt', 'Quan tâm người khác'],
-          strengths: ['Sáng tạo', 'Giao tiếp tốt', 'Thích nghi cao', 'Truyền cảm hứng'],
-          challenges: ['Dễ bị phân tâm', 'Khó tập trung', 'Tránh xung đột'],
-          careerSuggestions: ['Nhà báo', 'Nghệ sĩ', 'Marketer', 'Tư vấn', 'Entrepreneur'],
-          workPreferences: ['Môi trường sáng tạo', 'Linh hoạt thời gian', 'Tương tác với người'],
-          communicationStyle: 'Nhiệt tình, sáng tạo và truyền cảm hứng'
-        }
-        // Có thể thêm các type khác...
-      };
-
-      const defaultResult = {
-        description: 'Một nhân cách độc đáo với những đặc điểm riêng biệt',
-        characteristics: ['Tư duy độc lập', 'Có cá tính riêng', 'Khả năng thích nghi'],
-        strengths: ['Tư duy logic', 'Giao tiếp tốt', 'Làm việc nhóm', 'Sáng tạo'],
-        challenges: ['Cần phát triển kỹ năng', 'Cải thiện giao tiếp', 'Quản lý thời gian'],
-        careerSuggestions: ['Quản lý', 'Tư vấn', 'Giáo dục', 'Công nghệ', 'Kinh doanh'],
-        workPreferences: ['Môi trường hỗ trợ', 'Cơ hội phát triển', 'Làm việc nhóm'],
-        communicationStyle: 'Thân thiện và hiệu quả'
-      };
-
-      const calculatedResult: MBTIResult = {
-        type,
-        ...typeDescriptions[type] || defaultResult
-      };
+      // Calculate MBTI result using comprehensive calculator
+      const mbtiResult = MBTICalculator.calculateType(answers);
+      setResult(mbtiResult);
 
       // Save to database
-      try {
-        await assessmentAPI.saveResult({
-          user_id: `anonymous_${Date.now()}`,
-          assessment_type: 'MBTI',
-          result_data: calculatedResult
-        });
-      } catch (saveError) {
-        console.warn('Could not save to database:', saveError);
-      }
+      const userId = userName || `mbti-user-${Date.now()}`;
+      await assessmentAPI.saveAssessment({
+        user_id: userId,
+        assessment_type: 'MBTI',
+        result_data: {
+          personalityType: mbtiResult.type,
+          scores: mbtiResult.scores,
+          cognitiveFunctions: mbtiResult.cognitiveFunctions,
+          description: mbtiResult.description,
+          careerRecommendations: mbtiResult.careerRecommendations,
+          strengths: mbtiResult.strengths,
+          challenges: mbtiResult.challenges,
+          relationships: mbtiResult.relationships,
+          answers: answers,
+          timestamp: new Date().toISOString()
+        }
+      });
 
-      // Simulate processing time
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      setResult(calculatedResult);
-      
-    } catch (error) {
+    } catch (err: any) {
       setError('Có lỗi xảy ra khi tính toán kết quả. Vui lòng thử lại.');
+      console.error('MBTI calculation error:', err);
     } finally {
       setLoading(false);
     }
   };
 
-  const resetAssessment = () => {
+  const resetTest = () => {
     setCurrentQuestion(0);
     setAnswers({});
     setResult(null);
     setError('');
+    setUserName('');
   };
 
-  return (
-    <Container maxWidth="md" sx={{ py: 4 }}>
-      {/* Loading Backdrop */}
-      <Backdrop
-        sx={{ 
-          color: '#fff', 
-          zIndex: (theme) => theme.zIndex.drawer + 1,
-          backdropFilter: 'blur(4px)'
-        }}
-        open={loading}
-      >
+  // Render loading screen
+  if (loading) {
+    return (
+      <Backdrop open={true} style={{ zIndex: 1000, color: '#fff' }}>
         <Box textAlign="center">
-          <CircularProgress size={60} sx={{ color: '#4caf50', mb: 2 }} />
-          <Typography variant="h6">🧠 Đang phân tích tính cách MBTI...</Typography>
-          <Typography variant="body2" sx={{ mt: 1, opacity: 0.8 }}>
-            Vui lòng chờ trong giây lát
+          <CircularProgress size={60} />
+          <Typography variant="h6" sx={{ mt: 2 }}>
+            Đang phân tích tính cách của bạn...
           </Typography>
         </Box>
       </Backdrop>
+    );
+  }
 
+  // Render result screen
+  if (result) {
+    return (
+      <Container maxWidth="lg" sx={{ py: 4 }}>
+        {/* Header */}
+        <Paper 
+          elevation={4}
+          sx={{ 
+            p: 4, 
+            mb: 4, 
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            color: 'white',
+            textAlign: 'center',
+            borderRadius: 3
+          }}
+        >
+          <Psychology sx={{ fontSize: 60, mb: 2 }} />
+          <Typography variant="h3" gutterBottom fontWeight="bold">
+            🎭 {result.type} - {result.description.nickname}
+          </Typography>
+          <Typography variant="h6" sx={{ opacity: 0.9 }}>
+            {result.description.summary}
+          </Typography>
+        </Paper>
+
+        {/* Main Result Content */}
+        <Grid container spacing={3}>
+          {/* Personality Description */}
+          <Grid item xs={12}>
+            <Card elevation={3}>
+              <CardContent>
+                <Typography variant="h5" gutterBottom color="primary" fontWeight="bold">
+                  📋 Mô Tả Tính Cách
+                </Typography>
+                <Typography variant="body1" paragraph>
+                  {result.description.detailedDescription}
+                </Typography>
+                
+                <Grid container spacing={2} sx={{ mt: 2 }}>
+                  <Grid item xs={12} md={4}>
+                    <Typography variant="h6" color="secondary" gutterBottom>
+                      💬 Phong Cách Giao Tiếp
+                    </Typography>
+                    <Typography variant="body2">
+                      {result.description.communicationStyle}
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={12} md={4}>
+                    <Typography variant="h6" color="secondary" gutterBottom>
+                      🏢 Phong Cách Làm Việc
+                    </Typography>
+                    <Typography variant="body2">
+                      {result.description.workStyle}
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={12} md={4}>
+                    <Typography variant="h6" color="secondary" gutterBottom>
+                      📚 Phong Cách Học Tập
+                    </Typography>
+                    <Typography variant="body2">
+                      {result.description.learningStyle}
+                    </Typography>
+                  </Grid>
+                </Grid>
+              </CardContent>
+            </Card>
+          </Grid>
+
+          {/* Dimension Scores */}
+          <Grid item xs={12} md={6}>
+            <Card elevation={3}>
+              <CardContent>
+                <Typography variant="h5" gutterBottom color="primary" fontWeight="bold">
+                  📊 Điểm Số Các Chiều
+                </Typography>
+                {Object.entries(result.scores).map(([dimension, score]) => {
+                  const labels = {
+                    EI: ['Extraversion', 'Introversion'],
+                    SN: ['Sensing', 'Intuition'], 
+                    TF: ['Thinking', 'Feeling'],
+                    JP: ['Judging', 'Perceiving']
+                  };
+                  const [pos, neg] = labels[dimension as keyof typeof labels];
+                  const percentage = ((score + 4) / 8) * 100; // Normalize to 0-100%
+                  
+                  return (
+                    <Box key={dimension} sx={{ mb: 2 }}>
+                      <Box display="flex" justifyContent="space-between" alignItems="center">
+                        <Typography variant="body2" fontWeight="bold">
+                          {dimension}: {score > 0 ? pos : neg}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          {Math.abs(score)}/4
+                        </Typography>
+                      </Box>
+                      <LinearProgress 
+                        variant="determinate" 
+                        value={percentage} 
+                        sx={{ 
+                          height: 8, 
+                          borderRadius: 1,
+                          backgroundColor: '#f0f0f0',
+                          '& .MuiLinearProgress-bar': {
+                            backgroundColor: score > 0 ? '#4caf50' : '#2196f3'
+                          }
+                        }} 
+                      />
+                    </Box>
+                  );
+                })}
+              </CardContent>
+            </Card>
+          </Grid>
+
+          {/* Cognitive Functions */}
+          <Grid item xs={12} md={6}>
+            <Card elevation={3}>
+              <CardContent>
+                <Typography variant="h5" gutterBottom color="primary" fontWeight="bold">
+                  🧠 Các Chức Năng Nhận Thức
+                </Typography>
+                <List>
+                  {result.cognitiveFunctions.map((func, index) => (
+                    <ListItem key={index} divider>
+                      <ListItemIcon>
+                        <Chip 
+                          label={func.position} 
+                          size="small" 
+                          color={index === 0 ? 'primary' : index === 1 ? 'secondary' : 'default'}
+                        />
+                      </ListItemIcon>
+                      <ListItemText
+                        primary={func.name}
+                        secondary={func.description}
+                      />
+                    </ListItem>
+                  ))}
+                </List>
+              </CardContent>
+            </Card>
+          </Grid>
+
+          {/* Strengths & Challenges */}
+          <Grid item xs={12} md={6}>
+            <Card elevation={3}>
+              <CardContent>
+                <Typography variant="h5" gutterBottom color="primary" fontWeight="bold">
+                  💪 Điểm Mạnh
+                </Typography>
+                <List>
+                  {result.strengths.map((strength, index) => (
+                    <ListItem key={index}>
+                      <ListItemIcon>
+                        <CheckCircle color="success" />
+                      </ListItemIcon>
+                      <ListItemText primary={strength} />
+                    </ListItem>
+                  ))}
+                </List>
+              </CardContent>
+            </Card>
+          </Grid>
+
+          <Grid item xs={12} md={6}>
+            <Card elevation={3}>
+              <CardContent>
+                <Typography variant="h5" gutterBottom color="warning" fontWeight="bold">
+                  ⚠️ Thách Thức Cần Phát Triển
+                </Typography>
+                <List>
+                  {result.challenges.map((challenge, index) => (
+                    <ListItem key={index}>
+                      <ListItemIcon>
+                        <Warning color="warning" />
+                      </ListItemIcon>
+                      <ListItemText primary={challenge} />
+                    </ListItem>
+                  ))}
+                </List>
+              </CardContent>
+            </Card>
+          </Grid>
+
+          {/* Career Recommendations */}
+          <Grid item xs={12}>
+            <Card elevation={3}>
+              <CardContent>
+                <Typography variant="h5" gutterBottom color="primary" fontWeight="bold">
+                  🚀 Gợi Ý Nghề Nghiệp
+                </Typography>
+                <Grid container spacing={2}>
+                  {result.careerRecommendations.map((career, index) => (
+                    <Grid item xs={12} md={6} key={index}>
+                      <Card variant="outlined" sx={{ height: '100%' }}>
+                        <CardContent>
+                          <Box display="flex" alignItems="center" mb={1}>
+                            <Business color="primary" sx={{ mr: 1 }} />
+                            <Typography variant="h6" color="primary">
+                              {career.category}
+                            </Typography>
+                          </Box>
+                          <Typography variant="body2" color="text.secondary" paragraph>
+                            {career.reasoning}
+                          </Typography>
+                          <Typography variant="subtitle2" gutterBottom>
+                            Nghề nghiệp phù hợp:
+                          </Typography>
+                          <Box display="flex" flexWrap="wrap" gap={0.5}>
+                            {career.jobs.map((job, jobIndex) => (
+                              <Chip key={jobIndex} label={job} size="small" variant="outlined" />
+                            ))}
+                          </Box>
+                          <Typography variant="body2" sx={{ mt: 1 }} color="text.secondary">
+                            <strong>Môi trường:</strong> {career.workEnvironment}
+                          </Typography>
+                        </CardContent>
+                      </Card>
+                    </Grid>
+                  ))}
+                </Grid>
+              </CardContent>
+            </Card>
+          </Grid>
+
+          {/* Relationship Style */}
+          <Grid item xs={12}>
+            <Card elevation={3}>
+              <CardContent>
+                <Typography variant="h5" gutterBottom color="primary" fontWeight="bold">
+                  💕 Phong Cách Quan Hệ
+                </Typography>
+                <Typography variant="body1" paragraph>
+                  {result.relationships.approach}
+                </Typography>
+                
+                <Grid container spacing={2}>
+                  <Grid item xs={12} md={4}>
+                    <Typography variant="h6" color="success.main" gutterBottom>
+                      🌟 Tương Thích Tốt Nhất
+                    </Typography>
+                    <Box display="flex" flexWrap="wrap" gap={0.5}>
+                      {result.relationships.compatibility.best.map((type, index) => (
+                        <Chip key={index} label={type} color="success" size="small" />
+                      ))}
+                    </Box>
+                  </Grid>
+                  <Grid item xs={12} md={4}>
+                    <Typography variant="h6" color="info.main" gutterBottom>
+                      👍 Tương Thích Tốt
+                    </Typography>
+                    <Box display="flex" flexWrap="wrap" gap={0.5}>
+                      {result.relationships.compatibility.good.map((type, index) => (
+                        <Chip key={index} label={type} color="info" size="small" />
+                      ))}
+                    </Box>
+                  </Grid>
+                  <Grid item xs={12} md={4}>
+                    <Typography variant="h6" color="warning.main" gutterBottom>
+                      🤔 Cần Nỗ Lực
+                    </Typography>
+                    <Box display="flex" flexWrap="wrap" gap={0.5}>
+                      {result.relationships.compatibility.challenging.map((type, index) => (
+                        <Chip key={index} label={type} color="warning" size="small" />
+                      ))}
+                    </Box>
+                  </Grid>
+                </Grid>
+
+                <Typography variant="h6" sx={{ mt: 3, mb: 1 }} color="primary">
+                  💡 Lời Khuyên Quan Hệ
+                </Typography>
+                <List>
+                  {result.relationships.tips.map((tip, index) => (
+                    <ListItem key={index}>
+                      <ListItemIcon>
+                        <Favorite color="secondary" />
+                      </ListItemIcon>
+                      <ListItemText primary={tip} />
+                    </ListItem>
+                  ))}
+                </List>
+              </CardContent>
+            </Card>
+          </Grid>
+
+          {/* Action Buttons */}
+          <Grid item xs={12}>
+            <Box textAlign="center" sx={{ mt: 3 }}>
+              <Button
+                variant="outlined"
+                onClick={resetTest}
+                sx={{ mr: 2 }}
+              >
+                Làm Lại Test
+              </Button>
+              <Button
+                variant="contained"
+                onClick={() => window.print()}
+              >
+                In Kết Quả
+              </Button>
+            </Box>
+          </Grid>
+        </Grid>
+      </Container>
+    );
+  }
+
+  // Render question screen
+  return (
+    <Container maxWidth="md" sx={{ py: 4 }}>
       {/* Header */}
-      <Paper
-        elevation={8}
-        sx={{
-          background: 'linear-gradient(135deg, #4caf50 0%, #2e7d32 100%)',
+      <Paper 
+        elevation={4}
+        sx={{ 
+          p: 4, 
+          mb: 4, 
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
           color: 'white',
-          p: 4,
           textAlign: 'center',
-          borderRadius: 3,
-          mb: 4
+          borderRadius: 3
         }}
       >
-        <Work sx={{ fontSize: 48, mb: 2, opacity: 0.9 }} />
-        <Typography variant="h3" gutterBottom sx={{ fontWeight: 'bold' }}>
-          🧠 Phân Loại MBTI
+        <Psychology sx={{ fontSize: 48, mb: 2 }} />
+        <Typography variant="h3" gutterBottom fontWeight="bold">
+          🎭 MBTI Personality Test
         </Typography>
         <Typography variant="h6" sx={{ opacity: 0.9 }}>
-          Khám phá tính cách và phong cách làm việc Myers-Briggs
+          Khám phá 16 kiểu tính cách Myers-Briggs của bạn
         </Typography>
       </Paper>
 
@@ -287,219 +472,84 @@ const SimpleMBTI: React.FC = () => {
         </Alert>
       )}
 
-      {!result ? (
-        /* Assessment Questions */
-        <Paper elevation={4} sx={{ p: 4, borderRadius: 3 }}>
-          <Box sx={{ mb: 3 }}>
-            <Typography variant="h6" sx={{ mb: 1 }}>
-              Câu hỏi {currentQuestion + 1} / {questions.length}
-            </Typography>
-            <Box sx={{ width: '100%', bgcolor: 'grey.200', borderRadius: 1, height: 8 }}>
-              <Box
-                sx={{
-                  width: `${((currentQuestion + 1) / questions.length) * 100}%`,
-                  bgcolor: '#4caf50',
-                  height: 8,
-                  borderRadius: 1,
-                  transition: 'width 0.3s ease'
-                }}
-              />
-            </Box>
-          </Box>
-
-          <Typography variant="h5" sx={{ mb: 3, fontWeight: 'bold' }}>
-            {questions[currentQuestion].text}
+      {/* Progress */}
+      <Paper elevation={2} sx={{ p: 3, mb: 3 }}>
+        <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+          <Typography variant="h6">
+            Câu hỏi {currentQuestion + 1} / {MBTI_QUESTIONS.length}
           </Typography>
+          <Typography variant="body2" color="text.secondary">
+            {Math.round(progress)}% hoàn thành
+          </Typography>
+        </Box>
+        <LinearProgress 
+          variant="determinate" 
+          value={progress} 
+          sx={{ height: 8, borderRadius: 1 }}
+        />
+      </Paper>
 
-          <FormControl component="fieldset" sx={{ width: '100%' }}>
+      {/* Current Question */}
+      {currentQ && (
+        <Paper elevation={3} sx={{ p: 4, mb: 3 }}>
+          <Typography variant="h5" gutterBottom fontWeight="bold">
+            {currentQ.question}
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+            Chiều đánh giá: <strong>{currentQ.dimension}</strong>
+          </Typography>
+          
+          <FormControl component="fieldset" fullWidth>
             <RadioGroup
-              value={answers[currentQuestion] || ''}
-              onChange={(e) => handleAnswerChange(currentQuestion, e.target.value)}
+              value={answers[currentQ.id] || ''}
+              onChange={(e) => handleAnswer(currentQ.id, parseInt(e.target.value))}
             >
-              {questions[currentQuestion].options.map((option, index) => (
-                <Paper
+              {currentQ.options.map((option, index) => (
+                <FormControlLabel
                   key={index}
-                  elevation={answers[currentQuestion] === option.value ? 3 : 1}
-                  sx={{
-                    p: 3,
-                    mb: 2,
-                    border: answers[currentQuestion] === option.value ? '2px solid #4caf50' : '1px solid transparent',
-                    cursor: 'pointer',
-                    transition: 'all 0.3s ease'
-                  }}
-                  onClick={() => handleAnswerChange(currentQuestion, option.value)}
-                >
-                  <FormControlLabel
-                    value={option.value}
-                    control={<Radio sx={{ color: '#4caf50' }} />}
-                    label={
-                      <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                        {option.text}
-                      </Typography>
+                  value={option.score}
+                  control={<Radio />}
+                  label={
+                    <Typography variant="body1" sx={{ py: 1 }}>
+                      {option.text}
+                    </Typography>
+                  }
+                  sx={{ 
+                    mb: 1,
+                    p: 2,
+                    borderRadius: 2,
+                    border: '1px solid transparent',
+                    '&:hover': {
+                      backgroundColor: 'action.hover',
+                      border: '1px solid',
+                      borderColor: 'primary.main'
                     }
-                    sx={{ width: '100%', m: 0 }}
-                  />
-                </Paper>
+                  }}
+                />
               ))}
             </RadioGroup>
           </FormControl>
-
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>
-            <Button
-              variant="outlined"
-              onClick={prevQuestion}
-              disabled={currentQuestion === 0}
-              sx={{ px: 3 }}
-            >
-              Quay lại
-            </Button>
-            
-            <Button
-              variant="contained"
-              onClick={nextQuestion}
-              sx={{
-                px: 4,
-                bgcolor: '#4caf50',
-                '&:hover': { bgcolor: '#2e7d32' }
-              }}
-            >
-              {currentQuestion === questions.length - 1 ? 'Hoàn thành' : 'Tiếp tục'}
-            </Button>
-          </Box>
         </Paper>
-      ) : (
-        /* Results Display */
-        <Box>
-          <Paper elevation={4} sx={{ p: 4, borderRadius: 3, mb: 3 }}>
-            <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold', color: 'primary.main' }}>
-              🧠 Kết Quả Phân Tích MBTI
-            </Typography>
-
-            {/* MBTI Type */}
-            <Box sx={{ textAlign: 'center', mb: 4 }}>
-              <Chip
-                label={result.type}
-                sx={{
-                  fontSize: '32px',
-                  fontWeight: 'bold',
-                  height: 80,
-                  bgcolor: '#4caf50',
-                  color: 'white',
-                  '& .MuiChip-label': { px: 4 }
-                }}
-              />
-              <Typography variant="h5" sx={{ mt: 2, fontWeight: 'bold', color: '#4caf50' }}>
-                {result.description}
-              </Typography>
-            </Box>
-
-            <Divider sx={{ my: 3 }} />
-
-            {/* Characteristics */}
-            <Paper sx={{ p: 3, mb: 3, bgcolor: '#f1f8e9', border: '1px solid #4caf50' }}>
-              <Typography variant="h6" gutterBottom sx={{ color: '#4caf50', fontWeight: 'bold' }}>
-                🌟 Đặc Điểm Nổi Bật
-              </Typography>
-              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                {result.characteristics.map((char, index) => (
-                  <Chip 
-                    key={index} 
-                    label={char} 
-                    sx={{ bgcolor: '#4caf50', color: 'white' }}
-                  />
-                ))}
-              </Box>
-            </Paper>
-
-            <Grid container spacing={3} sx={{ mb: 3 }}>
-              <Grid item xs={12} md={6}>
-                <Paper sx={{ p: 3, bgcolor: '#f0fff4', border: '1px solid #38a169' }}>
-                  <Typography variant="h6" gutterBottom sx={{ color: '#38a169', fontWeight: 'bold' }}>
-                    💪 Điểm Mạnh
-                  </Typography>
-                  {result.strengths.map((strength, index) => (
-                    <Typography key={index} sx={{ mb: 1 }}>
-                      • {strength}
-                    </Typography>
-                  ))}
-                </Paper>
-              </Grid>
-              
-              <Grid item xs={12} md={6}>
-                <Paper sx={{ p: 3, bgcolor: '#fff5f5', border: '1px solid #e53e3e' }}>
-                  <Typography variant="h6" gutterBottom sx={{ color: '#e53e3e', fontWeight: 'bold' }}>
-                    ⚠️ Điểm Cần Phát Triển
-                  </Typography>
-                  {result.challenges.map((challenge, index) => (
-                    <Typography key={index} sx={{ mb: 1 }}>
-                      • {challenge}
-                    </Typography>
-                  ))}
-                </Paper>
-              </Grid>
-            </Grid>
-
-            <Paper sx={{ p: 3, mb: 3, bgcolor: '#f7fafc', border: '1px solid #3182ce' }}>
-              <Typography variant="h6" gutterBottom sx={{ color: '#3182ce', fontWeight: 'bold' }}>
-                💼 Nghề Nghiệp Phù Hợp
-              </Typography>
-              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                {result.careerSuggestions.map((career, index) => (
-                  <Paper key={index} sx={{ px: 2, py: 1, bgcolor: '#3182ce', color: 'white', borderRadius: 2 }}>
-                    <Typography variant="body2">{career}</Typography>
-                  </Paper>
-                ))}
-              </Box>
-            </Paper>
-
-            <Grid container spacing={3} sx={{ mb: 3 }}>
-              <Grid item xs={12} md={6}>
-                <Paper sx={{ p: 3, bgcolor: '#fffaf0', border: '1px solid #d69e2e' }}>
-                  <Typography variant="h6" gutterBottom sx={{ color: '#d69e2e', fontWeight: 'bold' }}>
-                    🏢 Môi Trường Làm Việc Lý Tưởng
-                  </Typography>
-                  {result.workPreferences.map((pref, index) => (
-                    <Typography key={index} sx={{ mb: 1 }}>
-                      • {pref}
-                    </Typography>
-                  ))}
-                </Paper>
-              </Grid>
-              
-              <Grid item xs={12} md={6}>
-                <Paper sx={{ p: 3, bgcolor: '#f3e8ff', border: '1px solid #9f7aea' }}>
-                  <Typography variant="h6" gutterBottom sx={{ color: '#9f7aea', fontWeight: 'bold' }}>
-                    💬 Phong Cách Giao Tiếp
-                  </Typography>
-                  <Typography>
-                    {result.communicationStyle}
-                  </Typography>
-                </Paper>
-              </Grid>
-            </Grid>
-
-            <Box sx={{ textAlign: 'center', mt: 4 }}>
-              <Button
-                variant="contained"
-                size="large"
-                onClick={resetAssessment}
-                sx={{
-                  px: 4,
-                  py: 2,
-                  borderRadius: 2,
-                  bgcolor: '#4caf50',
-                  '&:hover': { bgcolor: '#2e7d32' },
-                  fontWeight: 'bold'
-                }}
-              >
-                🔄 Làm Lại Đánh Giá
-              </Button>
-            </Box>
-          </Paper>
-        </Box>
       )}
+
+      {/* Navigation Buttons */}
+      <Box display="flex" justifyContent="space-between">
+        <Button
+          variant="outlined"
+          onClick={handlePrevious}
+          disabled={currentQuestion === 0}
+        >
+          ← Câu Trước
+        </Button>
+        
+        <Button
+          variant="contained"
+          onClick={handleNext}
+          disabled={!hasAnswer}
+        >
+          {currentQuestion === MBTI_QUESTIONS.length - 1 ? 'Hoàn Thành' : 'Câu Tiếp Theo →'}
+        </Button>
+      </Box>
     </Container>
   );
-};
-
 export default SimpleMBTI;
