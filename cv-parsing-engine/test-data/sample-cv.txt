@@ -1,0 +1,30 @@
+NGUYỄN VĂN AN
+Senior Software Engineer
+Email: nguyen.van.an@email.com
+Phone: +84 901 234 567
+Date of Birth: 15/03/1990
+
+EXPERIENCE:
+- Senior Software Engineer at TechCorp (2020-2024)
+  * Led development of React-based web applications
+  * Implemented microservices architecture using Node.js
+  * Managed team of 5 junior developers
+  
+- Software Engineer at StartupXYZ (2018-2020)
+  * Developed mobile applications using React Native
+  * Built RESTful APIs with Express.js
+  * Integrated third-party payment systems
+
+SKILLS:
+Technical: JavaScript, React, Node.js, Python, MongoDB, PostgreSQL
+Soft Skills: Leadership, Problem Solving, Communication, Teamwork
+Languages: Vietnamese (Native), English (Fluent), Japanese (Basic)
+
+EDUCATION:
+- Bachelor of Computer Science, HCMUT (2012-2016)
+- AWS Certified Solutions Architect (2021)
+
+ACHIEVEMENTS:
+- Led successful product launch with 100K+ users
+- Reduced application loading time by 40%
+- Mentored 10+ junior developers

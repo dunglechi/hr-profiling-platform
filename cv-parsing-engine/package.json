@@ -1,0 +1,28 @@
+{
+  "name": "hr-cv-parsing-engine",
+  "version": "1.0.0",
+  "description": "AI-powered CV parsing engine for HR screening tool",
+  "main": "index.js",
+  "scripts": {
+    "test": "node quick-test-cv-parsing.js",
+    "dev": "nodemon index.js",
+    "start": "node index.js"
+  },
+  "keywords": ["cv", "parsing", "ai", "hr", "gemini", "recruitment"],
+  "author": "HR Profiling Platform Team",
+  "license": "MIT",
+  "dependencies": {
+    "@google/generative-ai": "^0.17.1",
+    "pdf-parse": "^1.1.1",
+    "mammoth": "^1.6.0",
+    "multer": "^1.4.5-lts.1",
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "uuid": "^9.0.1",
+    "@supabase/supabase-js": "^2.38.4"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}
