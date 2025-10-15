@@ -1,0 +1,368 @@
+/* Enhanced Candidate Manager Styles */
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.uploadSection {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 20px;
+  border: 2px dashed #dee2e6;
+}
+
+.uploadSection h3 {
+  margin: 0 0 15px 0;
+  color: #495057;
+}
+
+.processingIndicator {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 15px;
+  background: #e3f2fd;
+  border-radius: 8px;
+  margin-top: 15px;
+}
+
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #f3f3f3;
+  border-top: 2px solid #2196f3;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.uploadInfo {
+  margin-top: 15px;
+  padding: 15px;
+  background: #e8f5e8;
+  border-radius: 8px;
+  border-left: 4px solid #28a745;
+}
+
+.uploadInfo p {
+  margin: 0 0 10px 0;
+  font-weight: 600;
+  color: #155724;
+}
+
+.uploadInfo ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.uploadInfo li {
+  margin-bottom: 5px;
+  color: #155724;
+}
+
+.candidateList {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.listHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #e9ecef;
+}
+
+.listHeader h3 {
+  margin: 0;
+  color: #495057;
+}
+
+.legend {
+  display: flex;
+  gap: 15px;
+  font-size: 0.85rem;
+}
+
+.legend span {
+  padding: 4px 8px;
+  background: #f8f9fa;
+  border-radius: 4px;
+  border: 1px solid #dee2e6;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 40px 20px;
+  color: #6c757d;
+  font-style: italic;
+}
+
+.candidateGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+  gap: 20px;
+}
+
+.candidateCard {
+  border: 2px solid #e9ecef;
+  border-radius: 12px;
+  padding: 20px;
+  background: white;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.candidateCard:hover {
+  border-color: #007bff;
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.15);
+  transform: translateY(-2px);
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 15px;
+}
+
+.candidateInfo h4 {
+  margin: 0 0 5px 0;
+  color: #212529;
+  font-size: 1.1rem;
+}
+
+.fileName {
+  margin: 0;
+  color: #6c757d;
+  font-size: 0.85rem;
+  font-style: italic;
+}
+
+.statusBadge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 8px;
+  border-radius: 8px;
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  min-width: 100px;
+}
+
+.statusBadge span {
+  font-size: 1.2rem;
+  margin-bottom: 4px;
+}
+
+.statusText {
+  font-size: 0.75rem !important;
+  color: #495057;
+  margin: 0 !important;
+}
+
+.fieldChecklist {
+  margin-bottom: 20px;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border-left: 4px solid #17a2b8;
+}
+
+.fieldChecklist h5 {
+  margin: 0 0 10px 0;
+  color: #495057;
+  font-size: 0.9rem;
+}
+
+.fieldGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.fieldRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+}
+
+.fieldLabel {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #495057;
+  min-width: 100px;
+}
+
+.fieldValue {
+  color: #28a745;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.fieldMissing {
+  color: #dc3545;
+  font-size: 0.85rem;
+  font-style: italic;
+}
+
+.fieldInput {
+  padding: 4px 8px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  width: 150px;
+}
+
+.fieldInput:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.scoreSection {
+  margin-bottom: 15px;
+  padding: 15px;
+  background: #fff3cd;
+  border-radius: 8px;
+  border-left: 4px solid #ffc107;
+}
+
+.cvScore {
+  margin-bottom: 10px;
+}
+
+.cvScore strong {
+  display: block;
+  margin-bottom: 8px;
+  color: #856404;
+}
+
+.scoreBar {
+  height: 8px;
+  background: #f8f9fa;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.scoreProgress {
+  height: 100%;
+  background: linear-gradient(90deg, #dc3545 0%, #ffc107 50%, #28a745 100%);
+  transition: width 0.3s ease;
+}
+
+.auxiliaryScores {
+  display: flex;
+  gap: 15px;
+}
+
+.auxScore {
+  font-size: 0.85rem;
+  color: #856404;
+  padding: 4px 8px;
+  background: rgba(255, 193, 7, 0.1);
+  border-radius: 4px;
+}
+
+.warningBox {
+  margin-bottom: 15px;
+  padding: 10px;
+  background: #f8d7da;
+  border-radius: 6px;
+  border-left: 4px solid #dc3545;
+}
+
+.warning {
+  margin: 0;
+  color: #721c24;
+  font-size: 0.85rem;
+}
+
+.cardActions {
+  display: flex;
+  gap: 10px;
+}
+
+.editButton {
+  flex: 1;
+  padding: 8px 12px;
+  background: #17a2b8;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.editButton:hover {
+  background: #138496;
+}
+
+.shortlistButton {
+  flex: 2;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.shortlistButton.enabled {
+  background: #28a745;
+  color: white;
+}
+
+.shortlistButton.enabled:hover {
+  background: #218838;
+}
+
+.shortlistButton.disabled {
+  background: #6c757d;
+  color: white;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .candidateGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .listHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .legend {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  
+  .cardHeader {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .auxiliaryScores {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .cardActions {
+    flex-direction: column;
+  }
+}

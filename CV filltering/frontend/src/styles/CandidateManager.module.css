@@ -1,0 +1,181 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.uploadSection {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 20px;
+  border: 2px dashed #dee2e6;
+}
+
+.uploadInfo {
+  margin-top: 15px;
+  text-align: center;
+}
+
+.uploadInfo p {
+  margin: 5px 0;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.candidateList {
+  background: white;
+}
+
+.listHeader {
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.listHeader h3 {
+  color: #333;
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 60px 20px;
+  color: #666;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.candidates {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.candidateCard {
+  display: grid;
+  grid-template-columns: 1fr auto auto auto;
+  gap: 20px;
+  align-items: center;
+  padding: 20px;
+  border: 1px solid #e1e5e9;
+  border-radius: 8px;
+  background: white;
+  transition: box-shadow 0.3s ease;
+}
+
+.candidateCard:hover {
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.candidateInfo h4 {
+  margin: 0 0 8px 0;
+  color: #333;
+  font-size: 1.1rem;
+}
+
+.contactInfo {
+  margin: 5px 0;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.fileName {
+  margin: 5px 0;
+  font-size: 0.85rem;
+  color: #007bff;
+  font-weight: 500;
+}
+
+.uploadTime {
+  margin: 5px 0 0 0;
+  font-size: 0.8rem;
+  color: #999;
+}
+
+.candidateScore {
+  text-align: center;
+}
+
+.scoreDisplay {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.scoreValue {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #28a745;
+}
+
+.scoreLabel {
+  font-size: 0.8rem;
+  color: #666;
+  margin-top: 4px;
+}
+
+.candidateStatus {
+  display: flex;
+  justify-content: center;
+}
+
+.statusBadge {
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: white;
+  text-align: center;
+  min-width: 100px;
+}
+
+.candidateActions {
+  display: flex;
+  gap: 8px;
+}
+
+.actionBtn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.3s ease;
+}
+
+.actionBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.approveBtn {
+  background: #28a745;
+  color: white;
+}
+
+.approveBtn:hover:not(:disabled) {
+  background: #218838;
+}
+
+.rejectBtn {
+  background: #dc3545;
+  color: white;
+}
+
+.rejectBtn:hover:not(:disabled) {
+  background: #c82333;
+}
+
+@media (max-width: 768px) {
+  .candidateCard {
+    grid-template-columns: 1fr;
+    gap: 15px;
+    text-align: center;
+  }
+  
+  .candidateActions {
+    justify-content: center;
+  }
+}
