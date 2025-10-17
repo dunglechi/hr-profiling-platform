@@ -212,7 +212,7 @@ if __name__ == '__main__':
     logger.info(f"Debug mode: {debug}")
     
     app.run(
-        host='10.1.90.137',
+        host='127.0.0.1',
         port=port,
         debug=debug
     )
