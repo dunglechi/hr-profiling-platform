@@ -80,3 +80,5 @@ Invoke-WebRequest -Uri 'http://127.0.0.1:5000/health' -Method GET
 ---
 **ESCALATION ACTIVE: Push IT for loopback exception or Private-profile rule**
 **DEVELOPMENT CLAIMS: ON HOLD until 200 response documented**
+**Update ( 20251017-172633 )**: Local dev server and Waitress both return HTTP 200 for /api/health after installing missing dependencies (pandas). Functional numerology endpoint POST /api/numerology/calculate succeeded with corrected payload; see C:\Users\Admin\Projects\CV filltering\docs\debug-logs\functional-checks.20251017-171354.md and C:\Users\Admin\Projects\CV filltering\docs\debug-logs\func_numerology_full_corrected.20251017-172633.txt for full logs.
+
