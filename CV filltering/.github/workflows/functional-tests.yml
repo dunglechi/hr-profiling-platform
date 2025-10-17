@@ -34,12 +34,15 @@ jobs:
 
       - name: Wait for server to be healthy
         run: |
-          for i in {1..30}; do
+          for i in {1..60}; do
             if curl -sSf http://127.0.0.1:5000/api/health >/dev/null; then
-              echo "Server is up"; break
+              echo "Server is up"; exit 0
             fi
             echo "Waiting for server... ($i)"; sleep 1
           done
+          echo "Server did not become healthy within timeout; printing backend/server.out";
+          if [ -f backend/server.out ]; then sed -n '1,200p' backend/server.out; fi
+          exit 1
 
       - name: Run functional tests
         run: |
