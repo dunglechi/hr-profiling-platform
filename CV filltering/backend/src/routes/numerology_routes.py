@@ -4,7 +4,7 @@ Auto calculation endpoints
 """
 
 from flask import Blueprint, request, jsonify
-from services.numerology_service import NumerologyService
+from ..services.numerology_service import NumerologyService
 import logging
 
 # Setup logging

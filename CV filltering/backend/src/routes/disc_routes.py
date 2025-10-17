@@ -5,8 +5,8 @@ Real routes without fake claims, proper error handling
 """
 
 from flask import Blueprint, request, jsonify
-from backend.src.services.disc_pipeline import DISCExternalPipeline
-from backend.src.services.database_service import get_db_service
+from ..services.disc_pipeline import DISCExternalPipeline
+from ..services.database_service import get_db_service
 from werkzeug.utils import secure_filename
 import logging
 

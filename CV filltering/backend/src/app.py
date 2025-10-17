@@ -10,9 +10,9 @@ import os
 from datetime import datetime
 
 # Import route blueprints
-from routes.numerology_routes import numerology_bp
-from routes.disc_routes import disc_bp
-from routes.cv_parsing_routes import cv_parsing_bp
+from .routes.numerology_routes import numerology_bp
+from .routes.disc_routes import disc_bp
+from .routes.cv_parsing_routes import cv_parsing_bp
 
 # Setup logging
 logging.basicConfig(
@@ -40,8 +40,8 @@ def create_app():
     app.register_blueprint(cv_parsing_bp)
     
     # Import services for health checking
-    from services.numerology_service import NumerologyService
-    from services.disc_pipeline import DISCExternalPipeline
+    from .services.numerology_service import NumerologyService
+    from .services.disc_pipeline import DISCExternalPipeline
     
     # Health check endpoint với REAL service testing và detailed logging
     @app.route('/health', methods=['GET'])
