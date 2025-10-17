@@ -1,0 +1,59 @@
+name: Functional tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  functional:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.11]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install backend requirements
+        run: |
+          python -m pip install --upgrade pip setuptools
+          python -m pip install -r backend/requirements.txt
+
+      - name: Start backend server
+        run: |
+          # Start the Flask app in background and save PID
+          python backend/src/app.py > backend/server.out 2>&1 & echo $! > backend/server.pid
+
+      - name: Wait for server to be healthy
+        run: |
+          for i in {1..30}; do
+            if curl -sSf http://127.0.0.1:5000/api/health >/dev/null; then
+              echo "Server is up"; break
+            fi
+            echo "Waiting for server... ($i)"; sleep 1
+          done
+
+      - name: Run functional tests
+        run: |
+          python tools/run-functional-tests.py
+
+      - name: Upload functional logs
+        uses: actions/upload-artifact@v4
+        with:
+          name: functional-logs
+          path: |
+            docs/debug-logs/**
+            backend/server.out
+
+      - name: Stop backend server
+        if: always()
+        run: |
+          if [ -f backend/server.pid ]; then kill "$(cat backend/server.pid)" || true; fi
