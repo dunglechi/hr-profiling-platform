@@ -50,13 +50,7 @@ interface DISCData {
   upload_method: string;
 }
 
-interface NumerologyData {
-  life_path_number: number;
-  birth_number: number;
-  life_path_meaning: string;
-  birth_meaning: string;
-  compatibility_note: string;
-}
+import { CVData } from '../types';
 
 class BackendApiClient {
   private baseUrl: string;
@@ -98,10 +92,46 @@ class BackendApiClient {
       };
     } catch (error) {
       console.error('Network error:', error);
+      return { success: false, error: 'Network error or server is down' };
+    }
+  }
+
+  // New method to handle file uploads
+  private async makeFileUploadRequest<T>(
+    endpoint: string,
+    file: File,
+    fieldName: string = 'file'
+  ): Promise<ApiResponse<T>> {
+    try {
+      const formData = new FormData();
+      formData.append(fieldName, file);
+
+      const url = `${this.baseUrl}${endpoint}`;
+      const response = await fetch(url, {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        console.error(`API Error [${response.status}]:`, data);
+        return {
+          success: false,
+          error: (data.errors && data.errors.join(', ')) || `HTTP ${response.status}`,
+          warnings: data.warnings || [],
+        };
+      }
+
       return {
-        success: false,
-        error: 'Network error - Unable to connect to backend',
+        success: true,
+        data: data.data,
+        warnings: data.warnings || [],
+        timestamp: data.timestamp,
       };
+    } catch (error) {
+      console.error('File upload network error:', error);
+      return { success: false, error: 'Network error or server is down during file upload' };
     }
   }
 
@@ -261,6 +291,16 @@ class BackendApiClient {
 
   async getApiInfo(): Promise<ApiResponse> {
     return this.makeRequest('/', { method: 'GET' });
+  }
+
+  async parseCV(file: File): Promise<ApiResponse> {
+    console.log('📄 Parsing CV file');
+    
+    return this.makeFileUploadRequest('/cv/parse', file, 'cv_file');
+  }
+
+  async getStatus(): Promise<ApiResponse<{ status: string }>> {
+    return this.makeRequest('/status');
   }
 }
 

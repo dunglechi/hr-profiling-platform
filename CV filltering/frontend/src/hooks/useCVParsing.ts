@@ -1,32 +1,6 @@
 import { useState, useCallback } from 'react';
-import { MockData } from '../mockData';
-
-interface CVData {
-  personalInfo: {
-    name: string;
-    email: string;
-    phone: string;
-    address?: string;
-  };
-  experience: Array<{
-    position: string;
-    company: string;
-    duration: string;
-    description: string;
-  }>;
-  education: Array<{
-    degree: string;
-    institution: string;
-    year: string;
-  }>;
-  skills: string[];
-  numerologyInsights: {
-    lifePath: number;
-    personality: string;
-    careerFit: string;
-    compatibilityScore: number;
-  };
-}
+import { parseCV } from '../services/api';
+import { CVData } from '../types';
 
 interface UseCVParsingReturn {
   cvData: CVData | null;
@@ -47,41 +21,18 @@ export const useCVParsing = (): UseCVParsingReturn => {
     setCvData(null);
 
     try {
-      // For Week 2 Demo: Use mock data for quick testing
-      console.log(`Demo Mode: Processing ${file.name}`);
+      const result = await parseCV(file);
       
-      // Mock processing with realistic delay
-      const result = await MockData.mockProcessFile(file);
-      
-      if (result.success) {
+      if (result.success && result.data) {
         setCvData(result.data);
-        console.log('✅ CV processing completed successfully');
+        console.log('✅ CV processing completed successfully via API');
+        if (result.warnings && result.warnings.length > 0) {
+          // Optionally handle warnings, e.g., display them to the user
+          console.warn('Warnings from API:', result.warnings);
+        }
       } else {
-        throw new Error('Mock processing failed');
+        throw new Error(result.error || 'Failed to parse CV via API');
       }
-
-      // Real API implementation (commented for demo):
-      /*
-      const formData = new FormData();
-      formData.append('cv_file', file);
-
-      const response = await fetch('/api/parse-cv', {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const result = await response.json();
-      
-      if (result.success) {
-        setCvData(result.data);
-      } else {
-        throw new Error(result.error || 'Failed to parse CV');
-      }
-      */
 
     } catch (err) {
       console.error('CV parsing error:', err);
@@ -97,6 +48,9 @@ export const useCVParsing = (): UseCVParsingReturn => {
     setIsLoading(false);
     setError(null);
   }, []);
+
+  return { cvData, isLoading, error, uploadFile, resetState };
+};
 
   return {
     cvData,
