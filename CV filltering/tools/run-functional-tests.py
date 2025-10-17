@@ -58,7 +58,7 @@ def run_disc_tests(base_url):
 
 def run_cv_parsing_tests(base_url):
     print("\n--- Running CV Parsing Tests ---")
-    url = f"{base_url}/api/parse-cv"
+    url = f"{base_url}/parse-cv"
     file_path = 'tests/sample_cv.pdf'
     
     try:
@@ -88,7 +88,7 @@ def run_cv_parsing_tests(base_url):
 
 def run_disc_csv_upload_tests(base_url):
     print("\n--- Running DISC CSV Upload Tests ---")
-    url = f"{base_url}/api/disc/upload-csv"
+    url = f"{base_url}/disc/upload-csv"
     file_path = 'tests/sample_disc.csv'
     
     try:
@@ -118,7 +118,7 @@ def run_disc_csv_upload_tests(base_url):
 
 def run_disc_ocr_upload_stub_test(base_url):
     print("\n--- Running DISC OCR Upload Stub Test ---")
-    url = f"{base_url}/api/disc/upload-ocr-image"
+    url = f"{base_url}/disc/upload-ocr-image"
     file_path = 'tests/sample_disc_survey.png'
     
     try:

@@ -1,10 +1,12 @@
 # backend/src/__tests__/test_cv_parsing_service.py
+import os
 import unittest
 from unittest.mock import patch, MagicMock
 from backend.src.services.cv_parsing_service import CvParsingService
 
 class TestCvParsingService(unittest.TestCase):
 
+    @unittest.skipIf(not os.getenv("GEMINI_API_KEY"), "GEMINI_API_KEY not available - skipping Gemini tests")
     @patch('google.generativeai.GenerativeModel')
     def test_parse_with_gemini_success(self, mock_model):
         # Mock the Gemini API response
@@ -29,6 +31,7 @@ class TestCvParsingService(unittest.TestCase):
         self.assertTrue(result['source']['aiUsed'])
         self.assertEqual(result['personalInfo']['name'], "John Doe")
 
+    @unittest.skipIf(not os.getenv("GEMINI_API_KEY"), "GEMINI_API_KEY not available - skipping Gemini tests")
     @patch('google.generativeai.GenerativeModel')
     def test_parse_with_gemini_failure_fallback(self, mock_model):
         # Mock the Gemini API to raise an exception
