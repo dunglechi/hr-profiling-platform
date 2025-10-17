@@ -116,6 +116,35 @@ def run_disc_csv_upload_tests(base_url):
         print(f"DISC CSV Upload Test: FAILED - {e}")
         return False
 
+def run_disc_ocr_upload_stub_test(base_url):
+    print("\n--- Running DISC OCR Upload Stub Test ---")
+    url = f"{base_url}/api/disc/upload-ocr-image"
+    file_path = 'tests/sample_disc_survey.png'
+    
+    try:
+        with open(file_path, 'rb') as f:
+            files = {'file': (os.path.basename(file_path), f, 'image/png')}
+            form_data = {'candidate_id': 'CAND-OCR-01'}
+            response = requests.post(url, files=files, data=form_data)
+            
+            print(f"POST {url} with {os.path.basename(file_path)}")
+            print(f"Status Code: {response.status_code}")
+            
+            if response.status_code == 200:
+                data = response.json()
+                print("Response JSON:", json.dumps(data, indent=2))
+                if data.get('success') and data['data'].get('requires_manual_review'):
+                    print("DISC OCR Stub Test: PASSED")
+                    return True
+                else:
+                    print("DISC OCR Stub Test: FAILED - Response missing 'requires_manual_review: True'")
+                    return False
+            else:
+                print(f"DISC OCR Stub Test: FAILED - Expected 200 status code, got {response.status_code}")
+                return False
+    except Exception as e:
+        print(f"DISC OCR Stub Test: FAILED - {e}")
+        return False
 
 def main():
     base_url = BASE
@@ -125,12 +154,14 @@ def main():
     failures.extend(run_disc_tests(base_url))
     cv_parsing_result = run_cv_parsing_tests(base_url)
     disc_csv_result = run_disc_csv_upload_tests(base_url)
+    disc_ocr_result = run_disc_ocr_upload_stub_test(base_url)
 
     results = {
         "numerology": failures,
         "disc": run_disc_tests(base_url),
         "cv_parsing": cv_parsing_result,
-        "disc_csv": disc_csv_result
+        "disc_csv": disc_csv_result,
+        "disc_ocr_stub": disc_ocr_result
     }
 
     if any(results.values()):

@@ -166,52 +166,30 @@ class DISCExternalPipeline:
                 "candidate_id": candidate_id
             }
     
-    def process_ocr_image(self, candidate_id: str, image_data: str, survey_format: str = "standard") -> Dict[str, Any]:
+    def process_ocr_image(self, image_bytes: bytes, candidate_id: str = "unknown") -> Dict[str, Any]:
         """
-        Xử lý ảnh survey DISC qua OCR (Mock implementation)
+        Xử lý ảnh survey DISC qua OCR.
+        Hiện tại là stub, chưa tích hợp engine OCR thật.
         """
-        try:
-            # Mock OCR processing - in real implementation, this would use actual OCR
-            logger.info(f"Processing OCR image for candidate {candidate_id}")
-            
-            # Simulate OCR extraction (would be real OCR in production)
-            mock_extracted_scores = {
-                "d_score": 7.5,
-                "i_score": 6.0,
-                "s_score": 8.0,
-                "c_score": 5.5
-            }
-            
-            # Validate extracted scores
-            validation = self.validate_disc_scores(mock_extracted_scores)
-            if not validation["valid"]:
-                return {
-                    "success": False,
-                    "error": f"OCR extraction invalid: {validation['error']}",
-                    "candidate_id": candidate_id
-                }
-            
-            # Generate profile
-            profile = self.generate_disc_profile(validation["scores"])
-            
-            return {
-                "success": True,
-                "candidate_id": candidate_id,
-                "disc_scores": validation["scores"],
-                "disc_profile": profile,
-                "source": "ocr_processing",
-                "survey_format": survey_format,
-                "extraction_confidence": 0.85,  # Mock confidence score
-                "timestamp": datetime.now().isoformat(),
-                "warnings": ["Đây là mock OCR - cần implement OCR thực tế cho production"]
-            }
-            
-        except Exception as e:
-            return {
-                "success": False,
-                "error": f"Lỗi OCR processing: {str(e)}",
-                "candidate_id": candidate_id
-            }
+        # In a real implementation, you would use an OCR engine like Azure Vision or Tesseract.
+        # For now, we return a stub response indicating manual review is needed.
+        
+        logger.info(f"Received OCR image for candidate '{candidate_id}'. OCR engine not implemented.")
+        
+        # The image_bytes are available here to be sent to an OCR service.
+        # image_size = len(image_bytes)
+        # logger.info(f"Image size: {image_size} bytes.")
+
+        return {
+            "success": True,
+            "candidate_id": candidate_id,
+            "status": "pending_manual_review",
+            "notes": "OCR engine is not configured. Manual data entry is required.",
+            "requires_manual_review": True,
+            "source": "ocr_upload_stub",
+            "timestamp": datetime.now().isoformat(),
+            "warnings": ["Đây là stub OCR - cần implement OCR thực tế cho production."]
+        }
     
     def process_csv_upload(self, file_bytes):
         max_rows = int(os.getenv('DISC_CSV_MAX_ROWS', 1000))

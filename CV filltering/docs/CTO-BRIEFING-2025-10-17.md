@@ -67,3 +67,12 @@ The backend now supports bulk DISC score uploads via CSV.
   - Unit test results are available at `docs/debug-logs/unit-test-disc-csv.log`.
   - Functional test logs for the endpoint are at `docs/debug-logs/functional-test-disc-csv.log`.
 - **Configuration**: The `DISC_CSV_MAX_ROWS` environment variable can be set to limit the number of rows processed per file.
+
+### Update (2025-10-18): DISC OCR Upload Stub
+
+A new endpoint `/api/disc/upload-ocr-image` has been created to handle image-based DISC surveys.
+
+- **Current Status**: This is a **stub implementation**. The endpoint accepts image uploads but does not perform OCR. It returns a response indicating that manual review is required.
+- **Next Steps**: Integration with an OCR engine (e.g., Azure Vision, Tesseract) is required for full functionality.
+- **Evidence**:
+  - Functional test log confirming the stub behavior: `docs/debug-logs/functional-test-disc-ocr-stub.log`.

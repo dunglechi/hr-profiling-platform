@@ -84,17 +84,33 @@ def upload_csv_disc():
     return jsonify({"success": False, "errors": ["Invalid file type. Please upload a CSV."]}), 400
 
 @disc_bp.route('/upload-ocr-image', methods=['POST'])
-def upload_ocr_image():
+def upload_disc_ocr_image():
     """
     POST /api/disc/upload-ocr-image
-    OCR processing - STUB ONLY (NOT OPERATIONAL)
+    OCR processing - IMAGE UPLOAD HANDLER
     """
-    return jsonify({
-        "success": False,
-        "error": "OCR feature is STUB ONLY - not operational",
-        "status": "stub",
-        "note": "Real OCR integration required for production"
-    }), 501
+    if 'file' not in request.files:
+        return jsonify({"success": False, "errors": ["No file part"]}), 400
+    
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({"success": False, "errors": ["No selected file"]}), 400
+
+    allowed_extensions = {'png', 'jpg', 'jpeg', 'gif'}
+    if '.' in file.filename and file.filename.rsplit('.', 1)[1].lower() in allowed_extensions:
+        try:
+            image_bytes = file.read()
+            candidate_id = request.form.get('candidate_id', 'unknown_ocr_upload')
+            
+            pipeline = DISCExternalPipeline()
+            result = pipeline.process_ocr_image(image_bytes, candidate_id=candidate_id)
+            
+            return jsonify({"success": True, "data": result}), 200
+        except Exception as e:
+            logging.error(f"Error processing DISC OCR image: {e}")
+            return jsonify({"success": False, "errors": ["An internal error occurred during OCR processing."]}), 500
+    
+    return jsonify({"success": False, "errors": ["Invalid file type. Please upload an image (png, jpg, jpeg, gif)."]}), 400
 
 @disc_bp.route('/test', methods=['GET'])
 def test_disc_pipeline():
