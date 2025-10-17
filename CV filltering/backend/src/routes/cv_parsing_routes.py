@@ -2,8 +2,8 @@
 from flask import Blueprint, request, jsonify
 from werkzeug.utils import secure_filename
 import os
-from backend.src.services.cv_parsing_service import CvParsingService
-from backend.src.services.database_service import get_db_service
+from ..services.cv_parsing_service import CvParsingService
+from ..services.database_service import get_db_service
 import logging
 
 cv_parsing_bp = Blueprint('cv_parsing_bp', __name__)
