@@ -52,7 +52,7 @@ def calculate_numerology():
             }), 422
         
         # Calculate numerology profile
-        result = numerology_service.calculate_full_profile(name, birth_date)
+        result = numerology_service.calculate_full_numerology(name, birth_date, candidate_id)
         
         # Determine status based on calculation success
         if result["success"]:
@@ -121,8 +121,8 @@ def manual_input_numerology():
                 "error": "Ít nhất một trường (họ tên hoặc ngày sinh) phải được nhập"
             }), 400
         
-        # Calculate with manual data
-        result = numerology_service.calculate_full_profile(manual_name, manual_birth_date)
+        # Calculate with manual data  
+        result = numerology_service.calculate_full_numerology(manual_name, manual_birth_date, candidate_id)
         
         # Log manual input activity
         activity_log = {
@@ -203,7 +203,7 @@ def test_numerology():
         
         results = []
         for test_case in test_cases:
-            result = numerology_service.calculate_full_profile(
+            result = numerology_service.calculate_full_numerology(
                 test_case["name"], 
                 test_case["birth_date"]
             )
@@ -215,7 +215,7 @@ def test_numerology():
         return jsonify({
             "service_status": "operational",
             "test_results": results,
-            "timestamp": numerology_service.calculate_full_profile("", "")["timestamp"]
+            "timestamp": numerology_service.calculate_full_numerology("", "")["timestamp"]
         }), 200
         
     except Exception as e:
