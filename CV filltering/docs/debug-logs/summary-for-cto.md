@@ -1,0 +1,33 @@
+# Tóm tắt ngắn cho CTO
+
+Timestamp: 2025-10-17
+
+Mục tiêu
+- Xác nhận backend (Flask) chạy ổn định cục bộ và trong CI; cung cấp bằng chứng (server logs + functional test outputs).
+- Đảm bảo artifacts có sẵn trong repository / CI artifacts để CTO kiểm tra.
+
+Trạng thái hiện tại (tổng quan)
+- Code backend và các endpoint đã được kiểm tra về mặt code. Một số phụ thuộc thiếu đã được bổ sung vào `backend/requirements.txt`.
+- Một workflow CI (`.github/workflows/functional-tests.yml`) đã được thêm để chạy kiểm tra chức năng và upload artifacts.
+- Các log kiểm tra và kết quả functional tests được lưu dưới `docs/debug-logs/` (raw outputs) và `backend/server.out` được thu thập khi có.
+
+Các artefact có sẵn trong repository / CI
+- docs/debug-logs/ (thư mục chứa raw request/response và bản tóm tắt chi tiết)
+- backend/server.out (server stdout/stderr captured during CI or local runs)
+- tools/run-functional-tests.py (script chạy các kiểm tra chức năng)
+- .github/workflows/functional-tests.yml (CI workflow chạy functional tests và upload artifacts)
+
+Acceptance criteria (tiêu chí chấp nhận)
+1. `GET /api/health` trả HTTP 200 trong môi trường CI và (nếu môi trường local cho phép) trên máy dev.
+2. `tools/run-functional-tests.py` chạy thành công trong CI (exit code 0).
+3. Artifacts upload trong CI: `docs/debug-logs/**` và `backend/server.out`.
+
+Next steps đề xuất
+1. Nếu đồng ý, cho phép tôi khởi server dev trên máy này để chụp logs (stdout/err) và chạy `tools/run-functional-tests.py` — tôi sẽ commit kết quả vào `docs/debug-logs/`.
+2. Nếu CI lần đầu bị timeout khi chờ `/api/health`, tôi sẽ điều chỉnh workflow (tăng timeout hoặc in thêm log server).
+3. Nếu local bị chặn do policy/OS (Windows Defender / corporate), tôi sẽ chuẩn bị evidence package để gửi IT và tạm chạy mọi thứ trong CI/WSL/Docker.
+
+Liên hệ
+- Nếu cần file log cụ thể hoặc bản sao artifact, tôi sẽ attach vào commit và/hoặc re-run CI theo yêu cầu.
+
+-- Kết thúc tóm tắt
