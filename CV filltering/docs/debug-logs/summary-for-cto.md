@@ -55,6 +55,15 @@ Liên hệ
 - **Functional Test Log**: `docs/debug-logs/functional-test-supabase-stub.log`
   - *Shows that API endpoints (`/api/parse-cv`, `/api/disc/*`) now call the `DatabaseService`, which logs the data that would be saved to Supabase.*
 
+### Frontend Connection (In Progress)
+
+- **CV Parsing**: The frontend `useCVParsing` hook is now connected to the live `/api/parse-cv` endpoint. The UI displays results including the `aiUsed` flag and any warnings.
+- **DISC CSV Upload**: The UI now includes a form to upload DISC CSV files, calling the `/api/disc/upload-csv` endpoint and displaying the processing results (success count, errors, warnings).
+- **Localization**: Corrected several garbled Vietnamese strings in the UI.
+
+**Sanity Check Screenshot (Placeholder):**
+`[Sanity check screenshot showing a CV successfully uploaded and parsed via the UI will be placed here]`
+
 **Warning**: The system now relies on the `GEMINI_API_KEY`. If this key is missing or invalid, the service will automatically use a basic rule-based fallback parser, and the `aiUsed` flag in the response will be `false`.
 
 -- Kết thúc tóm tắt
