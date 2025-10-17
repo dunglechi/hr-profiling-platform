@@ -76,3 +76,13 @@ A new endpoint `/api/disc/upload-ocr-image` has been created to handle image-bas
 - **Next Steps**: Integration with an OCR engine (e.g., Azure Vision, Tesseract) is required for full functionality.
 - **Evidence**:
   - Functional test log confirming the stub behavior: `docs/debug-logs/functional-test-disc-ocr-stub.log`.
+
+### Update (2025-10-18): Supabase Integration (Stubbed)
+
+The backend has been integrated with a `DatabaseService` to persist analysis results.
+
+- **Current Status**: This is a **stub implementation**. The service does not connect to a real Supabase instance. Instead, it logs the data that *would* be saved. This allows for end-to-end testing of the application flow without requiring live database credentials.
+- **Configuration**: To connect to a real database, `SUPABASE_URL` and `SUPABASE_KEY` must be set in the `backend/.env` file.
+- **Evidence**:
+  - Unit tests for the service are at `docs/debug-logs/unit-test-database-service.log`.
+  - The functional test log at `docs/debug-logs/functional-test-supabase-stub.log` shows the stubbed service being called from the API endpoints.

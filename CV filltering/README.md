@@ -53,3 +53,12 @@ The `/api/disc/upload-csv` endpoint accepts a CSV file with the following column
 - `c_score`: Conscientiousness score (1-10).
 
 The server will validate the headers and the score ranges.
+
+### Supabase Integration
+
+To store analysis results, the backend connects to a Supabase project. You need to provide the following environment variables in a `backend/.env` file:
+
+- `SUPABASE_URL`: The URL of your Supabase project.
+- `SUPABASE_KEY`: The `anon` public key for your Supabase project.
+
+You can find these in your Supabase project's "Settings" > "API" section.

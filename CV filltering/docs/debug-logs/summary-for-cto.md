@@ -48,6 +48,13 @@ Liên hệ
 - **Functional Test Log**: `docs/debug-logs/functional-test-disc-ocr-stub.log`
   - *Confirms the `/api/disc/upload-ocr-image` endpoint is active and correctly returns a "manual review required" status, pending full OCR engine integration.*
 
+### Supabase Integration (Stubbed)
+
+- **Unit Test Log**: `docs/debug-logs/unit-test-database-service.log`
+  - *Verifies the `DatabaseService` correctly identifies when to run in stub mode and that it would call the Supabase client if configured.*
+- **Functional Test Log**: `docs/debug-logs/functional-test-supabase-stub.log`
+  - *Shows that API endpoints (`/api/parse-cv`, `/api/disc/*`) now call the `DatabaseService`, which logs the data that would be saved to Supabase.*
+
 **Warning**: The system now relies on the `GEMINI_API_KEY`. If this key is missing or invalid, the service will automatically use a basic rule-based fallback parser, and the `aiUsed` flag in the response will be `false`.
 
 -- Kết thúc tóm tắt

@@ -5,7 +5,9 @@ Real routes without fake claims, proper error handling
 """
 
 from flask import Blueprint, request, jsonify
-from services.disc_pipeline import DISCExternalPipeline
+from .models.disc_profile import DISCProfile
+from backend.src.services.disc_pipeline import DISCExternalPipeline
+from backend.src.services.database_service import get_db_service
 from werkzeug.utils import secure_filename
 import logging
 
@@ -76,6 +78,16 @@ def upload_csv_disc():
             if result["errors"]:
                 return jsonify({"success": False, "data": None, "errors": result["errors"], "warnings": result["warnings"]}), 400
             
+            # Save to database (stubbed)
+            db_service = get_db_service()
+            for candidate in result.get("candidates", []):
+                db_service.save_analysis(
+                    candidate_id=candidate.get("candidate_id"),
+                    source_type="disc_csv",
+                    raw_data=candidate,
+                    summary=candidate.get("scores")
+                )
+
             return jsonify({"success": True, "data": result, "errors": [], "warnings": result["warnings"]}), 200
         except Exception as e:
             logging.error(f"Error processing DISC CSV: {e}")
@@ -105,6 +117,15 @@ def upload_disc_ocr_image():
             pipeline = DISCExternalPipeline()
             result = pipeline.process_ocr_image(image_bytes, candidate_id=candidate_id)
             
+            # Save to database (stubbed)
+            db_service = get_db_service()
+            db_service.save_analysis(
+                candidate_id=candidate_id,
+                source_type="disc_ocr_stub",
+                raw_data=result,
+                summary={"status": "pending_manual_review"}
+            )
+
             return jsonify({"success": True, "data": result}), 200
         except Exception as e:
             logging.error(f"Error processing DISC OCR image: {e}")
