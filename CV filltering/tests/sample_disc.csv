@@ -1,0 +1,5 @@
+candidate_id,name,d_score,i_score,s_score,c_score
+CAND-001,John Doe,8,5,3,7
+CAND-002,Jane Smith,5,9,6,4
+CAND-003,Invalid User,11,5,5,5
+CAND-004,Another User,7,7,7,7

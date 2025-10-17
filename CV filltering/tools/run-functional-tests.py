@@ -86,6 +86,37 @@ def run_cv_parsing_tests(base_url):
         return False
 
 
+def run_disc_csv_upload_tests(base_url):
+    print("\n--- Running DISC CSV Upload Tests ---")
+    url = f"{base_url}/api/disc/upload-csv"
+    file_path = 'tests/sample_disc.csv'
+    
+    try:
+        with open(file_path, 'rb') as f:
+            files = {'file': (os.path.basename(file_path), f, 'text/csv')}
+            response = requests.post(url, files=files)
+            
+            print(f"POST {url} with {os.path.basename(file_path)}")
+            print(f"Status Code: {response.status_code}")
+            
+            # This endpoint should return 400 because our sample has an invalid row
+            if response.status_code == 400:
+                data = response.json()
+                print("Response JSON:", json.dumps(data, indent=2))
+                if not data['success'] and "Row 3: Invalid data" in data['errors'][0]:
+                    print("DISC CSV Upload Test (Invalid Data): PASSED")
+                    return True
+                else:
+                    print("DISC CSV Upload Test (Invalid Data): FAILED - Incorrect error message")
+                    return False
+            else:
+                print("DISC CSV Upload Test (Invalid Data): FAILED - Expected 400 status code")
+                return False
+    except Exception as e:
+        print(f"DISC CSV Upload Test: FAILED - {e}")
+        return False
+
+
 def main():
     base_url = BASE
     failures = []
@@ -93,11 +124,20 @@ def main():
     failures.extend(run_numerology_tests(base_url))
     failures.extend(run_disc_tests(base_url))
     cv_parsing_result = run_cv_parsing_tests(base_url)
+    disc_csv_result = run_disc_csv_upload_tests(base_url)
 
-    if failures:
+    results = {
+        "numerology": failures,
+        "disc": run_disc_tests(base_url),
+        "cv_parsing": cv_parsing_result,
+        "disc_csv": disc_csv_result
+    }
+
+    if any(results.values()):
         print('\nFailures:')
-        for f in failures:
-            print(f)
+        for key, value in results.items():
+            if value:
+                print(f"{key}: {value}")
         sys.exit(2)
     print('\nAll functional checks passed')
 

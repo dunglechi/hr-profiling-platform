@@ -41,3 +41,15 @@ This project is a CV screening platform that uses GenAI to match CVs with job re
 ### Frontend
 
 (Instructions to be added)
+
+### DISC CSV Upload Format
+
+The `/api/disc/upload-csv` endpoint accepts a CSV file with the following columns:
+- `candidate_id`: Unique identifier for the candidate.
+- `name`: Full name of the candidate.
+- `d_score`: Dominance score (1-10).
+- `i_score`: Influence score (1-10).
+- `s_score`: Steadiness score (1-10).
+- `c_score`: Conscientiousness score (1-10).
+
+The server will validate the headers and the score ranges.

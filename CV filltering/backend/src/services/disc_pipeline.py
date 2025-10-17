@@ -10,6 +10,8 @@ import logging
 import base64
 import io
 import json
+import csv
+import os
 from datetime import datetime
 
 # Setup logging
@@ -210,6 +212,55 @@ class DISCExternalPipeline:
                 "error": f"Lỗi OCR processing: {str(e)}",
                 "candidate_id": candidate_id
             }
+    
+    def process_csv_upload(self, file_bytes):
+        max_rows = int(os.getenv('DISC_CSV_MAX_ROWS', 1000))
+        results = {
+            "processed_count": 0,
+            "errors": [],
+            "warnings": [],
+            "candidates": []
+        }
+        
+        try:
+            # Use io.StringIO to treat the byte string as a file
+            file_stream = io.StringIO(file_bytes.decode('utf-8'))
+            reader = csv.DictReader(file_stream)
+            
+            expected_headers = {'candidate_id', 'name', 'd_score', 'i_score', 's_score', 'c_score'}
+            if not expected_headers.issubset(reader.fieldnames):
+                results["errors"].append(f"Missing required headers. Expected: {expected_headers}")
+                return results
+
+            for i, row in enumerate(reader):
+                if i >= max_rows:
+                    results["warnings"].append(f"Processing stopped at {max_rows} rows limit.")
+                    break
+                
+                try:
+                    d_score = int(row['d_score'])
+                    i_score = int(row['i_score'])
+                    s_score = int(row['s_score'])
+                    c_score = int(row['c_score'])
+
+                    if not all(1 <= score <= 10 for score in [d_score, i_score, s_score, c_score]):
+                        raise ValueError("Scores must be between 1 and 10.")
+
+                    results["candidates"].append({
+                        "candidate_id": row['candidate_id'],
+                        "name": row['name'],
+                        "scores": {"d": d_score, "i": i_score, "s": s_score, "c": c_score},
+                        "source": "csv_upload",
+                        "row_index": i + 2 # Account for header
+                    })
+                    results["processed_count"] += 1
+                except (ValueError, KeyError) as e:
+                    results["errors"].append(f"Row {i + 2}: Invalid data - {e}")
+
+        except Exception as e:
+            results["errors"].append(f"Failed to process CSV file: {e}")
+            
+        return results
     
     def generate_disc_profile(self, scores: Dict[str, float]) -> Dict[str, Any]:
         """

@@ -6,6 +6,7 @@ Real routes without fake claims, proper error handling
 
 from flask import Blueprint, request, jsonify
 from services.disc_pipeline import DISCExternalPipeline
+from werkzeug.utils import secure_filename
 import logging
 
 # Setup logging
@@ -59,11 +60,28 @@ def upload_csv_disc():
     POST /api/disc/upload-csv  
     CSV upload processing - UNDER DEVELOPMENT
     """
-    return jsonify({
-        "success": False,
-        "error": "CSV upload feature under development",
-        "status": "not_implemented"
-    }), 501
+    if 'file' not in request.files:
+        return jsonify({"success": False, "errors": ["No file part"]}), 400
+    
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({"success": False, "errors": ["No selected file"]}), 400
+
+    if file and file.filename.endswith('.csv'):
+        try:
+            file_bytes = file.read()
+            pipeline = DISCExternalPipeline()
+            result = pipeline.process_csv_upload(file_bytes)
+            
+            if result["errors"]:
+                return jsonify({"success": False, "data": None, "errors": result["errors"], "warnings": result["warnings"]}), 400
+            
+            return jsonify({"success": True, "data": result, "errors": [], "warnings": result["warnings"]}), 200
+        except Exception as e:
+            logging.error(f"Error processing DISC CSV: {e}")
+            return jsonify({"success": False, "errors": ["An internal error occurred."]}), 500
+    
+    return jsonify({"success": False, "errors": ["Invalid file type. Please upload a CSV."]}), 400
 
 @disc_bp.route('/upload-ocr-image', methods=['POST'])
 def upload_ocr_image():

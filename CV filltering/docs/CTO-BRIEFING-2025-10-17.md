@@ -50,11 +50,20 @@ Mỗi tuần sẽ có bản tóm tắt ngắn gọn cho CTO kèm artifacts (logs
 
 ---
 
-## Update (2025-10-18): Gemini Parsing Activated
+## Update (2025-10-17): Gemini Parsing Activated
 
 The mock CV parsing has been replaced with a real implementation using the Gemini API.
 
 - **Evidence**:
   - Functional test logs are available at `docs/debug-logs/functional-test-cv-parsing.log`.
   - A direct API call validation log is at `docs/debug-logs/real-api-call-test.log`.
-- **Fallback Mechanism**: If the `GEMINI_API_KEY` is not available, the system will revert to a rule-based parser and flag the output accordingly (`aiUsed: false`).
+- **Fallback Mechanism**: If the `GEMINI_API_KEY` is not available, the system will revert to a rule-based parser.
+
+### Update (2025-10-18): DISC CSV Upload Activated
+
+The backend now supports bulk DISC score uploads via CSV.
+
+- **Evidence**:
+  - Unit test results are available at `docs/debug-logs/unit-test-disc-csv.log`.
+  - Functional test logs for the endpoint are at `docs/debug-logs/functional-test-disc-csv.log`.
+- **Configuration**: The `DISC_CSV_MAX_ROWS` environment variable can be set to limit the number of rows processed per file.

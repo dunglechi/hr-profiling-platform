@@ -35,8 +35,13 @@ Liên hệ
 - **Functional Test Log**: `docs/debug-logs/functional-test-cv-parsing.log`
   - *Shows the full end-to-end test via `/api/parse-cv` endpoint passed using Gemini.*
 - **Real API Call Validation**: `docs/debug-logs/real-api-call-test.log`
-  - *Confirms the prompt successfully returns a valid JSON structure from the Gemini API.*
-- **Unit Test Results**: Mocked unit tests passed, confirming fallback logic is sound.
+
+### DISC CSV Upload Activated
+
+- **Unit Test Log**: `docs/debug-logs/unit-test-disc-csv.log`
+  - *Confirms the service correctly validates CSV headers and data integrity.*
+- **Functional Test Log**: `docs/debug-logs/functional-test-disc-csv.log`
+  - *Shows the `/api/disc/upload-csv` endpoint successfully processes a sample CSV and rejects invalid data.*
 
 **Warning**: The system now relies on the `GEMINI_API_KEY`. If this key is missing or invalid, the service will automatically use a basic rule-based fallback parser, and the `aiUsed` flag in the response will be `false`.
 
