@@ -1,0 +1,16 @@
+# Python virtualenv
+.venv/
+
+# Logs
+/backend/*.log
+/docs/debug-logs/*.log
+waitress.out.log
+waitress.err.log
+app_full.log
+app_full.err
+dev-app.out.log
+dev-app.err.log
+
+# Byte-compiled / cache
+__pycache__/
+*.py[cod]
