@@ -30,4 +30,14 @@ Next steps đề xuất
 Liên hệ
 - Nếu cần file log cụ thể hoặc bản sao artifact, tôi sẽ attach vào commit và/hoặc re-run CI theo yêu cầu.
 
+## Gemini Parsing Activated
+
+- **Functional Test Log**: `docs/debug-logs/functional-test-cv-parsing.log`
+  - *Shows the full end-to-end test via `/api/parse-cv` endpoint passed using Gemini.*
+- **Real API Call Validation**: `docs/debug-logs/real-api-call-test.log`
+  - *Confirms the prompt successfully returns a valid JSON structure from the Gemini API.*
+- **Unit Test Results**: Mocked unit tests passed, confirming fallback logic is sound.
+
+**Warning**: The system now relies on the `GEMINI_API_KEY`. If this key is missing or invalid, the service will automatically use a basic rule-based fallback parser, and the `aiUsed` flag in the response will be `false`.
+
 -- Kết thúc tóm tắt

@@ -47,3 +47,14 @@ Tuần 3: OCR DISC + email/link workflow, bảo mật (auth, rate limit), triể
 Ghi chú
 
 Mỗi tuần sẽ có bản tóm tắt ngắn gọn cho CTO kèm artifacts (logs, raw responses, test results). Khi anh giao nhiệm vụ tiếp theo, tôi sẽ lên kế hoạch chi tiết cho từng hạng mục.
+
+---
+
+## Update (2025-10-18): Gemini Parsing Activated
+
+The mock CV parsing has been replaced with a real implementation using the Gemini API.
+
+- **Evidence**:
+  - Functional test logs are available at `docs/debug-logs/functional-test-cv-parsing.log`.
+  - A direct API call validation log is at `docs/debug-logs/real-api-call-test.log`.
+- **Fallback Mechanism**: If the `GEMINI_API_KEY` is not available, the system will revert to a rule-based parser and flag the output accordingly (`aiUsed: false`).
