@@ -70,65 +70,8 @@ class DISCExternalPipeline:
             "warnings": warnings
         }
     
-    def process_csv_data(self, csv_content: str, candidate_id: str, validation_rules: Optional[Dict] = None) -> Dict[str, Any]:
-        """
-        Xử lý dữ liệu DISC từ CSV content
-        """
-        try:
-            # Parse CSV
-            df = pd.read_csv(io.StringIO(csv_content))
-            
-            # Validate CSV structure
-            required_columns = ['Name', 'D', 'I', 'S', 'C']
-            missing_columns = [col for col in required_columns if col not in df.columns]
-            
-            if missing_columns:
-                return {
-                    "success": False,
-                    "error": f"CSV thiếu các cột: {missing_columns}",
-                    "required_columns": required_columns,
-                    "found_columns": list(df.columns)
-                }
-            
-            # Process each row
-            processed_candidates = []
-            for index, row in df.iterrows():
-                disc_scores = {
-                    "d_score": row['D'],
-                    "i_score": row['I'],
-                    "s_score": row['S'],
-                    "c_score": row['C']
-                }
-                
-                # Validate scores
-                validation = self.validate_disc_scores(disc_scores)
-                if validation["valid"]:
-                    candidate_data = {
-                        "name": row['Name'],
-                        "disc_scores": validation["scores"],
-                        "source": "csv_upload",
-                        "row_index": index + 1
-                    }
-                    processed_candidates.append(candidate_data)
-                else:
-                    logger.warning(f"Invalid scores for row {index + 1}: {validation['error']}")
-            
-            return {
-                "success": True,
-                "candidate_id": candidate_id,
-                "processed_count": len(processed_candidates),
-                "total_rows": len(df),
-                "candidates": processed_candidates,
-                "source": "csv_pipeline",
-                "timestamp": datetime.now().isoformat()
-            }
-            
-        except Exception as e:
-            return {
-                "success": False,
-                "error": f"Lỗi xử lý CSV: {str(e)}",
-                "candidate_id": candidate_id
-            }
+    # NOTE: process_csv_data removed - was duplicate of process_csv_upload
+    # Keeping only process_csv_upload which is actively used by disc_routes.py
     
     def process_manual_input(self, candidate_id: str, disc_data: Dict[str, Any]) -> Dict[str, Any]:
         """
