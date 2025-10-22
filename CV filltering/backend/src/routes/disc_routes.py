@@ -15,7 +15,6 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 disc_bp = Blueprint('disc', __name__, url_prefix='/api/disc')
-disc_pipeline = DISCExternalPipeline()
 
 @disc_bp.route('/manual-input', methods=['POST'])
 def manual_input_disc():
@@ -39,6 +38,7 @@ def manual_input_disc():
             }), 400
         
         # Process manual input
+        disc_pipeline = DISCExternalPipeline()
         result = disc_pipeline.process_manual_input(candidate_id, data)
         
         logger.info(f"DISC manual input - Candidate: {candidate_id}, Success: {result['success']}")
@@ -71,16 +71,16 @@ def upload_csv_disc():
     if file and file.filename.endswith('.csv'):
         try:
             file_bytes = file.read()
-            pipeline = DISCExternalPipeline()
-            result = pipeline.process_csv_upload(file_bytes)
+            result = disc_pipeline.process_csv_upload(file_bytes)
             
             if result["errors"]:
                 return jsonify({"success": False, "data": None, "errors": result["errors"], "warnings": result["warnings"]}), 400
-            
-            # Save to database (stubbed)
+
+            # Save to database using batch insert for better performance
             db_service = get_db_service()
+            analyses_batch = []
+
             for candidate in result.get("candidates", []):
-                # Prepare comprehensive summary for database
                 disc_profile = candidate.get("disc_profile", {})
                 summary_for_db = {
                     "D": candidate.get("disc_scores", {}).get("d_score"),
@@ -94,14 +94,21 @@ def upload_csv_disc():
                         "style_ranking": disc_profile.get("style_ranking")
                     }
                 }
-                db_service.save_analysis(
-                    candidate_id=candidate.get("candidate_id"),
-                    source_type="disc_csv",
-                    raw_data=candidate,
-                    summary=summary_for_db
-                )
+                analyses_batch.append({
+                    "candidate_id": candidate.get("candidate_id"),
+                    "source_type": "disc_csv",
+                    "raw_data": candidate,
+                    "summary": summary_for_db
+                })
 
-            return jsonify({"success": True, "data": result, "errors": [], "warnings": result["warnings"]}), 200
+            # Batch save all analyses at once
+            batch_result = db_service.save_analyses_batch(analyses_batch)
+
+            # Log batch save results
+            if not batch_result.get("success"):
+                logger.warning(f"Batch save had issues: {batch_result.get('errors')}")
+
+            return jsonify({"success": True, "data": result, "errors": [], "warnings": result["warnings"], "db_save": batch_result}), 200
         except Exception as e:
             logging.error(f"Error processing DISC CSV: {e}")
             return jsonify({"success": False, "errors": ["An internal error occurred."]}), 500
@@ -126,9 +133,9 @@ def upload_disc_ocr_image():
         try:
             image_bytes = file.read()
             candidate_id = request.form.get('candidate_id', 'unknown_ocr_upload')
-            
-            pipeline = DISCExternalPipeline()
-            result = pipeline.process_ocr_image(image_bytes, candidate_id=candidate_id)
+
+            disc_pipeline = DISCExternalPipeline()
+            result = disc_pipeline.process_ocr_image(image_bytes, candidate_id=candidate_id)
             
             # Save to database (stubbed)
             db_service = get_db_service()
@@ -153,6 +160,7 @@ def test_disc_pipeline():
     Test DISC pipeline basic functionality
     """
     try:
+        disc_pipeline = DISCExternalPipeline()
         result = disc_pipeline.test_pipeline()
         return jsonify({
             "success": True,
@@ -174,6 +182,7 @@ def get_disc_status(candidate_id):
     Get DISC processing status for candidate
     """
     try:
+        disc_pipeline = DISCExternalPipeline()
         result = disc_pipeline.get_status(candidate_id)
         return jsonify(result), 200
     except Exception as e:

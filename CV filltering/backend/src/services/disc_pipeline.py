@@ -29,6 +29,7 @@ class DISCExternalPipeline:
     def __init__(self):
         self.supported_formats = ['csv', 'manual', 'ocr']
         self.score_range = (1, 10)  # Valid DISC score range
+        self.ocr_config = os.getenv('TESSERACT_CONFIG', r'--oem 3 --psm 6')
         
     def validate_disc_scores(self, scores: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -106,6 +107,7 @@ class DISCExternalPipeline:
             return {
                 "success": False,
                 "error": f"Lỗi manual input: {str(e)}",
+                "candidate_id": candidate_id,
                 "candidate_id": candidate_id
             }
     
@@ -141,8 +143,7 @@ class DISCExternalPipeline:
 
             # 2. Use Tesseract to extract text
             # Cấu hình để Tesseract nhận dạng số và layout của trang
-            custom_config = r'--oem 3 --psm 6'
-            extracted_text = pytesseract.image_to_string(preprocessed_img, config=custom_config)
+            extracted_text = pytesseract.image_to_string(preprocessed_img, config=self.ocr_config)
 
             # 3. Parse the extracted text to get scores
             # Đây là phần logic phức tạp, cần phân tích text để tìm ra điểm số.
@@ -165,7 +166,11 @@ class DISCExternalPipeline:
             }
         except Exception as e:
             logger.error(f"Tesseract OCR processing failed for candidate {candidate_id}: {e}", exc_info=True)
-            return {"success": False, "error": f"Lỗi xử lý OCR: {e}"}
+            return {
+                "success": False,
+                "error": f"Lỗi xử lý OCR: {e}",
+                "candidate_id": candidate_id,
+            }
     
     def process_csv_upload(self, file_bytes):
         max_rows = int(os.getenv('DISC_CSV_MAX_ROWS', 1000))
@@ -180,10 +185,10 @@ class DISCExternalPipeline:
             # Use io.StringIO to treat the byte string as a file
             file_stream = io.StringIO(file_bytes.decode('utf-8'))
             reader = csv.DictReader(file_stream)
-            
+
             expected_headers = {'candidate_id', 'name', 'd_score', 'i_score', 's_score', 'c_score'}
-            if not expected_headers.issubset(reader.fieldnames):
-                results["errors"].append(f"Missing required headers. Expected: {expected_headers}")
+            if not reader.fieldnames or not expected_headers.issubset(reader.fieldnames):
+                results["errors"].append(f"Missing required headers. Expected: {expected_headers}, Got: {reader.fieldnames}")
                 return results
 
             for i, row in enumerate(reader):
@@ -206,7 +211,7 @@ class DISCExternalPipeline:
                         "disc_scores": scores,
                         "disc_profile": profile,
                         "source": "csv_upload",
-                        "row_index": i + 2,  # Account for header
+                        "row_index": i + 2, # Account for header
                         "notes": row.get("notes", "")
                     }
                     results["candidates"].append(candidate_data)
@@ -322,11 +327,8 @@ class DISCExternalPipeline:
         """
         Trả về template CSV cho DISC import
         """
-        template = """candidate_id,Name,D,I,S,C,Notes
-CAND001,Nguyen Van An,8,6,7,5,Sample data
-CAND002,Tran Thi Mai,5,9,6,7,High influence score
-CAND003,Le Hoang Duc,7,5,8,6,Balanced profile"""
-        
+        template = "candidate_id,name,d_score,i_score,s_score,c_score,notes\nCAND001,Nguyen Van An,8,6,7,5,Sample data\nCAND002,Tran Thi Mai,5,9,6,7,High influence score\nCAND003,Le Hoang Duc,7,5,8,6,Balanced profile"
+
         return template
     
     def get_status(self, candidate_id: str) -> Dict[str, Any]:

@@ -31,8 +31,9 @@ def create_app():
     app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key')
     app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
     
-    # Enable CORS for frontend integration
-    CORS(app, origins=['http://localhost:3000', 'http://localhost:5173'])
+    # Enable CORS for frontend integration (development + production)
+    allowed_origins = os.environ.get('CORS_ORIGINS', 'http://localhost:3000,http://localhost:5173').split(',')
+    CORS(app, origins=allowed_origins)
     
     # Register blueprints
     app.register_blueprint(numerology_bp)

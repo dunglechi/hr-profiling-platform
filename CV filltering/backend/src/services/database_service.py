@@ -25,8 +25,9 @@ class DatabaseService:
         """Initializes the Supabase client if credentials are available."""
         url = os.environ.get("SUPABASE_URL")
         key = os.environ.get("SUPABASE_KEY")
-        
-        if not url or not key or "your_supabase" in url:
+
+        # More robust validation for placeholder credentials
+        if (not url or not key or url.startswith('https://your_') or 'placeholder' in url.lower() or 'example' in url.lower()):
             logger.warning("Supabase credentials not found or are placeholders. DatabaseService will run in stub mode.")
             return None
         
@@ -88,6 +89,152 @@ class DatabaseService:
             logger.error(f"Failed to save analysis for candidate '{candidate_id}': {e}")
             return {"success": False, "error": str(e)}
 
+    def save_analyses_batch(self, analyses: List[Dict[str, Any]]) -> Dict[str, Any]:
+        """
+        Saves multiple analysis results in a single batch operation.
+        More efficient than calling save_analysis() multiple times.
+
+        Args:
+            analyses: List of dicts with keys: candidate_id, source_type, raw_data, summary
+
+        Returns:
+            Dict with success status and count of saved records
+        """
+        if not analyses:
+            return {"success": True, "stub": self.is_stub(), "count": 0, "message": "No analyses to save"}
+
+        if self.is_stub():
+            logger.info(f"[STUB] Would batch save {len(analyses)} analyses to DB")
+            return {"success": True, "stub": True, "count": len(analyses)}
+
+        try:
+            saved_count = 0
+            errors = []
+
+            # Prepare batch data for screening_results
+            screening_batch = []
+            for analysis in analyses:
+                candidate_id = analysis.get("candidate_id")
+                source_type = analysis.get("source_type")
+                raw_data = analysis.get("raw_data", {})
+                summary = analysis.get("summary", {})
+
+                try:
+                    # Ensure candidate exists
+                    self._ensure_candidate_exists(candidate_id, summary)
+
+                    # Prepare screening_results data
+                    screening_batch.append({
+                        "candidate_id": candidate_id,
+                        "source_type": source_type,
+                        "raw_data": raw_data,
+                        "summary": summary,
+                        "processed_by": "backend-v1"
+                    })
+
+                    # Save to specific table based on source_type
+                    if source_type == "cv_parsing":
+                        self._save_cv_analysis(candidate_id, raw_data, summary)
+                    elif source_type == "numerology":
+                        self._save_numerology_data(candidate_id, raw_data, summary)
+                    elif source_type.startswith("disc_"):
+                        self._save_disc_assessment(candidate_id, raw_data, summary)
+
+                    # Log activity
+                    self._log_activity(candidate_id, source_type, "analysis_saved_batch")
+
+                    saved_count += 1
+                except Exception as e:
+                    logger.error(f"Error processing candidate {candidate_id} in batch: {e}")
+                    errors.append({"candidate_id": candidate_id, "error": str(e)})
+
+            # Batch insert to screening_results
+            if screening_batch:
+                self.client.table('screening_results').insert(screening_batch).execute()
+
+            logger.info(f"Batch saved {saved_count}/{len(analyses)} analyses")
+
+            return {
+                "success": True,
+                "stub": False,
+                "count": saved_count,
+                "total": len(analyses),
+                "errors": errors if errors else None
+            }
+        except Exception as e:
+            logger.error(f"Batch save failed: {e}")
+            return {"success": False, "error": str(e)}
+
+    def save_analyses_batch(self, analyses: List[Dict[str, Any]]) -> Dict[str, Any]:
+        """
+        Saves multiple analysis results in a single batch operation.
+        More efficient than calling save_analysis() multiple times.
+
+        Args:
+            analyses: List of dicts with keys: candidate_id, source_type, raw_data, summary
+
+        Returns:
+            Dict with success status and count of saved records
+        """
+        if not analyses:
+            return {"success": True, "stub": self.is_stub(), "count": 0, "message": "No analyses to save"}
+
+        if self.is_stub():
+            logger.info(f"[STUB] Would batch save {len(analyses)} analyses to DB")
+            return {"success": True, "stub": True, "count": len(analyses)}
+
+        try:
+            saved_count = 0
+            errors = []
+
+            # Prepare batch data for screening_results
+            screening_batch = []
+            for analysis in analyses:
+                candidate_id = analysis.get("candidate_id")
+                source_type = analysis.get("source_type")
+                raw_data = analysis.get("raw_data", {})
+                summary = analysis.get("summary", {})
+
+                try:
+                    # Ensure candidate exists
+                    self._ensure_candidate_exists(candidate_id, summary)
+
+                    # Prepare screening_results data
+                    screening_batch.append({
+                        "candidate_id": candidate_id,
+                        "source_type": source_type,
+                        "raw_data": raw_data,
+                        "summary": summary,
+                        "processed_by": "backend-v1"
+                    })
+
+                    # Save to specific table based on source_type
+                    if source_type == "cv_parsing":
+                        self._save_cv_analysis(candidate_id, raw_data, summary)
+                    elif source_type == "numerology":
+                        self._save_numerology_data(candidate_id, raw_data, summary)
+                    elif source_type.startswith("disc_"):
+                        self._save_disc_assessment(candidate_id, raw_data, summary)
+
+                    # Log activity
+                    self._log_activity(candidate_id, source_type, "analysis_saved_batch")
+
+                    saved_count += 1
+                except Exception as e:
+                    logger.error(f"Error processing candidate {candidate_id} in batch: {e}")
+                    errors.append({"candidate_id": candidate_id, "error": str(e)})
+
+            # Batch insert to screening_results
+            if screening_batch:
+                self.client.table('screening_results').insert(screening_batch).execute()
+
+            logger.info(f"Batch saved {saved_count}/{len(analyses)} analyses")
+
+            return {"success": True, "stub": False, "count": saved_count, "total": len(analyses), "errors": errors if errors else None}
+        except Exception as e:
+            logger.error(f"Batch save failed: {e}")
+            return {"success": False, "error": str(e)}
+
     def get_recent_analyses(self, limit: int = 20) -> Dict[str, Any]:
         """
         Retrieves the most recent analysis results.
@@ -105,9 +252,9 @@ class DatabaseService:
             }
 
         try:
-            data, count = self.client.table('screening_results').select('*').order('created_at', desc=True).limit(limit).execute()
-            logger.info(f"Retrieved {len(data[1])} recent analyses.")
-            return {"success": True, "stub": False, "data": data[1]}
+            response = self.client.table('screening_results').select('*').order('created_at', desc=True).limit(limit).execute()
+            logger.info(f"Retrieved {len(response.data)} recent analyses.")
+            return {"success": True, "stub": False, "data": response.data}
         except Exception as e:
             logger.error(f"Failed to retrieve recent analyses: {e}")
             return {"success": False, "error": str(e)}
@@ -140,13 +287,15 @@ class DatabaseService:
         try:
             cv_data = {
                 "candidate_id": candidate_id,
-                "parsing_method": raw_data.get("source", "unknown"),
-                "extracted_data": raw_data,
-                "personal_info": summary.get("personalInfo", {}),
-                "education": summary.get("education", []),
-                "experience": summary.get("experience", []),
-                "skills": summary.get("skills", []),
-                "summary_text": summary.get("summary")
+                "file_name": raw_data.get("filename", "unknown"),
+                "parsing_method": raw_data.get("source", {}).get("type", "unknown"),
+                "ai_used": raw_data.get("source", {}).get("aiUsed", False),
+                "personal_info": raw_data.get("personalInfo", {}),
+                "education": raw_data.get("education", []),
+                "experience": raw_data.get("experience", []),
+                "skills": raw_data.get("skills", []),
+                "source_info": raw_data.get("source", {}),
+                "raw_response": raw_data
             }
             self.client.table('cv_analyses').insert(cv_data).execute()
             logger.info(f"Saved CV analysis for {candidate_id}")

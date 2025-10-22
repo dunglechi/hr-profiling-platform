@@ -1,0 +1,103 @@
+# Render Blueprint Configuration
+# HR Profiling Platform - Infrastructure as Code
+# https://render.com/docs/blueprint-spec
+
+services:
+  # ================================
+  # BACKEND - Flask API Service
+  # ================================
+  - type: web
+    name: cv-filtering-backend
+    runtime: python
+    plan: free  # Free tier: 750 hours/month
+    region: singapore  # Closest to Vietnam
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: gunicorn --chdir backend/src --bind 0.0.0.0:$PORT app:app
+    healthCheckPath: /health
+    
+    envVars:
+      # Flask Configuration
+      - key: FLASK_ENV
+        value: production
+      - key: DEBUG
+        value: false
+      - key: SECRET_KEY
+        generateValue: true  # Auto-generate secure key
+      
+      # Supabase (from your existing setup)
+      - key: SUPABASE_URL
+        sync: false  # You'll add this in Render Dashboard
+      - key: SUPABASE_KEY
+        sync: false  # You'll add this in Render Dashboard
+      
+      # Gemini AI
+      - key: GEMINI_API_KEY
+        sync: false  # You'll add this in Render Dashboard
+      
+      # DISC Configuration
+      - key: DISC_CSV_MAX_ROWS
+        value: 1000
+      - key: TESSERACT_CONFIG
+        value: "--oem 3 --psm 6"
+      
+      # CORS Configuration
+      - key: CORS_ORIGINS
+        value: https://cv-filtering-frontend.onrender.com  # Update after frontend deploy
+      
+      # File Upload
+      - key: MAX_CONTENT_LENGTH
+        value: 16777216  # 16MB
+      - key: ALLOWED_EXTENSIONS
+        value: "pdf,docx,csv,xlsx,png,jpg,jpeg"
+
+  # ================================
+  # FRONTEND - React Static Site
+  # ================================
+  - type: web
+    name: cv-filtering-frontend
+    runtime: static
+    buildCommand: cd frontend && npm install && npm run build
+    staticPublishPath: frontend/dist
+    
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    
+    envVars:
+      # API Endpoint (update after backend deploy)
+      - key: VITE_API_URL
+        value: https://cv-filtering-backend.onrender.com/api
+      
+      # Build Configuration
+      - key: NODE_VERSION
+        value: 18
+
+# ================================
+# Database: Supabase (External)
+# ================================
+# You're already using Supabase (cgvxogztpbzvhncwzodr.supabase.co)
+# No additional database service needed!
+# Add SUPABASE_URL and SUPABASE_KEY in Render Dashboard
+
+# ================================
+# NOTES
+# ================================
+# 1. Free tier includes:
+#    - Backend: 750 hours/month (enough for 24/7)
+#    - Frontend: Unlimited static hosting
+#    - Automatic SSL certificates
+#    - Custom domains (optional)
+#
+# 2. After deployment, update:
+#    - CORS_ORIGINS in backend with actual frontend URL
+#    - VITE_API_URL in frontend with actual backend URL
+#
+# 3. Environment variables to add in Render Dashboard:
+#    - SUPABASE_URL
+#    - SUPABASE_KEY
+#    - GEMINI_API_KEY
+#
+# 4. Deployment triggers:
+#    - Auto-deploy on git push to main branch
+#    - Manual deploy button in dashboard

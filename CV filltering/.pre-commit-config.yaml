@@ -1,0 +1,70 @@
+# Pre-commit hooks configuration for CV Filtering Backend
+# Install: pip install pre-commit
+# Setup: pre-commit install
+# Run manually: pre-commit run --all-files
+
+repos:
+  # General file checks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+        exclude: ^docs/
+      - id: end-of-file-fixer
+        exclude: ^docs/
+      - id: check-yaml
+      - id: check-json
+      - id: check-added-large-files
+        args: ['--maxkb=1000']
+      - id: check-merge-conflict
+      - id: detect-private-key
+      - id: mixed-line-ending
+
+  # Python code formatting
+  - repo: https://github.com/psf/black
+    rev: 23.12.1
+    hooks:
+      - id: black
+        args: ['--line-length=127']
+        files: ^backend/src/
+
+  # Import sorting
+  - repo: https://github.com/PyCQA/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+        args: ['--profile', 'black', '--line-length', '127']
+        files: ^backend/src/
+
+  # Linting
+  - repo: https://github.com/PyCQA/flake8
+    rev: 7.0.0
+    hooks:
+      - id: flake8
+        args: ['--max-line-length=127', '--extend-ignore=E203,W503']
+        files: ^backend/src/
+
+  # Security scanning
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.7.6
+    hooks:
+      - id: bandit
+        args: ['-r', 'backend/src']
+        files: ^backend/src/
+
+  # Run quick verification tests before commit
+  - repo: local
+    hooks:
+      - id: verify-fixes
+        name: Verify Critical Bug Fixes
+        entry: python verify_fixes.py
+        language: system
+        pass_filenames: false
+        stages: [commit]
+
+      - id: run-unit-tests
+        name: Run Unit Tests
+        entry: bash -c 'cd backend && python -m pytest src/__tests__/test_fixes_verification.py -q'
+        language: system
+        pass_filenames: false
+        stages: [push]
