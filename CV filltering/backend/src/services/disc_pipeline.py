@@ -11,6 +11,9 @@ import base64
 import io
 import json
 import csv
+import cv2
+import numpy as np
+import pytesseract
 import os
 from datetime import datetime
 
@@ -70,9 +73,6 @@ class DISCExternalPipeline:
             "warnings": warnings
         }
     
-    # NOTE: process_csv_data removed - was duplicate of process_csv_upload
-    # Keeping only process_csv_upload which is actively used by disc_routes.py
-    
     def process_manual_input(self, candidate_id: str, disc_data: Dict[str, Any]) -> Dict[str, Any]:
         """
         Xử lý dữ liệu DISC nhập thủ công
@@ -109,30 +109,63 @@ class DISCExternalPipeline:
                 "candidate_id": candidate_id
             }
     
+    def _preprocess_image_for_ocr(self, image_bytes: bytes) -> np.ndarray:
+        """
+        Tiền xử lý ảnh để tăng độ chính xác cho Tesseract.
+        """
+        # Decode image bytes into an OpenCV image
+        nparr = np.frombuffer(image_bytes, np.uint8)
+        img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+
+        # 1. Convert to grayscale
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+        # 2. Apply thresholding to get a binary image
+        # THRESH_OTSU tự động tìm ngưỡng tối ưu
+        _, binary_img = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+
+        # 3. (Optional but recommended) Denoising
+        denoised_img = cv2.medianBlur(binary_img, 3)
+
+        return denoised_img
+
     def process_ocr_image(self, image_bytes: bytes, candidate_id: str = "unknown") -> Dict[str, Any]:
         """
         Xử lý ảnh survey DISC qua OCR.
-        Hiện tại là stub, chưa tích hợp engine OCR thật.
+        Sử dụng Tesseract OCR engine.
         """
-        # In a real implementation, you would use an OCR engine like Azure Vision or Tesseract.
-        # For now, we return a stub response indicating manual review is needed.
-        
-        logger.info(f"Received OCR image for candidate '{candidate_id}'. OCR engine not implemented.")
-        
-        # The image_bytes are available here to be sent to an OCR service.
-        # image_size = len(image_bytes)
-        # logger.info(f"Image size: {image_size} bytes.")
+        logger.info(f"Processing OCR image for candidate '{candidate_id}' using Tesseract.")
+        try:
+            # 1. Preprocess the image
+            preprocessed_img = self._preprocess_image_for_ocr(image_bytes)
 
-        return {
-            "success": True,
-            "candidate_id": candidate_id,
-            "status": "pending_manual_review",
-            "notes": "OCR engine is not configured. Manual data entry is required.",
-            "requires_manual_review": True,
-            "source": "ocr_upload_stub",
-            "timestamp": datetime.now().isoformat(),
-            "warnings": ["Đây là stub OCR - cần implement OCR thực tế cho production."]
-        }
+            # 2. Use Tesseract to extract text
+            # Cấu hình để Tesseract nhận dạng số và layout của trang
+            custom_config = r'--oem 3 --psm 6'
+            extracted_text = pytesseract.image_to_string(preprocessed_img, config=custom_config)
+
+            # 3. Parse the extracted text to get scores
+            # Đây là phần logic phức tạp, cần phân tích text để tìm ra điểm số.
+            # Ví dụ đơn giản: tìm các dòng có chứa "D:", "I:", "S:", "C:"
+            # NOTE: Logic này cần được làm phức tạp hơn để xử lý form thật.
+            scores = {}
+            # for line in extracted_text.split('\n'):
+            #     if "D:" in line: scores['d_score'] = ...
+            #     ...
+
+            # For now, we'll return the extracted text for manual review
+            return {
+                "success": True,
+                "candidate_id": candidate_id,
+                "status": "pending_manual_review", # Vẫn cần review vì logic parse text chưa hoàn thiện
+                "notes": "OCR extraction completed. Text parsing logic needs refinement.",
+                "extracted_text": extracted_text,
+                "source": "ocr_tesseract",
+                "timestamp": datetime.now().isoformat()
+            }
+        except Exception as e:
+            logger.error(f"Tesseract OCR processing failed for candidate {candidate_id}: {e}", exc_info=True)
+            return {"success": False, "error": f"Lỗi xử lý OCR: {e}"}
     
     def process_csv_upload(self, file_bytes):
         max_rows = int(os.getenv('DISC_CSV_MAX_ROWS', 1000))

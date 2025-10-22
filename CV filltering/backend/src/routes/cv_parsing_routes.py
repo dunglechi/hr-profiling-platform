@@ -26,7 +26,7 @@ def parse_cv_endpoint():
         
         # Use a temporary file to handle the upload securely in memory/temp storage
         # This avoids saving files permanently in the application directory
-        fd, file_path = tempfile.mkstemp(suffix=os.path.splitext(filename)[1])
+        fd, file_path = tempfile.mkstemp(suffix=os.path.splitext(filename)[1]) # Added suffix for better file handling
         
         try:
             # Write uploaded file to temporary location
