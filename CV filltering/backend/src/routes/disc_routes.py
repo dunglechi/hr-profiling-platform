@@ -80,11 +80,25 @@ def upload_csv_disc():
             # Save to database (stubbed)
             db_service = get_db_service()
             for candidate in result.get("candidates", []):
+                # Prepare comprehensive summary for database
+                disc_profile = candidate.get("disc_profile", {})
+                summary_for_db = {
+                    "D": candidate.get("disc_scores", {}).get("d_score"),
+                    "I": candidate.get("disc_scores", {}).get("i_score"),
+                    "S": candidate.get("disc_scores", {}).get("s_score"),
+                    "C": candidate.get("disc_scores", {}).get("c_score"),
+                    "primary_type": disc_profile.get("primary_style"),
+                    "secondary_type": disc_profile.get("secondary_style"),
+                    "interpretation": {
+                        "description": disc_profile.get("description"),
+                        "style_ranking": disc_profile.get("style_ranking")
+                    }
+                }
                 db_service.save_analysis(
                     candidate_id=candidate.get("candidate_id"),
                     source_type="disc_csv",
                     raw_data=candidate,
-                    summary=candidate.get("scores")
+                    summary=summary_for_db
                 )
 
             return jsonify({"success": True, "data": result, "errors": [], "warnings": result["warnings"]}), 200

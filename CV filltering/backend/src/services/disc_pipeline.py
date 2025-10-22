@@ -192,21 +192,24 @@ class DISCExternalPipeline:
                     break
                 
                 try:
-                    d_score = int(row['d_score'])
-                    i_score = int(row['i_score'])
-                    s_score = int(row['s_score'])
-                    c_score = int(row['c_score'])
+                    # Tái sử dụng hàm validate_disc_scores để đảm bảo tính nhất quán
+                    validation = self.validate_disc_scores(row)
+                    if not validation["valid"]:
+                        raise ValueError(validation.get("error", "Invalid score format."))
+                    
+                    scores = validation["scores"]
+                    profile = self.generate_disc_profile(scores)
 
-                    if not all(1 <= score <= 10 for score in [d_score, i_score, s_score, c_score]):
-                        raise ValueError("Scores must be between 1 and 10.")
-
-                    results["candidates"].append({
-                        "candidate_id": row['candidate_id'],
-                        "name": row['name'],
-                        "scores": {"d": d_score, "i": i_score, "s": s_score, "c": c_score},
+                    candidate_data = {
+                        "candidate_id": row.get('candidate_id'),
+                        "name": row.get('name'),
+                        "disc_scores": scores,
+                        "disc_profile": profile,
                         "source": "csv_upload",
-                        "row_index": i + 2 # Account for header
-                    })
+                        "row_index": i + 2,  # Account for header
+                        "notes": row.get("notes", "")
+                    }
+                    results["candidates"].append(candidate_data)
                     results["processed_count"] += 1
                 except (ValueError, KeyError) as e:
                     results["errors"].append(f"Row {i + 2}: Invalid data - {e}")
