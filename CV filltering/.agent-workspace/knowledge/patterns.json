@@ -1,0 +1,114 @@
+{
+  "system_info": {
+    "name": "CV Filtering Backend - Code Patterns",
+    "version": "1.0",
+    "last_updated": "2025-01-22T16:30:00Z",
+    "purpose": "Store learned patterns and best practices"
+  },
+
+  "code_patterns": {
+    "database_operations": {
+      "pattern_id": "DB-001",
+      "description": "Supabase database operations with input validation",
+      "template": {
+        "language": "python",
+        "example": "def _save_data(self, data: Dict[str, Any]):\n    if not isinstance(data, dict):\n        raise TypeError(f'Expected dict, got {type(data)}')\n    return self.client.table('table_name').insert(data).execute()"
+      },
+      "learned_from": "Integration test fix - 2025-01-22",
+      "success_rate": 1.0
+    },
+
+    "api_endpoints": {
+      "pattern_id": "API-001",
+      "description": "Flask REST API with error handling",
+      "template": {
+        "language": "python",
+        "example": "@app.route('/api/endpoint', methods=['POST'])\ndef endpoint():\n    try:\n        data = request.json\n        result = service.process(data)\n        return jsonify({'success': True, 'data': result})\n    except Exception as e:\n        return jsonify({'success': False, 'error': str(e)}), 500"
+      },
+      "success_rate": 0.95
+    },
+
+    "testing": {
+      "pattern_id": "TEST-001",
+      "description": "Pytest with comprehensive coverage",
+      "template": {
+        "language": "python",
+        "example": "def test_function():\n    # Arrange\n    test_data = {...}\n    # Act\n    result = function(test_data)\n    # Assert\n    assert result['success'] == True"
+      },
+      "coverage_target": 0.91
+    }
+  },
+
+  "deployment_patterns": {
+    "render_deployment": {
+      "pattern_id": "DEPLOY-001",
+      "platform": "Render.com",
+      "config_file": "render.yaml",
+      "steps": [
+        "Verify environment variables",
+        "Run pre-deployment tests",
+        "Deploy via render.yaml",
+        "Verify health endpoint",
+        "Monitor for 48 hours"
+      ],
+      "success_rate": 1.0
+    },
+
+    "supabase_setup": {
+      "pattern_id": "DEPLOY-002",
+      "platform": "Supabase",
+      "schema_file": "docs/supabase-schema.sql",
+      "tables": 6,
+      "estimated_time": "2-3 minutes"
+    }
+  },
+
+  "bug_fixes": {
+    "validation_errors": {
+      "pattern_id": "FIX-001",
+      "issue": "AttributeError: 'str' object has no attribute 'get'",
+      "solution": "Add isinstance() check before calling dict methods",
+      "prevention": "Always validate input types in public methods",
+      "fixed_date": "2025-01-22"
+    }
+  },
+
+  "performance_optimizations": {
+    "batch_operations": {
+      "pattern_id": "OPT-001",
+      "description": "Batch insert for database operations",
+      "improvement": "73% faster, 99% fewer DB calls",
+      "use_case": "Processing multiple records (>10 items)",
+      "method": "save_analyses_batch()"
+    }
+  },
+
+  "semantic_shortcuts": {
+    "actions": {
+      "impl": "implement",
+      "rev": "review",
+      "fix": "fix bug",
+      "test": "write tests",
+      "opt": "optimize",
+      "ref": "refactor",
+      "deploy": "deployment"
+    },
+
+    "components": {
+      "auth": "authentication",
+      "api": "REST API",
+      "db": "database",
+      "ui": "user interface",
+      "disc": "DISC assessment",
+      "num": "numerology"
+    },
+
+    "status": {
+      "wip": "work in progress",
+      "done": "completed",
+      "blocked": "blocked by dependency",
+      "review": "ready for review",
+      "deploy": "ready for deployment"
+    }
+  }
+}

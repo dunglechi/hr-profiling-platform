@@ -1,0 +1,13 @@
+# Gemini Pro 2.5 Task Queue
+# Read this file to get your assigned tasks
+# Format: YAML
+
+---
+# INSTRUCTIONS FOR GEMINI:
+# 1. Read this file when user mentions "check your queue"
+# 2. Execute tasks in priority order (HIGH > MEDIUM > LOW)
+# 3. When complete, write result to: .agent-workspace/queue/completed/dev2-{task-id}.result
+# 4. Update your status in: .agent-workspace/monitoring/dashboard.md
+
+# Current tasks will appear below:
+# (CTO will add tasks here)

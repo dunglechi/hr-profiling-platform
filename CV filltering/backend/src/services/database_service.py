@@ -230,6 +230,82 @@ class DatabaseService:
 
             logger.info(f"Batch saved {saved_count}/{len(analyses)} analyses")
 
+            return {
+                "success": True,
+                "stub": False,
+                "count": saved_count,
+                "total": len(analyses),
+                "errors": errors if errors else None
+            }
+        except Exception as e:
+            logger.error(f"Batch save failed: {e}")
+            return {"success": False, "error": str(e)}
+
+    def save_analyses_batch(self, analyses: List[Dict[str, Any]]) -> Dict[str, Any]:
+        """
+        Saves multiple analysis results in a single batch operation.
+        More efficient than calling save_analysis() multiple times.
+
+        Args:
+            analyses: List of dicts with keys: candidate_id, source_type, raw_data, summary
+
+        Returns:
+            Dict with success status and count of saved records
+        """
+        if not analyses:
+            return {"success": True, "stub": self.is_stub(), "count": 0, "message": "No analyses to save"}
+
+        if self.is_stub():
+            logger.info(f"[STUB] Would batch save {len(analyses)} analyses to DB")
+            return {"success": True, "stub": True, "count": len(analyses)}
+
+        try:
+            saved_count = 0
+            errors = []
+
+            # Prepare batch data for screening_results
+            screening_batch = []
+            for analysis in analyses:
+                candidate_id = analysis.get("candidate_id")
+                source_type = analysis.get("source_type")
+                raw_data = analysis.get("raw_data", {})
+                summary = analysis.get("summary", {})
+
+                try:
+                    # Ensure candidate exists
+                    self._ensure_candidate_exists(candidate_id, summary)
+
+                    # Prepare screening_results data
+                    screening_batch.append({
+                        "candidate_id": candidate_id,
+                        "source_type": source_type,
+                        "raw_data": raw_data,
+                        "summary": summary,
+                        "processed_by": "backend-v1"
+                    })
+
+                    # Save to specific table based on source_type
+                    if source_type == "cv_parsing":
+                        self._save_cv_analysis(candidate_id, raw_data, summary)
+                    elif source_type == "numerology":
+                        self._save_numerology_data(candidate_id, raw_data, summary)
+                    elif source_type.startswith("disc_"):
+                        self._save_disc_assessment(candidate_id, raw_data, summary)
+
+                    # Log activity
+                    self._log_activity(candidate_id, source_type, "analysis_saved_batch")
+
+                    saved_count += 1
+                except Exception as e:
+                    logger.error(f"Error processing candidate {candidate_id} in batch: {e}")
+                    errors.append({"candidate_id": candidate_id, "error": str(e)})
+
+            # Batch insert to screening_results
+            if screening_batch:
+                self.client.table('screening_results').insert(screening_batch).execute()
+
+            logger.info(f"Batch saved {saved_count}/{len(analyses)} analyses")
+
             return {"success": True, "stub": False, "count": saved_count, "total": len(analyses), "errors": errors if errors else None}
         except Exception as e:
             logger.error(f"Batch save failed: {e}")
@@ -285,16 +361,28 @@ class DatabaseService:
     def _save_cv_analysis(self, candidate_id: str, raw_data: Dict[str, Any], summary: Dict[str, Any]) -> None:
         """Save CV parsing results to cv_analyses table."""
         try:
+            # Validate raw_data is a dict
+            if not isinstance(raw_data, dict):
+                logger.error(f"raw_data must be a dict, got {type(raw_data)}: {str(raw_data)[:100]}")
+                raise TypeError(f"raw_data must be a dictionary, received {type(raw_data)}")
+
+            # Handle source field - can be string or dict
+            source = raw_data.get("source", {})
+            if isinstance(source, str):
+                source_dict = {"type": source, "aiUsed": source == "gemini"}
+            else:
+                source_dict = source if isinstance(source, dict) else {}
+            
             cv_data = {
                 "candidate_id": candidate_id,
                 "file_name": raw_data.get("filename", "unknown"),
-                "parsing_method": raw_data.get("source", {}).get("type", "unknown"),
-                "ai_used": raw_data.get("source", {}).get("aiUsed", False),
+                "parsing_method": source_dict.get("type", "unknown"),
+                "ai_used": source_dict.get("aiUsed", False),
                 "personal_info": raw_data.get("personalInfo", {}),
                 "education": raw_data.get("education", []),
                 "experience": raw_data.get("experience", []),
                 "skills": raw_data.get("skills", []),
-                "source_info": raw_data.get("source", {}),
+                "source_info": source_dict,
                 "raw_response": raw_data
             }
             self.client.table('cv_analyses').insert(cv_data).execute()
@@ -306,16 +394,25 @@ class DatabaseService:
     def _save_numerology_data(self, candidate_id: str, raw_data: Dict[str, Any], summary: Dict[str, Any]) -> None:
         """Save numerology calculation results to numerology_data table."""
         try:
+            # Validate raw_data is a dict
+            if not isinstance(raw_data, dict):
+                logger.error(f"raw_data must be a dict, got {type(raw_data)}: {str(raw_data)[:100]}")
+                raise TypeError(f"raw_data must be a dictionary, received {type(raw_data)}")
+
             num_data = {
                 "candidate_id": candidate_id,
-                "full_name": raw_data.get("full_name"),
-                "birth_date": raw_data.get("birth_date"),
+                "name_used": raw_data.get("full_name"),
+                "birth_date_used": raw_data.get("birth_date"),
                 "life_path_number": summary.get("life_path_number"),
-                "soul_urge_number": summary.get("soul_urge_number"),
-                "expression_number": summary.get("expression_number"),
-                "personality_number": summary.get("personality_number"),
-                "interpretation": summary.get("interpretation", {}),
-                "raw_calculation": raw_data
+                "birth_number": summary.get("birth_number", summary.get("soul_urge_number")),
+                "life_path_meaning": summary.get("life_path_meaning", summary.get("interpretation", "")),
+                "birth_meaning": summary.get("birth_meaning", ""),
+                "compatibility_note": summary.get("compatibility_note", ""),
+                "name_calculation": raw_data.get("name_calculation", {}),
+                "birth_calculation": raw_data.get("birth_calculation", {}),
+                "combined_insight": summary.get("interpretation", {}),
+                "calculation_status": "available",
+                "warnings": raw_data.get("warnings", [])
             }
             self.client.table('numerology_data').insert(num_data).execute()
             logger.info(f"Saved numerology data for {candidate_id}")
@@ -326,17 +423,24 @@ class DatabaseService:
     def _save_disc_assessment(self, candidate_id: str, raw_data: Dict[str, Any], summary: Dict[str, Any]) -> None:
         """Save DISC assessment results to disc_assessments table."""
         try:
+            # Validate raw_data is a dict
+            if not isinstance(raw_data, dict):
+                logger.error(f"raw_data must be a dict, got {type(raw_data)}: {str(raw_data)[:100]}")
+                raise TypeError(f"raw_data must be a dictionary, received {type(raw_data)}")
+
             disc_data = {
                 "candidate_id": candidate_id,
-                "assessment_method": raw_data.get("source", "unknown"),
-                "d_score": summary.get("D"),
-                "i_score": summary.get("I"),
-                "s_score": summary.get("S"),
-                "c_score": summary.get("C"),
-                "primary_type": summary.get("primary_type"),
-                "secondary_type": summary.get("secondary_type"),
-                "interpretation": summary.get("interpretation", {}),
-                "raw_responses": raw_data.get("responses", {})
+                "upload_method": raw_data.get("source", "csv_upload"),
+                "d_score": summary.get("D", summary.get("d_score")),
+                "i_score": summary.get("I", summary.get("i_score")),
+                "s_score": summary.get("S", summary.get("s_score")),
+                "c_score": summary.get("C", summary.get("c_score")),
+                "primary_style": summary.get("primary_type", summary.get("primary_style")),
+                "secondary_style": summary.get("secondary_type", summary.get("secondary_style")),
+                "style_intensity": summary.get("style_intensity", "medium"),
+                "behavioral_description": str(summary.get("interpretation", "")),
+                "raw_data": raw_data,
+                "source_file_name": raw_data.get("filename", "test_data.csv")
             }
             self.client.table('disc_assessments').insert(disc_data).execute()
             logger.info(f"Saved DISC assessment for {candidate_id}")
@@ -350,7 +454,8 @@ class DatabaseService:
             log_data = {
                 "candidate_id": candidate_id,
                 "activity_type": activity_type,
-                "details": details,
+                "action": details,  # Fixed: action is required field
+                "status": "success",
                 "performed_by": "system"
             }
             self.client.table('activity_logs').insert(log_data).execute()

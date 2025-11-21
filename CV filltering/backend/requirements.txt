@@ -7,6 +7,7 @@ google-generativeai==0.3.2
 supabase==1.2.0
 requests==2.31.0
 gunicorn==21.2.0
+anthropic==0.25.0 # For Claude API
 
 # Added by debug: pandas required by services
 pandas==2.2.3

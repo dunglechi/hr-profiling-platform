@@ -55,7 +55,10 @@ def test_cv_parsing():
     candidate_id = f"TEST-CV-{datetime.now().strftime('%Y%m%d%H%M%S')}"
     
     raw_data = {
-        "source": "gemini",
+        "source": {
+            "type": "gemini",
+            "aiUsed": True
+        },
         "filename": "test_resume.pdf",
         "personalInfo": {
             "name": "Nguyễn Văn Test",
@@ -155,10 +158,10 @@ def test_disc(candidate_id):
     }
     
     summary = {
-        "D": 65,
-        "I": 55,
-        "S": 40,
-        "C": 50,
+        "D": 7,  # Fixed: Scale 1-10 instead of percentage
+        "I": 6,
+        "S": 4,
+        "C": 5,
         "primary_type": "D",
         "secondary_type": "I",
         "interpretation": {

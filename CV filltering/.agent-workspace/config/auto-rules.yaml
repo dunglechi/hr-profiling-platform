@@ -1,0 +1,417 @@
+# Automation Rules for AI Agent Orchestra
+# Version: 3.1 (Enhanced based on evaluation feedback)
+
+# ========================================
+# FILE LOCKING MECHANISM
+# ========================================
+file_locking:
+  enabled: true
+  lock_directory: ".agent-workspace/locks/"
+  lock_timeout: 60  # seconds
+  retry_attempts: 5
+  retry_delay: 2    # seconds
+
+  rules:
+    - before_write: "acquire_lock"
+    - after_write: "release_lock"
+    - stale_lock_threshold: 60  # Force remove if older than 60s
+
+  lock_file_format: "{agent}.lock"
+  lock_content:
+    timestamp: "ISO-8601"
+    process_id: "agent_name"
+    operation: "read|write"
+
+# ========================================
+# TASK DEPENDENCY MANAGEMENT
+# ========================================
+dependency_tracking:
+  enabled: true
+  visualization: ".agent-workspace/monitoring/dependencies.md"
+  format: "mermaid"
+
+  dependency_types:
+    required:
+      description: "Must complete before this task can start"
+      action_on_failure: "BLOCK"
+
+    optional:
+      description: "Nice to have but not blocking"
+      action_on_failure: "CONTINUE"
+
+    parallel:
+      description: "Can run simultaneously"
+      action_on_failure: "INDEPENDENT"
+
+  execution_rules:
+    if_dependency_blocked:
+      - "Update task status to BLOCKED"
+      - "Notify CTO"
+      - "Move to waiting queue"
+
+    if_dependency_failed:
+      - "Evaluate impact"
+      - "Ask CTO for decision"
+      - "Options: SKIP|RETRY|ALTERNATIVE"
+
+# ========================================
+# AUTO-APPROVAL MATRIX (Enhanced)
+# ========================================
+auto_approval:
+  enabled: true
+  threshold: 0.85  # 85% confidence needed
+
+  level_1_instant:
+    description: "Documentation only"
+    conditions:
+      - file_types: [".md", ".txt", ".rst", ".json"]
+      - no_code_changes: true
+      - lines_changed: "<10"
+    action: "INSTANT_APPROVE"
+    delay: 0
+
+  level_2_test_based:
+    description: "Minor changes with tests"
+    conditions:
+      - lines_changed: "<50"
+      - tests_pass: true
+      - no_security_issues: true
+      - no_api_changes: true
+      - coverage_maintained: true
+    action: "APPROVE_AFTER_TESTS"
+    delay: 300  # 5 minutes for tests
+
+  level_3_quick_review:
+    description: "Medium changes"
+    conditions:
+      - lines_changed: "50-100"
+      - tests_pass: true
+      - coverage: ">85%"
+      - no_breaking_changes: true
+    action: "CTO_QUICK_REVIEW"
+    delay: 600  # 10 minutes
+
+  level_4_full_review:
+    description: "Critical or large changes"
+    conditions:
+      - lines_changed: ">100"
+      - OR_affects: ["auth", "payment", "security", "database"]
+      - OR_breaking_changes: true
+    action: "CTO_FULL_REVIEW"
+    delay: "manual"
+    escalate: true
+
+# ========================================
+# HEALTH MONITORING
+# ========================================
+health_checks:
+  enabled: true
+  check_interval: 60  # seconds
+
+  queue_monitoring:
+    pending_tasks_alert: 10
+    stuck_tasks_threshold: 7200  # 2 hours
+    error_rate_threshold: 0.05   # 5%
+
+  agent_monitoring:
+    heartbeat_file: ".agent-workspace/state/{agent}.heartbeat"
+    heartbeat_interval: 300  # 5 minutes
+    timeout_threshold: 600   # 10 minutes
+
+    actions_on_timeout:
+      - "ALERT_CTO"
+      - "MARK_AGENT_OFFLINE"
+      - "REASSIGN_PENDING_TASKS"
+
+  system_metrics:
+    token_usage_limit: 10000  # per hour
+    task_completion_target: 0.85
+    auto_approval_target: 0.90
+
+    alerts:
+      token_usage_warning: 8000
+      token_usage_critical: 9500
+      low_completion_rate: 0.70
+
+# ========================================
+# CIRCUIT BREAKER PATTERN
+# ========================================
+circuit_breaker:
+  enabled: true
+  failure_threshold: 3
+  timeout: 60  # seconds
+  half_open_test_tasks: 1
+
+  states:
+    CLOSED: "Normal operation - all tasks flowing"
+    OPEN: "System paused - blocking new tasks"
+    HALF_OPEN: "Testing - allowing limited tasks"
+
+  triggers:
+    failure_count: 3
+    error_rate: 0.20  # 20%
+    critical_error: true
+
+  recovery:
+    wait_time: 60
+    test_with_simple_task: true
+    success_action: "TRANSITION_TO_CLOSED"
+    failure_action: "RETURN_TO_OPEN"
+
+# ========================================
+# ROLLBACK MECHANISM
+# ========================================
+rollback:
+  enabled: true
+  checkpoint_triggers:
+    - "before_deployment"
+    - "before_critical_task"
+    - "on_manual_request"
+
+  checkpoint_location: ".agent-workspace/state/checkpoints/"
+  checkpoint_retention: 10  # Keep last 10 checkpoints
+
+  checkpoint_content:
+    - "system_state"
+    - "all_queue_files"
+    - "completed_tasks"
+    - "knowledge_base"
+    - "dashboard"
+
+  rollback_triggers:
+    test_failure_rate: ">0.20"
+    critical_error: true
+    manual_command: "ROLLBACK"
+
+  rollback_process:
+    - "PAUSE_ALL_TASKS"
+    - "RESTORE_FROM_CHECKPOINT"
+    - "VERIFY_INTEGRITY"
+    - "RESUME_OR_MANUAL_CHECK"
+
+# ========================================
+# SMART ROUTING
+# ========================================
+smart_routing:
+  enabled: true
+  algorithm: "weighted_scoring"
+
+  scoring_factors:
+    agent_expertise: 0.40
+    current_load: 0.30
+    past_performance: 0.30
+
+  agent_specialization:
+    copilot:
+      strengths: ["frontend", "api", "testing", "quick_fixes"]
+      bonus_score: 0.2
+
+    gemini:
+      strengths: ["backend", "database", "optimization", "analysis"]
+      bonus_score: 0.2
+
+  load_balancing:
+    max_queue_size: 5
+    if_overloaded: "ASSIGN_TO_OTHER_AGENT"
+    preference_override: true
+
+# ========================================
+# PATTERN LEARNING
+# ========================================
+pattern_learning:
+  enabled: true
+  auto_extract: true
+
+  extraction_triggers:
+    - task_status: "COMPLETED"
+    - success_rate: ">0.90"
+    - reusable: true
+
+  pattern_metrics:
+    - avg_completion_time
+    - success_rate
+    - token_savings
+    - usage_count
+
+  pattern_evolution:
+    min_usage_before_optimize: 3
+    review_interval: "weekly"
+    deprecate_if_unused: "monthly"
+
+# ========================================
+# BATCH PROCESSING
+# ========================================
+batch_processing:
+  enabled: true
+  trigger_threshold: 3  # If 3+ similar tasks
+
+  similarity_detection:
+    - same_type: true
+    - same_files: true
+    - same_agent: preferred
+
+  batch_benefits:
+    token_savings: 0.60  # 60% reduction
+    time_savings: 0.40   # 40% faster
+
+  execution_mode:
+    sequential: "For dependent tasks"
+    parallel: "For independent tasks"
+
+# ========================================
+# ERROR RECOVERY
+# ========================================
+error_recovery:
+  enabled: true
+
+  retry_policy:
+    max_attempts: 3
+    backoff_strategy: "exponential"
+    initial_delay: 10  # seconds
+    max_delay: 300
+
+  error_classification:
+    transient:
+      - "Network timeout"
+      - "Rate limit"
+      - "Temporary file lock"
+      action: "RETRY"
+
+    permanent:
+      - "Invalid task format"
+      - "Missing dependencies"
+      - "Permission denied"
+      action: "ESCALATE_TO_CTO"
+
+    critical:
+      - "Data corruption"
+      - "Security breach"
+      - "System integrity"
+      action: "HALT_AND_NOTIFY"
+
+# ========================================
+# NOTIFICATION RULES
+# ========================================
+notifications:
+  enabled: true
+  channels: ["dashboard", "log_file"]
+
+  priority_levels:
+    INFO: "Normal operations"
+    WARNING: "Potential issues"
+    ERROR: "Immediate attention needed"
+    CRITICAL: "System emergency"
+
+  escalation_path:
+    - level: "INFO"
+      action: "LOG_ONLY"
+
+    - level: "WARNING"
+      action: "UPDATE_DASHBOARD"
+
+    - level: "ERROR"
+      action: "NOTIFY_CTO"
+
+    - level: "CRITICAL"
+      action: "HALT_SYSTEM_AND_ALERT"
+
+# ========================================
+# PERFORMANCE TUNING
+# ========================================
+performance:
+  optimization_targets:
+    throughput: ">10 tasks/hour"
+    token_per_task: "<300"
+    auto_approval_rate: ">0.85"
+    error_rate: "<0.01"
+
+  auto_tuning:
+    enabled: true
+    learning_rate: 0.1
+    adjustment_interval: "daily"
+
+  caching:
+    enabled: true
+    cache_patterns: true
+    cache_decisions: true
+    ttl: 3600  # 1 hour
+
+# ========================================
+# AUDIT & COMPLIANCE
+# ========================================
+audit:
+  enabled: true
+  log_location: ".agent-workspace/logs/"
+  retention: "30 days"
+
+  log_events:
+    - task_assigned
+    - task_completed
+    - task_failed
+    - approval_decision
+    - pattern_learned
+    - error_occurred
+
+  compliance_checks:
+    - all_tasks_tracked: true
+    - results_preserved: true
+    - decisions_documented: true
+    - changes_reversible: true
+
+# ========================================
+# SECURITY
+# ========================================
+security:
+  enabled: true
+
+  file_permissions:
+    queues: "rw-r-----"
+    results: "rw-r-----"
+    config: "r--r-----"
+
+  sensitive_data:
+    scan_enabled: true
+    patterns:
+      - "API_KEY"
+      - "PASSWORD"
+      - "SECRET"
+      - "TOKEN"
+    action_on_detect: "REDACT_AND_WARN"
+
+  code_review_gates:
+    security_scan: true
+    dependency_check: true
+    vulnerability_scan: true
+
+# ========================================
+# SYSTEM LIMITS
+# ========================================
+limits:
+  max_parallel_tasks_per_agent: 3
+  max_queue_size: 20
+  max_task_execution_time: 3600  # 1 hour
+  max_file_size: 10485760  # 10MB
+  max_result_size: 1048576  # 1MB
+
+  rate_limiting:
+    max_tasks_per_hour: 50
+    max_tokens_per_hour: 10000
+    cooldown_on_limit: 300  # 5 minutes
+
+# ========================================
+# VERSION CONTROL
+# ========================================
+versioning:
+  system_version: "3.1"
+  config_version: "1.0"
+  last_updated: "2025-01-22T17:00:00Z"
+
+  changelog:
+    - version: "3.1"
+      date: "2025-01-22"
+      changes:
+        - "Added file locking mechanism"
+        - "Enhanced dependency tracking"
+        - "Implemented health monitoring"
+        - "Added circuit breaker pattern"
+        - "Enhanced rollback capabilities"

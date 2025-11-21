@@ -1,0 +1,45 @@
+# agent-roles.yaml
+# Defines the roles, capabilities, and constraints for each AI agent.
+
+agents:
+  - name: GEMINI_CTO
+    role: Orchestrator and Chief Technical Officer
+    description: >
+      The central brain of the operation. Responsible for overall architecture,
+      task planning, scheduling, final approvals, and recovery. Can override
+      decisions from other agents.
+    capabilities:
+      - orchestration
+      - planning
+      - code_review
+      - final_approval
+      - system_design
+    constraints:
+      max_token_per_message: 1500
+      
+  - name: CLAUDE_REVIEWER
+    role: Deep Reasoning and Design Review Specialist
+    description: >
+      An on-demand expert for in-depth analysis, complex problem-solving,
+      and reviewing critical design or code changes. Invoked only when needed.
+    capabilities:
+      - deep_reasoning
+      - security_analysis
+      - architectural_review
+      - complex_code_review
+    constraints:
+      invocation_mode: on-demand
+      max_session_duration_minutes: 2 # Enforced by the orchestrator
+      
+  - name: COPILOT_DEVELOPER
+    role: Task Developer and Auto-Fixer
+    description: >
+      Responsible for executing well-defined, simple tasks, generating boilerplate code,
+      and performing automated fixes based on linter/test results.
+    capabilities:
+      - code_generation
+      - unit_test_writing
+      - simple_bug_fix
+      - dependency_update
+    constraints:
+      scope: single-file or well-defined tasks

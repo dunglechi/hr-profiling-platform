@@ -1,0 +1,65 @@
+# orchestration.yaml
+# Defines the workflow, states, and routing rules for tasks.
+
+workflow:
+  initial_state: NEW
+
+  states:
+    NEW:
+      description: Task has been created and is waiting for planning.
+      transitions:
+        - to: PLANNING
+          action: plan_task
+          agent: GEMINI_CTO
+    PLANNING:
+      description: Task is being analyzed and broken down into steps by the CTO.
+      transitions:
+        - to: DEVELOPMENT
+          action: assign_development
+          agent: GEMINI_CTO
+    DEVELOPMENT:
+      description: Task is being implemented by a developer agent.
+      default_agent: COPILOT_DEVELOPER
+      transitions:
+        - to: REVIEW
+          action: submit_for_review
+          agent: GEMINI_CTO # Gemini receives the submission first
+    REVIEW:
+      description: Code or design is under review.
+      action: perform_review
+      routing_rules:
+        - condition: "task.metadata.PreferredReviewer == 'CLAUDE'"
+          agent: CLAUDE_REVIEWER
+        - condition: "default"
+          agent: GEMINI_CTO # Gemini handles standard reviews
+      transitions:
+        - to: APPROVED
+          action: approve_changes
+          agent: GEMINI_CTO
+        - to: DEVELOPMENT # Re-assign for changes
+          action: request_changes
+          agent: GEMINI_CTO
+    APPROVED:
+      description: Changes have been approved and are ready for merging.
+      transitions:
+        - to: DONE
+          action: merge_and_close
+          agent: GEMINI_CTO
+    DONE:
+      description: Task is complete.
+      
+# Auto-approval rules - defined as behavioral thresholds
+# Gemini-CTO can override these based on context.
+auto_approval_thresholds:
+  - rule: "Allow merge if task is 'trivial_change' and tests pass"
+    description: "Auto-approve documentation updates, typo fixes if CI is green."
+    confidence_score: 0.98
+  - rule: "Allow merge if change is from 'COPILOT_DEVELOPER' and cyclomatic_complexity < 5"
+    description: "Auto-approve simple fixes that don't increase code complexity."
+    confidence_score: 0.95
+
+# State and Logging Configuration
+persistence:
+  state_file: ".agent-workspace/state/current.state"
+  log_file: ".agent-workspace/logs/decisions.log"
+  checkpoint_interval_minutes: 5

@@ -1,0 +1,31 @@
+task_id: "TASK-001-SETUP-ENV-AND-TEST"
+priority: "HIGH"
+type: "SETUP_TEST"
+assigned_at: "2025-10-23T10:00:00Z"
+deadline: "2025-10-23T11:00:00Z"
+auto_approve: false
+
+title: "Set up environment and run initial integration test"
+
+details: |
+  1. Create a new file at `backend/.env`.
+  2. Populate it with the following content, using the structure from `backend/.env.example`:
+     SUPABASE_URL=https://cgvxogztpbzvhncwzodr.supabase.co
+     SUPABASE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNndnhvZ3p0cGJ6dmhuY3d6b2RyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjExMTEzNzYsImV4cCI6MjA3NjY4NzM3Nn0.GI-6843fw1ymXRE7z9ZeGFq3nOpe5fwXR3FFT5dXiF4
+     GEMINI_API_KEY=YOUR_GEMINI_API_KEY_HERE # Leave this as a placeholder
+     FLASK_ENV=development
+     FLASK_DEBUG=1
+  3. Execute the command: `python test-supabase-integration.py`
+  4. Report the full output of the test script.
+
+files:
+  - "backend/.env.example"
+  - "test-supabase-integration.py"
+
+expected_output:
+  - "Confirmation that `backend/.env` was created."
+  - "Full stdout and stderr from the `python test-supabase-integration.py` command."
+
+success_criteria:
+  - "`backend/.env` file is created correctly."
+  - "Test script runs without crashing."

@@ -1,0 +1,6 @@
+# CTO Task Queue
+# Tasks assigned TO the CTO for review/decision
+# Format: YAML
+
+# Currently empty - CTO is the orchestrator
+# Agents can add tasks here that require CTO review
