@@ -1,16 +1,22 @@
 import os
 import json
 from datetime import datetime
+from dotenv import load_dotenv
+
+# Load environment variables FIRST, before importing services
+load_dotenv()
+
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
 import tempfile
 import logging
 
-# Import services
+# Import services (AFTER loading .env)
 from services.cv_parsing_service import CVParsingService
 from services.numerology_service import NumerologyService
 from services.database_service import DatabaseService
+
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

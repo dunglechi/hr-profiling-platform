@@ -51,12 +51,3 @@ export const useCVParsing = (): UseCVParsingReturn => {
 
   return { cvData, isLoading, error, uploadFile, resetState };
 };
-
-  return {
-    cvData,
-    isLoading,
-    error,
-    uploadFile,
-    resetState,
-  };
-};

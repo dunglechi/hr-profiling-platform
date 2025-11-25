@@ -3,6 +3,8 @@
  * Handles all communication với Flask services
  */
 
+
+import { CVData } from '../types';
 const API_BASE_URL = 'http://localhost:5000/api';
 
 interface ApiResponse<T = any> {
@@ -50,7 +52,14 @@ interface DISCData {
   upload_method: string;
 }
 
-import { CVData } from '../types';
+interface NumerologyData {
+  life_path: number;
+  expression: number;
+  soul_urge: number;
+  personality: number;
+  interpretation?: string;
+}
+
 
 class BackendApiClient {
   private baseUrl: string;
